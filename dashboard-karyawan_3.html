@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Dashboard Karyawan — ICABEEE TEAM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0D0D12; --muted:#8B8B96; --coral:#FF5C39; --gold:#f5a020; --violet:#8B5CF6;
+    --bg:#F5F4F7; --df:'Sora',sans-serif; --di:'Inter',sans-serif;
+    --ease:cubic-bezier(.16,1,.3,1);
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  body{ font-family:var(--di); background:var(--bg); color:var(--ink); min-height:100vh; padding-bottom:40px; }
+
+  .topbar{
+    background:linear-gradient(135deg,#2a1c3f,#1a1130); padding:20px 20px 44px;
+    border-radius:0 0 28px 28px; position:relative; overflow:hidden;
+  }
+  .topbar::before{
+    content:''; position:absolute; width:200px; height:200px; border-radius:50%;
+    top:-80px; right:-40px; background:radial-gradient(circle,rgba(255,92,57,.4),transparent 70%);
+  }
+  .topbar-row{ display:flex; justify-content:space-between; align-items:center; position:relative; z-index:2; }
+  .greet{ color:#fff; }
+  .greet .hi{ font-size:.78rem; color:rgba(255,255,255,.6); }
+  .greet .name{ font-family:var(--df); font-weight:800; font-size:1.15rem; margin-top:2px; }
+  .logout-btn{
+    width:38px; height:38px; border-radius:12px; border:none; cursor:pointer;
+    background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center;
+  }
+  .logout-btn svg{ width:18px; height:18px; color:#fff; }
+
+  .wrap{ max-width:520px; margin:-28px auto 0; padding:0 16px; position:relative; z-index:3; }
+
+  .status-card{
+    background:#fff; border-radius:24px; padding:26px 22px; text-align:center;
+    box-shadow:0 20px 50px rgba(0,0,0,.1); margin-bottom:18px;
+    animation:fadeUp .5s var(--ease);
+  }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:none;} }
+  .status-row{ display:flex; align-items:center; justify-content:center; gap:7px; margin-bottom:6px; }
+  .status-dot{ width:10px; height:10px; border-radius:50%; }
+  .status-dot.off{ background:#D1D5DB; }
+  .status-dot.on{ background:#22C55E; box-shadow:0 0 0 4px rgba(34,197,94,.2); animation:pulse 1.5s ease infinite; }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.45;} }
+  .status-label{ font-size:.8rem; color:var(--muted); font-weight:600; }
+  .timer{ font-family:var(--df); font-weight:800; font-size:2.7rem; margin:12px 0 22px; font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
+
+  .mini-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; }
+  .mini-stat{ background:#fff; border-radius:16px; padding:14px 10px; text-align:center; box-shadow:0 6px 18px rgba(0,0,0,.05); }
+  .mini-num{ font-family:var(--df); font-weight:800; font-size:.95rem; color:var(--coral); }
+  .mini-label{ font-size:.66rem; color:var(--muted); margin-top:3px; }
+
+  .big-btn{
+    width:100%; padding:16px; border:none; border-radius:16px; cursor:pointer;
+    font-family:var(--df); font-weight:700; font-size:.95rem; color:#fff;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    transition:transform .15s;
+  }
+  .big-btn:active{ transform:scale(.98); }
+  .big-btn svg{ width:18px; height:18px; }
+  .big-btn.start{ background:linear-gradient(135deg,#22C55E,#16A34A); box-shadow:0 10px 26px rgba(34,197,94,.3); }
+  .big-btn.stop{ background:linear-gradient(135deg,var(--coral),var(--gold)); box-shadow:0 10px 26px rgba(255,92,57,.3); }
+  .big-btn:disabled{ opacity:.6; }
+
+  .section-title{ font-family:var(--df); font-weight:700; font-size:.95rem; margin:22px 4px 12px; }
+
+  .history-item{
+    background:#fff; border-radius:18px; padding:16px 16px; margin-bottom:10px;
+    box-shadow:0 6px 18px rgba(0,0,0,.05); display:flex; gap:12px;
+    animation:fadeUp .4s var(--ease);
+  }
+  .history-body{ flex:1; min-width:0; }
+  .history-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:6px; }
+  .history-date{ font-size:.74rem; color:var(--muted); }
+  .history-duration{ font-family:var(--df); font-weight:700; font-size:.8rem; color:var(--coral); white-space:nowrap; }
+  .history-grid{ display:flex; flex-wrap:wrap; gap:8px 14px; font-size:.76rem; color:var(--ink); }
+  .history-grid b{ font-weight:700; }
+  .history-notes{ font-size:.75rem; color:var(--muted); margin-top:6px; font-style:italic; }
+  .empty-state{ text-align:center; color:var(--muted); font-size:.85rem; padding:34px 0; }
+
+  /* modal */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(10,7,20,.55); backdrop-filter:blur(3px); display:none;
+    align-items:flex-end; justify-content:center; z-index:50;
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal{
+    background:#fff; border-radius:26px 26px 0 0; padding:26px 22px 30px; width:100%; max-width:480px;
+    max-height:90vh; overflow-y:auto; animation:slideUp .35s var(--ease);
+  }
+  @keyframes slideUp{ from{ transform:translateY(100%); } to{ transform:translateY(0); } }
+  .modal-handle{ width:40px; height:4px; background:#E5E7EB; border-radius:99px; margin:0 auto 18px; }
+  .modal h3{ font-family:var(--df); font-weight:700; font-size:1.05rem; margin-bottom:18px; }
+  .modal label{ font-size:.78rem; font-weight:700; display:block; margin-bottom:6px; }
+  .modal input, .modal textarea{
+    width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid #ECECEF;
+    font-family:var(--di); font-size:.88rem; margin-bottom:16px; outline:none; background:#FAFAFB;
+  }
+  .modal input:focus, .modal textarea:focus{ border-color:var(--coral); background:#fff; }
+
+  .modal-btns{ display:flex; gap:10px; margin-top:4px; }
+  .modal-btns button{ flex:1; padding:13px; border-radius:12px; border:none; cursor:pointer; font-family:var(--df); font-weight:700; font-size:.85rem; }
+  .modal-btns .cancel{ background:#F3F4F6; color:var(--ink); }
+  .modal-btns .confirm{ background:linear-gradient(135deg,var(--coral),var(--gold)); color:#fff; }
+  .modal-btns .confirm:disabled{ opacity:.6; }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; padding:12px 22px; border-radius:12px;
+    font-size:.85rem; opacity:0; transition:all .3s; z-index:60; pointer-events:none;
+    display:flex; align-items:center; gap:8px;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast svg{ width:16px; height:16px; }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-row">
+      <div class="greet">
+        <div class="hi">Halo 👋</div>
+        <div class="name" id="userName">Karyawan</div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <div class="status-card">
+      <div class="status-row"><span class="status-dot off" id="statusDot"></span><span class="status-label" id="statusLabel">Belum Live</span></div>
+      <div class="timer" id="timer">00:00:00</div>
+      <button class="big-btn start" id="startBtn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg> Mulai Live
+      </button>
+      <button class="big-btn stop" id="stopBtn" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg> Selesai Live
+      </button>
+    </div>
+
+    <div class="mini-stats">
+      <div class="mini-stat"><div class="mini-num" id="statMyKomisi">Rp 0</div><div class="mini-label">Total Komisi</div></div>
+      <div class="mini-stat"><div class="mini-num" id="statMyHours">0j 0m</div><div class="mini-label">Jam Kerja</div></div>
+      <div class="mini-stat"><div class="mini-num" id="statMySessions">0</div><div class="mini-label">Sesi Live</div></div>
+    </div>
+
+    <div class="section-title">Riwayat Live</div>
+    <div id="historyList">
+      <div class="empty-state">Belum ada riwayat live</div>
+    </div>
+
+  </div>
+
+  <!-- Modal isi data selesai live -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <h3>Isi Data Live</h3>
+      <form id="endForm">
+
+        <label>Jumlah Produk Terjual (Mukenah)</label>
+        <input type="number" id="productsSold" min="0" required placeholder="contoh: 12">
+
+        <label>Penghasilan dari Live (Rp)</label>
+        <input type="number" id="revenue" min="0" required placeholder="contoh: 1500000">
+
+        <label>Jumlah Viewer</label>
+        <input type="number" id="viewers" min="0" required placeholder="contoh: 320">
+
+        <label>Catatan / Kendala (opsional)</label>
+        <textarea id="notes" rows="3" placeholder="misal: koneksi sempat putus, banyak nanya ukuran, dll"></textarea>
+
+        <div class="modal-btns">
+          <button type="button" class="cancel" id="cancelEnd">Batal</button>
+          <button type="submit" class="confirm" id="confirmEndBtn">Simpan & Selesai</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, collection, addDoc, updateDoc,
+      query, where, orderBy, onSnapshot, Timestamp
+    } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB2Fczb4wGbF9ah0mQuuZi8WWaim_hQB4M",
+      authDomain: "icabeee-team-app.firebaseapp.com",
+      projectId: "icabeee-team-app",
+      storageBucket: "icabeee-team-app.firebasestorage.app",
+      messagingSenderId: "71257065015",
+      appId: "1:71257065015:web:783a2515d48763aec361b2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let currentUserName = '';
+    let activeSessionId = null;
+    let activeSessionStart = null;
+    let timerInterval = null;
+    let commission = { percent: 0, perProduct: 0 };
+
+    function calcCommission(session) {
+      const rev = Number(session.revenue) || 0;
+      const qty = Number(session.productsSold) || 0;
+      return rev * (commission.percent / 100) + qty * commission.perProduct;
+    }
+
+    const statusDot = document.getElementById('statusDot');
+    const statusLabel = document.getElementById('statusLabel');
+    const timerEl = document.getElementById('timer');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const historyList = document.getElementById('historyList');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const endForm = document.getElementById('endForm');
+    const toast = document.getElementById('toast');
+    const userNameEl = document.getElementById('userName');
+    const confirmEndBtn = document.getElementById('confirmEndBtn');
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function formatDuration(ms) {
+      const totalSec = Math.floor(ms / 1000);
+      const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+      const s = String(totalSec % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const elapsed = Date.now() - activeSessionStart.toMillis();
+        timerEl.textContent = formatDuration(elapsed);
+      }, 1000);
+    }
+
+    function setLiveUI(isLive) {
+      if (isLive) {
+        statusDot.className = 'status-dot on';
+        statusLabel.textContent = 'Sedang Live';
+        startBtn.style.display = 'none';
+        stopBtn.style.display = 'flex';
+        startTimer();
+      } else {
+        statusDot.className = 'status-dot off';
+        statusLabel.textContent = 'Belum Live';
+        startBtn.style.display = 'flex';
+        stopBtn.style.display = 'none';
+        clearInterval(timerInterval);
+        timerEl.textContent = '00:00:00';
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (!snap.exists() || snap.data().role !== 'karyawan') {
+        window.location.href = 'login.html';
+        return;
+      }
+      currentUser = user;
+      currentUserName = snap.data().name || user.email;
+      userNameEl.textContent = currentUserName;
+      onSnapshot(doc(db, 'config', 'commission'), (csnap) => {
+        if (csnap.exists()) {
+          commission = { percent: Number(csnap.data().percent) || 0, perProduct: Number(csnap.data().perProduct) || 0 };
+        }
+      });
+      listenActiveSession();
+      listenHistory();
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+    function listenActiveSession() {
+      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'active'));
+      onSnapshot(q, (snap) => {
+        if (!snap.empty) {
+          const d = snap.docs[0];
+          activeSessionId = d.id;
+          activeSessionStart = d.data().startTime;
+          setLiveUI(true);
+        } else {
+          activeSessionId = null;
+          setLiveUI(false);
+        }
+      });
+    }
+
+    function listenHistory() {
+      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'));
+      onSnapshot(q, (snap) => {
+        if (snap.empty) {
+          historyList.innerHTML = '<div class="empty-state">Belum ada riwayat live</div>';
+          document.getElementById('statMyKomisi').textContent = 'Rp 0';
+          document.getElementById('statMyHours').textContent = '0j 0m';
+          document.getElementById('statMySessions').textContent = '0';
+          return;
+        }
+        historyList.innerHTML = '';
+        let totalKomisi = 0, totalMinutes = 0, totalSessions = 0;
+        snap.forEach((d) => {
+          const s = d.data();
+          totalSessions++;
+          totalKomisi += calcCommission(s);
+          const start = s.startTime?.toDate();
+          const end = s.endTime?.toDate();
+          const durMin = start && end ? Math.round((end - start) / 60000) : 0;
+          totalMinutes += durMin;
+          const dateStr = start ? start.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-';
+          const timeStr = start && end ? `${start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})} - ${end.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}` : '-';
+
+          const el = document.createElement('div');
+          el.className = 'history-item';
+          el.innerHTML = `
+            <div class="history-body">
+              <div class="history-top">
+                <div class="history-date">${dateStr} · ${timeStr}</div>
+                <div class="history-duration">${Math.floor(durMin/60)}j ${durMin%60}m</div>
+              </div>
+              <div class="history-grid">
+                <div>Produk: <b>${s.productsSold ?? 0}</b></div>
+                <div>Viewer: <b>${s.viewers ?? 0}</b></div>
+                <div>Penghasilan: <b>Rp ${Number(s.revenue ?? 0).toLocaleString('id-ID')}</b></div>
+              </div>
+              ${s.notes ? `<div class="history-notes">"${s.notes}"</div>` : ''}
+            </div>
+          `;
+          historyList.appendChild(el);
+        });
+
+        document.getElementById('statMyKomisi').textContent = 'Rp ' + Math.round(totalKomisi).toLocaleString('id-ID');
+        document.getElementById('statMyHours').textContent = `${Math.floor(totalMinutes/60)}j ${totalMinutes%60}m`;
+        document.getElementById('statMySessions').textContent = totalSessions;
+      });
+    }
+
+    startBtn.addEventListener('click', async () => {
+      startBtn.disabled = true;
+      try {
+        await addDoc(collection(db, 'sessions'), {
+          uid: currentUser.uid, employeeName: currentUserName, platform: 'TikTok',
+          status: 'active', startTime: Timestamp.now(), endTime: null,
+          productsSold: null, revenue: null, viewers: null, notes: ''
+        });
+        showToast('Live dimulai. Semangat! 🎉');
+      } catch (err) {
+        showToast('Gagal memulai live, coba lagi.');
+      }
+      startBtn.disabled = false;
+    });
+
+    stopBtn.addEventListener('click', () => modalOverlay.classList.add('show'));
+    document.getElementById('cancelEnd').addEventListener('click', () => {
+      modalOverlay.classList.remove('show');
+    });
+
+    endForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!activeSessionId) return;
+      confirmEndBtn.disabled = true;
+      confirmEndBtn.textContent = 'Menyimpan…';
+
+      const productsSold = Number(document.getElementById('productsSold').value);
+      const revenue = Number(document.getElementById('revenue').value);
+      const viewers = Number(document.getElementById('viewers').value);
+      const notes = document.getElementById('notes').value.trim();
+
+      try {
+        await updateDoc(doc(db, 'sessions', activeSessionId), {
+          status: 'selesai', endTime: Timestamp.now(),
+          productsSold, revenue, viewers, notes
+        });
+
+        modalOverlay.classList.remove('show');
+        endForm.reset();
+        showToast('Data live tersimpan ✓');
+      } catch (err) {
+        showToast('Gagal menyimpan, coba lagi.');
+      }
+      confirmEndBtn.disabled = false;
+      confirmEndBtn.textContent = 'Simpan & Selesai';
+    });
+  </script>
+</body>
+</html>

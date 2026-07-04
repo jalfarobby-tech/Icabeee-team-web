@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Owner — ICABEEE TEAM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#0D0D12; --muted:#6B7280; --violet:#1E2235; --coral:#FF5C39; --gold:#f5a020;
+    --bg:#F5F4F1; --line:#EDECE8; --df:'Sora',sans-serif; --di:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:var(--di); background:var(--bg); color:var(--ink); min-height:100vh; }
+
+  .topbar{
+    background:#fff; padding:14px 22px; display:flex; align-items:center; justify-content:space-between;
+    box-shadow:0 2px 10px rgba(0,0,0,.05); position:sticky; top:0; z-index:20;
+  }
+  .logo{ font-family:var(--df); font-weight:800; font-size:1.02rem; }
+  .logo span{ color:var(--coral); }
+  .logout-btn{
+    border:none; background:#F3F4F6; color:var(--ink); padding:8px 16px; border-radius:10px;
+    font-family:var(--df); font-weight:600; font-size:.8rem; cursor:pointer;
+  }
+
+  .tabs{
+    display:flex; gap:4px; max-width:1080px; margin:0 auto; padding:14px 18px 0;
+    overflow-x:auto;
+  }
+  .tab-btn{
+    border:none; background:transparent; padding:10px 18px; border-radius:10px 10px 0 0;
+    font-family:var(--df); font-weight:700; font-size:.82rem; color:var(--muted);
+    cursor:pointer; white-space:nowrap; position:relative;
+  }
+  .tab-btn.active{ color:var(--ink); background:#fff; }
+  .tab-btn.active::after{
+    content:''; position:absolute; bottom:-1px; left:0; right:0; height:3px;
+    background:linear-gradient(90deg,var(--coral),var(--gold)); border-radius:3px 3px 0 0;
+  }
+
+  .wrap{ max-width:1080px; margin:0 auto; padding:20px 18px 60px; }
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+
+  .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:20px; }
+  .stat-card{
+    background:#fff; border-radius:18px; padding:18px 20px; box-shadow:0 4px 16px rgba(0,0,0,.05);
+    position:relative; overflow:hidden;
+  }
+  .stat-card::before{
+    content:''; position:absolute; top:-30px; right:-30px; width:80px; height:80px;
+    border-radius:50%; background:radial-gradient(circle,rgba(255,92,57,.12),transparent 70%);
+  }
+  .stat-num{ font-family:var(--df); font-weight:800; font-size:1.5rem; position:relative; }
+  .stat-label{ font-size:.74rem; color:var(--muted); margin-top:4px; position:relative; }
+
+  .chart-grid{ display:grid; grid-template-columns:1.4fr 1fr; gap:16px; margin-bottom:20px; }
+  @media (max-width:800px){ .chart-grid{ grid-template-columns:1fr; } }
+  .chart-card{ background:#fff; border-radius:18px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.05); }
+  .chart-card h4{ font-family:var(--df); font-weight:700; font-size:.88rem; margin-bottom:14px; }
+  .chart-wrap{ position:relative; height:220px; }
+
+  .leaderboard-item{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); }
+  .leaderboard-item:last-child{ border-bottom:none; }
+  .lb-rank{ font-family:var(--df); font-weight:800; font-size:.85rem; color:var(--muted); width:20px; }
+  .lb-avatar{
+    width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--violet),#8B5CF6);
+    color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--df);
+    font-weight:800; font-size:.72rem; flex-shrink:0;
+  }
+  .lb-info{ flex:1; min-width:0; }
+  .lb-name{ font-size:.82rem; font-weight:600; }
+  .lb-value{ font-size:.72rem; color:var(--muted); }
+
+  .section-title{ font-family:var(--df); font-weight:700; font-size:1rem; margin:6px 0 12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+  .add-btn{
+    border:none; background:linear-gradient(135deg,var(--coral),var(--gold)); color:#fff; padding:9px 16px; border-radius:10px;
+    font-family:var(--df); font-weight:700; font-size:.78rem; cursor:pointer;
+  }
+
+  .emp-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:12px; }
+  .emp-card{ background:#fff; border-radius:18px; padding:18px 20px; box-shadow:0 4px 16px rgba(0,0,0,.05); }
+  .emp-top{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .emp-avatar{
+    width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--violet),#8B5CF6);
+    color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--df);
+    font-weight:800; font-size:.78rem; flex-shrink:0; position:relative;
+  }
+  .dot{ position:absolute; bottom:-1px; right:-1px; width:10px; height:10px; border-radius:50%; border:2px solid #fff; }
+  .dot.on{ background:#22C55E; }
+  .dot.off{ background:#D1D5DB; }
+  .emp-name{ font-family:var(--df); font-weight:700; font-size:.88rem; }
+  .emp-status{ font-size:.7rem; color:var(--muted); }
+  .emp-row{ display:flex; justify-content:space-between; font-size:.78rem; padding:4px 0; }
+  .emp-row b{ color:var(--ink); }
+  .emp-row.komisi b{ color:var(--coral); }
+
+  .filter-bar{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; align-items:end; }
+  .filter-bar label{ font-size:.72rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px; }
+  .filter-bar input{ padding:9px 12px; border-radius:10px; border:1.5px solid #E5E7EB; font-family:var(--di); font-size:.82rem; }
+  .filter-bar button{
+    border:none; background:var(--ink); color:#fff; padding:10px 16px; border-radius:10px;
+    font-family:var(--df); font-weight:600; font-size:.78rem; cursor:pointer;
+  }
+
+  table{ width:100%; border-collapse:collapse; background:#fff; border-radius:16px; overflow:hidden; }
+  thead th{ text-align:left; font-size:.7rem; color:var(--muted); font-weight:700; padding:12px 14px; background:#FAFAF9; border-bottom:1px solid var(--line); white-space:nowrap; }
+  tbody td{ padding:11px 14px; font-size:.78rem; border-bottom:1px solid #F5F5F3; white-space:nowrap; }
+  tbody tr:last-child td{ border-bottom:none; }
+  .table-scroll{ overflow-x:auto; border-radius:16px; box-shadow:0 4px 16px rgba(0,0,0,.05); }
+  .empty-state{ text-align:center; color:var(--muted); font-size:.85rem; padding:30px 0; }
+  .badge-live{ background:#DCFCE7; color:#16A34A; padding:3px 8px; border-radius:999px; font-size:.66rem; font-weight:700; }
+  .komisi-cell{ color:var(--coral); font-weight:700; }
+
+  .settings-card{ background:#fff; border-radius:18px; padding:24px; box-shadow:0 4px 16px rgba(0,0,0,.05); max-width:440px; }
+  .settings-card label{ font-size:.8rem; font-weight:600; display:block; margin-bottom:6px; margin-top:16px; }
+  .settings-card label:first-child{ margin-top:0; }
+  .settings-card input{ width:100%; padding:11px 13px; border-radius:10px; border:1.5px solid #E5E7EB; font-family:var(--di); font-size:.88rem; outline:none; }
+  .settings-card input:focus{ border-color:var(--coral); }
+  .settings-card .hint{ font-size:.72rem; color:var(--muted); margin-top:4px; }
+  .settings-card button{
+    margin-top:22px; width:100%; padding:13px; border:none; border-radius:12px; cursor:pointer;
+    background:linear-gradient(135deg,var(--coral),var(--gold)); color:#fff; font-family:var(--df); font-weight:700; font-size:.9rem;
+  }
+  .settings-formula{ background:#FFF7ED; border:1px solid #FED7AA; border-radius:12px; padding:12px 14px; font-size:.76rem; color:#9A3412; margin-top:14px; line-height:1.5; }
+
+  .modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:50; padding:20px; }
+  .modal-overlay.show{ display:flex; }
+  .modal{ background:#fff; border-radius:20px; padding:26px 24px; width:100%; max-width:420px; }
+  .modal h3{ font-family:var(--df); font-weight:700; font-size:1.05rem; margin-bottom:6px; }
+  .modal .hint{ font-size:.76rem; color:var(--muted); margin-bottom:16px; line-height:1.5; }
+  .modal label{ font-size:.8rem; font-weight:600; display:block; margin-bottom:6px; }
+  .modal input{ width:100%; padding:11px 13px; border-radius:10px; border:1.5px solid #E5E7EB; font-family:var(--di); font-size:.88rem; margin-bottom:14px; outline:none; }
+  .modal input:focus{ border-color:var(--coral); }
+  .modal-btns{ display:flex; gap:10px; }
+  .modal-btns button{ flex:1; padding:12px; border-radius:10px; border:none; cursor:pointer; font-family:var(--df); font-weight:700; font-size:.85rem; }
+  .modal-btns .cancel{ background:#F3F4F6; color:var(--ink); }
+  .modal-btns .confirm{ background:var(--coral); color:#fff; }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; padding:12px 20px; border-radius:12px;
+    font-size:.85rem; opacity:0; transition:all .3s; z-index:60; pointer-events:none;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="logo">ICABEEE<span>.</span> Owner Panel</div>
+    <button class="logout-btn" id="logoutBtn">Keluar</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="ringkasan">Ringkasan</button>
+    <button class="tab-btn" data-tab="karyawan">Karyawan</button>
+    <button class="tab-btn" data-tab="riwayat">Riwayat</button>
+    <button class="tab-btn" data-tab="pengaturan">Pengaturan</button>
+  </div>
+
+  <div class="wrap">
+
+    <!-- ═══ TAB RINGKASAN ═══ -->
+    <div class="tab-panel active" id="panel-ringkasan">
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num" id="statTotalEmp">0</div><div class="stat-label">Total Karyawan</div></div>
+        <div class="stat-card"><div class="stat-num" id="statLiveNow">0</div><div class="stat-label">Sedang Live</div></div>
+        <div class="stat-card"><div class="stat-num" id="statSessionsToday">0</div><div class="stat-label">Sesi Live Hari Ini</div></div>
+        <div class="stat-card"><div class="stat-num" id="statRevenueToday">Rp 0</div><div class="stat-label">Penghasilan Hari Ini</div></div>
+        <div class="stat-card"><div class="stat-num" id="statKomisiMonth">Rp 0</div><div class="stat-label">Total Komisi Bulan Ini</div></div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h4>Tren Penghasilan (14 Hari Terakhir)</h4>
+          <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h4>Leaderboard Bulan Ini</h4>
+          <div id="leaderboardList"><div class="empty-state">Belum ada data</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB KARYAWAN ═══ -->
+    <div class="tab-panel" id="panel-karyawan">
+      <div class="section-title">
+        Status & Performa Karyawan
+        <button class="add-btn" id="addEmpBtn">+ Tambah Karyawan</button>
+      </div>
+      <div class="emp-grid" id="empGrid">
+        <div class="empty-state">Belum ada karyawan terdaftar</div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB RIWAYAT ═══ -->
+    <div class="tab-panel" id="panel-riwayat">
+      <div class="section-title">Riwayat Semua Sesi Live</div>
+      <div class="filter-bar">
+        <div>
+          <label>Dari Tanggal</label>
+          <input type="date" id="filterStart">
+        </div>
+        <div>
+          <label>Sampai Tanggal</label>
+          <input type="date" id="filterEnd">
+        </div>
+        <button id="filterApply">Terapkan Filter</button>
+        <button id="filterReset" style="background:#F3F4F6; color:var(--ink);">Reset</button>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Karyawan</th><th>Tanggal</th><th>Waktu</th><th>Durasi</th>
+              <th>Produk Terjual</th><th>Penghasilan</th><th>Komisi</th><th>Viewer</th><th>Catatan</th>
+            </tr>
+          </thead>
+          <tbody id="sessionsTableBody">
+            <tr><td colspan="9" class="empty-state">Belum ada data</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ TAB PENGATURAN ═══ -->
+    <div class="tab-panel" id="panel-pengaturan">
+      <div class="section-title">Pengaturan Komisi</div>
+      <div class="settings-card">
+        <label>Persentase dari Penghasilan Live (%)</label>
+        <input type="number" id="commPercent" min="0" step="0.1" placeholder="contoh: 5">
+        <div class="hint">Contoh: isi 5 kalau karyawan dapat 5% dari penghasilan tiap sesi live</div>
+
+        <label>Bonus per Produk Terjual (Rp)</label>
+        <input type="number" id="commPerProduct" min="0" placeholder="contoh: 5000">
+        <div class="hint">Bonus tetap per 1 mukenah yang terjual, di luar persentase di atas</div>
+
+        <div class="settings-formula" id="formulaPreview">
+          Komisi per sesi = (Penghasilan × 0%) + (Produk Terjual × Rp 0)
+        </div>
+
+        <button id="saveSettings">Simpan Pengaturan</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal tambah karyawan -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h3>Tambah Karyawan</h3>
+      <div class="hint">
+        Buat dulu akunnya di <b>Firebase Console → Authentication → Add user</b>, lalu copy <b>UID</b> yang muncul dan tempel di sini.
+      </div>
+      <form id="addForm">
+        <label>UID (dari Firebase Console)</label>
+        <input type="text" id="empUid" required placeholder="contoh: aB3xY...">
+        <label>Nama Karyawan</label>
+        <input type="text" id="empName" required placeholder="contoh: Siti Aminah">
+        <div class="modal-btns">
+          <button type="button" class="cancel" id="cancelAdd">Batal</button>
+          <button type="submit" class="confirm">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, collection, query, where,
+      onSnapshot, orderBy
+    } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB2Fczb4wGbF9ah0mQuuZi8WWaim_hQB4M",
+      authDomain: "icabeee-team-app.firebaseapp.com",
+      projectId: "icabeee-team-app",
+      storageBucket: "icabeee-team-app.firebasestorage.app",
+      messagingSenderId: "71257065015",
+      appId: "1:71257065015:web:783a2515d48763aec361b2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const toast = document.getElementById('toast');
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    let allUsers = {};
+    let allSessions = [];
+    let commission = { percent: 0, perProduct: 0 };
+    let revenueChart = null;
+    let filterStartDate = null;
+    let filterEndDate = null;
+
+    function calcCommission(session) {
+      const rev = Number(session.revenue) || 0;
+      const qty = Number(session.productsSold) || 0;
+      return rev * (commission.percent / 100) + qty * commission.perProduct;
+    }
+
+    // ── tabs ──
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ── auth guard ──
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (!snap.exists() || snap.data().role !== 'owner') {
+        window.location.href = 'login.html';
+        return;
+      }
+      listenCommissionSettings();
+      listenUsers();
+      listenSessions();
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+    // ── commission settings ──
+    function listenCommissionSettings() {
+      onSnapshot(doc(db, 'config', 'commission'), (snap) => {
+        if (snap.exists()) {
+          commission = { percent: Number(snap.data().percent) || 0, perProduct: Number(snap.data().perProduct) || 0 };
+          document.getElementById('commPercent').value = commission.percent;
+          document.getElementById('commPerProduct').value = commission.perProduct;
+          updateFormulaPreview();
+        }
+        render();
+      });
+    }
+    function updateFormulaPreview() {
+      const p = document.getElementById('commPercent').value || 0;
+      const pp = document.getElementById('commPerProduct').value || 0;
+      document.getElementById('formulaPreview').textContent =
+        `Komisi per sesi = (Penghasilan × ${p}%) + (Produk Terjual × Rp ${Number(pp).toLocaleString('id-ID')})`;
+    }
+    document.getElementById('commPercent').addEventListener('input', updateFormulaPreview);
+    document.getElementById('commPerProduct').addEventListener('input', updateFormulaPreview);
+    document.getElementById('saveSettings').addEventListener('click', async () => {
+      const percent = Number(document.getElementById('commPercent').value) || 0;
+      const perProduct = Number(document.getElementById('commPerProduct').value) || 0;
+      try {
+        await setDoc(doc(db, 'config', 'commission'), { percent, perProduct });
+        showToast('Pengaturan komisi tersimpan.');
+      } catch (err) {
+        showToast('Gagal menyimpan pengaturan.');
+      }
+    });
+
+    // ── listen users ──
+    function listenUsers() {
+      const q = query(collection(db, 'users'), where('role', '==', 'karyawan'));
+      onSnapshot(q, (snap) => {
+        allUsers = {};
+        snap.forEach((d) => { allUsers[d.id] = d.data(); });
+        document.getElementById('statTotalEmp').textContent = snap.size;
+        render();
+      });
+    }
+
+    // ── listen sessions ──
+    function listenSessions() {
+      const q = query(collection(db, 'sessions'), orderBy('startTime', 'desc'));
+      onSnapshot(q, (snap) => {
+        allSessions = [];
+        snap.forEach((d) => allSessions.push({ id: d.id, ...d.data() }));
+        render();
+      });
+    }
+
+    function initials(name) {
+      return (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+
+    function render() {
+      renderStats();
+      renderChart();
+      renderLeaderboard();
+      renderEmployeeStatus();
+      renderSessionsTable();
+    }
+
+    function renderStats() {
+      const liveNow = allSessions.filter(s => s.status === 'active').length;
+      document.getElementById('statLiveNow').textContent = liveNow;
+
+      const todayStr = new Date().toDateString();
+      const todaySessions = allSessions.filter(s => s.startTime?.toDate().toDateString() === todayStr);
+      document.getElementById('statSessionsToday').textContent = todaySessions.length;
+
+      const todayRevenue = todaySessions.reduce((sum, s) => sum + (Number(s.revenue) || 0), 0);
+      document.getElementById('statRevenueToday').textContent = 'Rp ' + todayRevenue.toLocaleString('id-ID');
+
+      const now = new Date();
+      const monthSessions = allSessions.filter(s => {
+        const d = s.startTime?.toDate();
+        return d && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && s.status === 'selesai';
+      });
+      const monthKomisi = monthSessions.reduce((sum, s) => sum + calcCommission(s), 0);
+      document.getElementById('statKomisiMonth').textContent = 'Rp ' + Math.round(monthKomisi).toLocaleString('id-ID');
+    }
+
+    function renderChart() {
+      const days = [];
+      const revenueByDay = {};
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
+        days.push(key);
+        revenueByDay[key] = 0;
+      }
+      allSessions.forEach(s => {
+        const d = s.startTime?.toDate();
+        if (!d) return;
+        const key = d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
+        if (key in revenueByDay) revenueByDay[key] += Number(s.revenue) || 0;
+      });
+      const data = days.map(k => revenueByDay[k]);
+
+      const ctx = document.getElementById('revenueChart').getContext('2d');
+      if (revenueChart) revenueChart.destroy();
+      revenueChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: days,
+          datasets: [{
+            label: 'Penghasilan',
+            data,
+            borderColor: '#FF5C39',
+            backgroundColor: 'rgba(255,92,57,.1)',
+            fill: true,
+            tension: .35,
+            pointRadius: 2
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { ticks: { callback: v => 'Rp ' + (v/1000) + 'k', font: { size: 10 } } },
+            x: { ticks: { font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    function renderLeaderboard() {
+      const now = new Date();
+      const monthSessions = allSessions.filter(s => {
+        const d = s.startTime?.toDate();
+        return d && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && s.status === 'selesai';
+      });
+      const byEmployee = {};
+      monthSessions.forEach(s => {
+        if (!byEmployee[s.uid]) byEmployee[s.uid] = { name: s.employeeName, revenue: 0 };
+        byEmployee[s.uid].revenue += Number(s.revenue) || 0;
+      });
+      const sorted = Object.values(byEmployee).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+
+      const list = document.getElementById('leaderboardList');
+      if (sorted.length === 0) {
+        list.innerHTML = '<div class="empty-state">Belum ada data</div>';
+        return;
+      }
+      list.innerHTML = sorted.map((e, i) => `
+        <div class="leaderboard-item">
+          <div class="lb-rank">#${i + 1}</div>
+          <div class="lb-avatar">${initials(e.name)}</div>
+          <div class="lb-info">
+            <div class="lb-name">${e.name}</div>
+            <div class="lb-value">Rp ${e.revenue.toLocaleString('id-ID')}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderEmployeeStatus() {
+      const grid = document.getElementById('empGrid');
+      const uids = Object.keys(allUsers);
+      if (uids.length === 0) {
+        grid.innerHTML = '<div class="empty-state">Belum ada karyawan terdaftar</div>';
+        return;
+      }
+      grid.innerHTML = '';
+      uids.forEach((uid) => {
+        const user = allUsers[uid];
+        const activeSession = allSessions.find(s => s.uid === uid && s.status === 'active');
+        const completedSessions = allSessions.filter(s => s.uid === uid && s.status === 'selesai');
+        const totalMinutes = completedSessions.reduce((sum, s) => {
+          if (!s.startTime || !s.endTime) return sum;
+          return sum + Math.round((s.endTime.toDate() - s.startTime.toDate()) / 60000);
+        }, 0);
+        const totalKomisi = completedSessions.reduce((sum, s) => sum + calcCommission(s), 0);
+        const totalProduk = completedSessions.reduce((sum, s) => sum + (Number(s.productsSold) || 0), 0);
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+
+        const el = document.createElement('div');
+        el.className = 'emp-card';
+        el.innerHTML = `
+          <div class="emp-top">
+            <div class="emp-avatar">${initials(user.name)}<span class="dot ${activeSession ? 'on' : 'off'}"></span></div>
+            <div>
+              <div class="emp-name">${user.name}</div>
+              <div class="emp-status">${activeSession ? 'Sedang live sekarang' : 'Tidak sedang live'}</div>
+            </div>
+          </div>
+          <div class="emp-row"><span>Total jam kerja</span><b>${h}j ${m}m</b></div>
+          <div class="emp-row"><span>Produk terjual</span><b>${totalProduk}</b></div>
+          <div class="emp-row komisi"><span>Total komisi</span><b>Rp ${Math.round(totalKomisi).toLocaleString('id-ID')}</b></div>
+        `;
+        grid.appendChild(el);
+      });
+    }
+
+    function renderSessionsTable() {
+      const tbody = document.getElementById('sessionsTableBody');
+      let filtered = allSessions;
+      if (filterStartDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() >= filterStartDate);
+      if (filterEndDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() <= filterEndDate);
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty-state">Belum ada data</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      filtered.forEach((s) => {
+        const start = s.startTime?.toDate();
+        const end = s.endTime?.toDate();
+        const dateStr = start ? start.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-';
+        const timeStr = start ? start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) + (end ? ' - ' + end.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : ' - sekarang') : '-';
+        const durMin = start && end ? Math.round((end - start) / 60000) : null;
+        const durStr = s.status === 'active'
+          ? '<span class="badge-live">LIVE</span>'
+          : (durMin !== null ? `${Math.floor(durMin/60)}j ${durMin%60}m` : '-');
+        const komisiStr = s.status === 'selesai' ? 'Rp ' + Math.round(calcCommission(s)).toLocaleString('id-ID') : '-';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${s.employeeName || '-'}</td>
+          <td>${dateStr}</td>
+          <td>${timeStr}</td>
+          <td>${durStr}</td>
+          <td>${s.productsSold ?? '-'}</td>
+          <td>${s.revenue != null ? 'Rp ' + Number(s.revenue).toLocaleString('id-ID') : '-'}</td>
+          <td class="komisi-cell">${komisiStr}</td>
+          <td>${s.viewers ?? '-'}</td>
+          <td>${s.notes || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ── date filter ──
+    document.getElementById('filterApply').addEventListener('click', () => {
+      const startVal = document.getElementById('filterStart').value;
+      const endVal = document.getElementById('filterEnd').value;
+      filterStartDate = startVal ? new Date(startVal + 'T00:00:00') : null;
+      filterEndDate = endVal ? new Date(endVal + 'T23:59:59') : null;
+      renderSessionsTable();
+    });
+    document.getElementById('filterReset').addEventListener('click', () => {
+      document.getElementById('filterStart').value = '';
+      document.getElementById('filterEnd').value = '';
+      filterStartDate = null; filterEndDate = null;
+      renderSessionsTable();
+    });
+
+    // ── add employee ──
+    const modalOverlay = document.getElementById('modalOverlay');
+    document.getElementById('addEmpBtn').addEventListener('click', () => modalOverlay.classList.add('show'));
+    document.getElementById('cancelAdd').addEventListener('click', () => modalOverlay.classList.remove('show'));
+
+    document.getElementById('addForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const uid = document.getElementById('empUid').value.trim();
+      const name = document.getElementById('empName').value.trim();
+      if (!uid || !name) return;
+      try {
+        await setDoc(doc(db, 'users', uid), { name, role: 'karyawan' });
+        showToast('Karyawan berhasil ditambahkan.');
+        modalOverlay.classList.remove('show');
+        document.getElementById('addForm').reset();
+      } catch (err) {
+        showToast('Gagal menambahkan, cek UID dan coba lagi.');
+      }
+    });
+  </script>
+</body>
+</html>
