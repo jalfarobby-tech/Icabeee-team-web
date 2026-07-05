@@ -237,6 +237,14 @@ nav.solid { background: rgba(255,255,255,.92); backdrop-filter: blur(20px); bord
 .nav-links { display: flex; gap: 32px; list-style: none; }
 .nav-links a { font-size: .82rem; font-weight: 500; color: var(--muted); letter-spacing: -.01em; transition: color .2s; }
 .nav-links a:hover { color: var(--ink); }
+.nav-login {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--df); font-weight: 600; font-size: .85rem;
+  color: var(--ink); text-decoration: none; margin-right: 14px;
+  padding: 8px 14px; border-radius: 999px; border: 1.5px solid #E5E7EB;
+  transition: all .2s;
+}
+.nav-login:hover { border-color: var(--coral); color: var(--coral); }
 .nav-cta {
   display: flex; align-items: center; gap: 6px;
   background: var(--ink); color: var(--cream);
@@ -1032,7 +1040,7 @@ footer {
   .collab-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .svc-grid { grid-template-columns: 1fr 1fr; }
   .eco-grid { grid-template-columns: 1fr; }
-  .nav-links, .nav-cta { display: none; }
+  .nav-links, .nav-cta, .nav-login { display: none; }
   .hbg { display: flex; }
   .hero-stats { flex-direction: column; }
   .hero-stat { border-right: none; border-bottom: 1px solid var(--border); }
@@ -1881,6 +1889,9 @@ footer {
     <li><a href="#tim">Tim</a></li>
     <li><a href="lowongan.html">Lowongan</a></li>
   </ul>
+  <a href="login.html" class="nav-login">
+    <i class="ti ti-login-2"></i> Login
+  </a>
   <a href="https://wa.me/6281219556811" class="nav-cta" target="_blank">
     <i class="ti ti-brand-whatsapp"></i> Konsultasi Gratis
   </a>
@@ -1898,6 +1909,9 @@ footer {
   <a href="#brand" onclick="closeMenu()">Klien</a>
   <a href="#tim" onclick="closeMenu()">Tim</a>
   <a href="lowongan.html" onclick="closeMenu()">Lowongan</a>
+  <a href="login.html" onclick="closeMenu()">
+    <i class="ti ti-login-2"></i> Login
+  </a>
   <a href="https://wa.me/6281219556811" target="_blank" onclick="closeMenu()">
     <i class="ti ti-brand-whatsapp"></i> Konsultasi Gratis
   </a>
