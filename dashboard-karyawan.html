@@ -6,192 +6,247 @@
 <title>Dashboard Karyawan — ICABEEE TEAM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
   :root{
-    --ink:#0D0D12; --muted:#8B8B96; --coral:#FF5C39; --gold:#f5a020; --violet:#8B5CF6;
-    --bg:#F5F4F7; --df:'Sora',sans-serif; --di:'Inter',sans-serif;
+    --ink:#111114; --muted:#6B7280; --border:#E5E7EB; --coral:#FF5C39;
+    --bg:#FAFAFA; --card:#fff; --df:'Sora',sans-serif; --di:'Inter',sans-serif;
     --ease:cubic-bezier(.16,1,.3,1);
   }
+  html[data-theme="dark"]{ --ink:#F4F4F5; --muted:#9CA3AF; --border:#2A2A2E; --bg:#0E0E10; --card:#18181B; }
   *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
-  body{ font-family:var(--di); background:var(--bg); color:var(--ink); min-height:100vh; padding-bottom:40px; }
+  body{ font-family:var(--di); background:var(--bg); color:var(--ink); min-height:100vh; padding-bottom:40px; transition:background .2s,color .2s; }
 
-  .topbar{
-    background:linear-gradient(135deg,#2a1c3f,#1a1130); padding:20px 20px 44px;
-    border-radius:0 0 28px 28px; position:relative; overflow:hidden;
+  .topbar{ background:var(--card); padding:16px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:10; transition:background .2s,border-color .2s; }
+  .greet{ display:flex; align-items:center; gap:12px; }
+  .avatar{ width:38px; height:38px; border-radius:50%; background:var(--ink); color:var(--bg); display:flex; align-items:center; justify-content:center; font-family:var(--df); font-weight:800; font-size:.78rem; overflow:hidden; flex-shrink:0; }
+  .avatar img{ width:100%; height:100%; object-fit:cover; }
+  .greet .hi{ font-size:.72rem; color:var(--muted); }
+  .greet .name{ font-family:var(--df); font-weight:800; font-size:1rem; margin-top:1px; }
+  .sync-tag{
+    display:none; align-items:center; gap:5px; font-size:.68rem; color:var(--muted);
+    margin-left:6px; padding:4px 9px; border-radius:999px; background:rgba(128,128,128,.08);
   }
-  .topbar::before{
-    content:''; position:absolute; width:200px; height:200px; border-radius:50%;
-    top:-80px; right:-40px; background:radial-gradient(circle,rgba(255,92,57,.4),transparent 70%);
-  }
-  .topbar-row{ display:flex; justify-content:space-between; align-items:center; position:relative; z-index:2; }
-  .greet{ color:#fff; }
-  .greet .hi{ font-size:.78rem; color:rgba(255,255,255,.6); }
-  .greet .name{ font-family:var(--df); font-weight:800; font-size:1.15rem; margin-top:2px; }
-  .logout-btn{
-    width:38px; height:38px; border-radius:12px; border:none; cursor:pointer;
-    background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center;
-  }
-  .logout-btn svg{ width:18px; height:18px; color:#fff; }
+  @media (min-width:640px){ .sync-tag{ display:inline-flex; } }
+  .sync-dot{ width:6px; height:6px; border-radius:50%; background:#22C55E; animation:pulse 2s ease infinite; }
+  .topbar-actions{ display:flex; gap:8px; }
+  .icon-btn{ width:36px; height:36px; border-radius:10px; border:1px solid var(--border); cursor:pointer; background:var(--card); display:flex; align-items:center; justify-content:center; transition:all .15s; }
+  .icon-btn:hover{ border-color:var(--muted); }
+  .icon-btn svg{ width:16px; height:16px; color:var(--muted); }
 
-  .wrap{ max-width:520px; margin:-28px auto 0; padding:0 16px; position:relative; z-index:3; }
+  .wrap{ max-width:1000px; margin:0 auto; padding:22px 20px; }
+  .layout{ display:grid; grid-template-columns:320px 1fr; gap:20px; align-items:start; }
+  @media (max-width:860px){ .layout{ grid-template-columns:1fr; } }
 
-  .status-card{
-    background:#fff; border-radius:24px; padding:26px 22px; text-align:center;
-    box-shadow:0 20px 50px rgba(0,0,0,.1); margin-bottom:18px;
-    animation:fadeUp .5s var(--ease); transition:background .5s ease, box-shadow .5s ease;
-    position:relative; overflow:hidden;
-  }
-  .status-card.is-live{
-    background:linear-gradient(165deg,#fff 0%,#FFF4F0 100%);
-    box-shadow:0 20px 50px rgba(255,92,57,.18);
-  }
-  .status-card.is-live::before{
-    content:''; position:absolute; top:-60px; right:-60px; width:160px; height:160px;
-    border-radius:50%; background:radial-gradient(circle,rgba(255,92,57,.15),transparent 70%);
-  }
-  .platform-tag{
-    display:inline-flex; align-items:center; gap:5px; font-size:.68rem; font-weight:700;
-    color:var(--muted); background:#F3F4F6; padding:4px 10px; border-radius:999px; margin-bottom:10px;
-    position:relative;
-  }
-  @keyframes fadeUp{ from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:none;} }
+  .card{ background:var(--card); border:1px solid var(--border); border-radius:16px; transition:background .2s,border-color .2s; }
+
+  .alert-banner{ display:none; align-items:center; gap:10px; background:#FEF3C7; border:1px solid #FDE68A; color:#92400E; padding:12px 14px; border-radius:12px; font-size:.78rem; margin-bottom:16px; }
+  html[data-theme="dark"] .alert-banner{ background:#451A03; border-color:#78350F; color:#FCD34D; }
+  .alert-banner.show{ display:flex; }
+  .alert-banner svg{ width:17px; height:17px; flex-shrink:0; }
+
+  .status-card{ padding:26px 22px; text-align:center; margin-bottom:16px; animation:fadeUp .4s var(--ease); transition:border-color .3s ease, background .3s ease; }
+  .status-card.is-live{ border-color:#FDBA9C; background:#FFF9F7; }
+  html[data-theme="dark"] .status-card.is-live{ background:#2A1710; border-color:#7C2D12; }
+  .platform-tag{ display:inline-flex; align-items:center; gap:5px; font-size:.68rem; font-weight:700; color:var(--muted); background:rgba(128,128,128,.1); padding:4px 10px; border-radius:999px; margin-bottom:12px; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
   .status-row{ display:flex; align-items:center; justify-content:center; gap:7px; margin-bottom:6px; }
-  .status-dot{ width:10px; height:10px; border-radius:50%; }
+  .status-dot{ width:9px; height:9px; border-radius:50%; }
   .status-dot.off{ background:#D1D5DB; }
-  .status-dot.on{ background:#22C55E; box-shadow:0 0 0 4px rgba(34,197,94,.2); animation:pulse 1.5s ease infinite; }
+  .status-dot.on{ background:#22C55E; box-shadow:0 0 0 4px rgba(34,197,94,.18); animation:pulse 1.6s ease infinite; }
   @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.45;} }
   .status-label{ font-size:.8rem; color:var(--muted); font-weight:600; }
-  .timer{ font-family:var(--df); font-weight:800; font-size:2.7rem; margin:12px 0 22px; font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
+  .timer{ font-family:var(--df); font-weight:800; font-size:2.4rem; margin:12px 0 20px; font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
 
-  .mini-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; }
-  .mini-stat{ background:#fff; border-radius:16px; padding:14px 10px; text-align:center; box-shadow:0 6px 18px rgba(0,0,0,.05); }
-  .mini-num{ font-family:var(--df); font-weight:800; font-size:.95rem; color:var(--coral); }
-  .mini-label{ font-size:.66rem; color:var(--muted); margin-top:3px; }
+  .big-btn{ width:100%; padding:14px; border:none; border-radius:12px; cursor:pointer; font-family:var(--df); font-weight:700; font-size:.9rem; color:#fff; display:flex; align-items:center; justify-content:center; gap:8px; transition:opacity .15s; }
+  .big-btn:active{ opacity:.85; }
+  .big-btn svg{ width:16px; height:16px; }
+  .big-btn.start{ background:#16A34A; }
+  .big-btn.stop{ background:var(--coral); }
+  .big-btn:disabled{ opacity:.5; }
 
-  .big-btn{
-    width:100%; padding:16px; border:none; border-radius:16px; cursor:pointer;
-    font-family:var(--df); font-weight:700; font-size:.95rem; color:#fff;
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    transition:transform .15s;
+  .mini-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .mini-stat{ padding:14px 6px; text-align:center; }
+  .mini-num{ font-family:var(--df); font-weight:800; font-size:.9rem; color:var(--coral); }
+  .mini-label{ font-size:.63rem; color:var(--muted); margin-top:3px; }
+
+  .section-title{
+    font-family:var(--df); font-weight:700; font-size:.92rem; margin:0 0 12px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding-bottom:10px; border-bottom:1px solid var(--border);
   }
-  .big-btn:active{ transform:scale(.98); }
-  .big-btn svg{ width:18px; height:18px; }
-  .big-btn.start{ background:linear-gradient(135deg,#22C55E,#16A34A); box-shadow:0 10px 26px rgba(34,197,94,.3); }
-  .big-btn.stop{ background:linear-gradient(135deg,var(--coral),var(--gold)); box-shadow:0 10px 26px rgba(255,92,57,.3); }
-  .big-btn:disabled{ opacity:.6; }
+  .section-block{ margin-bottom:20px; }
+  .btn{ border:1px solid var(--border); background:var(--card); color:var(--ink); padding:7px 13px; border-radius:8px; font-family:var(--df); font-weight:600; font-size:.74rem; cursor:pointer; }
+  .btn:hover{ border-color:var(--muted); }
 
-  .section-title{ font-family:var(--df); font-weight:700; font-size:.95rem; margin:22px 4px 12px; }
+  .period-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
+  .period-card{ padding:16px; }
+  .period-card .p-label{ font-size:.68rem; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px; }
+  .period-card .p-num{ font-family:var(--df); font-weight:800; font-size:1.15rem; letter-spacing:-.02em; }
+  .period-card .p-sub{ font-size:.7rem; color:var(--muted); margin-top:2px; }
 
-  .history-item{
-    background:#fff; border-radius:18px; padding:16px 16px; margin-bottom:10px;
-    box-shadow:0 6px 18px rgba(0,0,0,.05); display:flex; gap:12px;
-    animation:fadeUp .4s var(--ease);
-  }
-  .history-body{ flex:1; min-width:0; }
-  .history-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:6px; }
-  .history-date{ font-size:.74rem; color:var(--muted); }
-  .history-duration{ font-family:var(--df); font-weight:700; font-size:.8rem; color:var(--coral); white-space:nowrap; }
-  .history-grid{ display:flex; flex-wrap:wrap; gap:8px 14px; font-size:.76rem; color:var(--ink); }
-  .history-grid b{ font-weight:700; }
-  .history-notes{ font-size:.75rem; color:var(--muted); margin-top:6px; font-style:italic; }
-  .empty-state{ text-align:center; color:var(--muted); font-size:.85rem; padding:34px 0; }
+  .chart-card{ padding:20px; margin-bottom:20px; }
+  .chart-wrap{ position:relative; height:190px; }
 
-  /* modal */
-  .modal-overlay{
-    position:fixed; inset:0; background:rgba(10,7,20,.55); backdrop-filter:blur(3px); display:none;
-    align-items:flex-end; justify-content:center; z-index:50;
-  }
+  /* attendance heatmap */
+  .heatmap-card{ padding:20px; margin-bottom:20px; }
+  .heatmap-grid{ display:grid; grid-auto-flow:column; grid-template-rows:repeat(7,1fr); gap:3px; overflow-x:auto; padding-bottom:4px; }
+  .heatmap-cell{ width:12px; height:12px; border-radius:3px; background:rgba(128,128,128,.12); }
+  .heatmap-cell.l1{ background:#FED7C3; }
+  .heatmap-cell.l2{ background:#FCA57D; }
+  .heatmap-cell.l3{ background:#FF5C39; }
+  html[data-theme="dark"] .heatmap-cell.l1{ background:#7C2D12; }
+  html[data-theme="dark"] .heatmap-cell.l2{ background:#C2410C; }
+  html[data-theme="dark"] .heatmap-cell.l3{ background:#FF5C39; }
+  .heatmap-legend{ display:flex; align-items:center; gap:6px; font-size:.68rem; color:var(--muted); margin-top:10px; }
+  .heatmap-legend .heatmap-cell{ width:10px; height:10px; }
+
+  .date-heading{ font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin:16px 0 8px; }
+  .date-heading:first-child{ margin-top:0; }
+  .schedule-row{ display:flex; align-items:center; gap:12px; padding:12px 14px; margin-bottom:8px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .schedule-time{ font-family:var(--df); font-weight:800; font-size:.85rem; color:var(--coral); white-space:nowrap; }
+  .schedule-info{ flex:1; min-width:0; }
+  .schedule-notes{ font-size:.72rem; color:var(--muted); margin-top:2px; }
+  .history-item{ padding:15px 16px; margin-bottom:9px; animation:fadeUp .3s var(--ease); }
+  .history-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:10px; }
+  .history-time{ font-size:.76rem; color:var(--muted); font-weight:600; }
+  .history-duration{ font-family:var(--df); font-weight:700; font-size:.78rem; color:var(--coral); white-space:nowrap; }
+  .history-fields{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .hf-label{ font-size:.64rem; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:2px; }
+  .hf-value{ font-size:.84rem; font-weight:700; }
+  .history-notes{ font-size:.75rem; color:var(--muted); margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); font-style:italic; }
+  .history-footer{ display:flex; justify-content:flex-end; margin-top:8px; }
+  .status-approved{ font-size:.68rem; font-weight:700; color:#16A34A; }
+  .status-pending{ font-size:.68rem; font-weight:700; color:#D97706; }
+
+  .empty-state{ text-align:center; color:var(--muted); font-size:.83rem; padding:36px 20px; }
+  .empty-state svg{ width:42px; height:42px; color:var(--border); margin-bottom:10px; }
+
+  .modal-overlay{ position:fixed; inset:0; background:rgba(17,17,20,.4); display:none; align-items:flex-end; justify-content:center; z-index:50; }
   .modal-overlay.show{ display:flex; }
-  .modal{
-    background:#fff; border-radius:26px 26px 0 0; padding:26px 22px 30px; width:100%; max-width:480px;
-    max-height:90vh; overflow-y:auto; animation:slideUp .35s var(--ease);
-  }
+  .modal{ background:var(--card); border-radius:20px 20px 0 0; padding:24px 20px 28px; width:100%; max-width:480px; max-height:90vh; overflow-y:auto; animation:slideUp .3s var(--ease); }
+  @media (min-width:640px){ .modal-overlay{ align-items:center; } .modal{ border-radius:20px; } }
   @keyframes slideUp{ from{ transform:translateY(100%); } to{ transform:translateY(0); } }
-  .modal-handle{ width:40px; height:4px; background:#E5E7EB; border-radius:99px; margin:0 auto 18px; }
-  .modal h3{ font-family:var(--df); font-weight:700; font-size:1.05rem; margin-bottom:18px; }
-  .modal label{ font-size:.78rem; font-weight:700; display:block; margin-bottom:6px; }
-  .modal input, .modal textarea{
-    width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid #ECECEF;
-    font-family:var(--di); font-size:.88rem; margin-bottom:16px; outline:none; background:#FAFAFB;
-  }
-  .modal input:focus, .modal textarea:focus{ border-color:var(--coral); background:#fff; }
-
-  .modal-btns{ display:flex; gap:10px; margin-top:4px; }
-  .modal-btns button{ flex:1; padding:13px; border-radius:12px; border:none; cursor:pointer; font-family:var(--df); font-weight:700; font-size:.85rem; }
-  .modal-btns .cancel{ background:#F3F4F6; color:var(--ink); }
-  .modal-btns .confirm{ background:linear-gradient(135deg,var(--coral),var(--gold)); color:#fff; }
+  .modal-handle{ width:36px; height:4px; background:var(--border); border-radius:99px; margin:0 auto 16px; }
+  .modal h3{ font-family:var(--df); font-weight:700; font-size:1.02rem; margin-bottom:16px; }
+  .modal label{ font-size:.77rem; font-weight:700; display:block; margin-bottom:6px; }
+  .modal input, .modal textarea{ width:100%; padding:11px 13px; border-radius:10px; border:1px solid var(--border); font-family:var(--di); font-size:.86rem; margin-bottom:14px; outline:none; background:var(--card); color:var(--ink); }
+  .modal input:focus, .modal textarea:focus{ border-color:var(--ink); }
+  .modal-btns{ display:flex; gap:10px; margin-top:2px; }
+  .modal-btns button{ flex:1; padding:12px; border-radius:10px; border:none; cursor:pointer; font-family:var(--df); font-weight:700; font-size:.83rem; }
+  .modal-btns .cancel{ background:rgba(128,128,128,.12); color:var(--ink); }
+  .modal-btns .confirm{ background:var(--ink); color:var(--bg); }
   .modal-btns .confirm:disabled{ opacity:.6; }
 
-  .toast{
-    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
-    background:var(--ink); color:#fff; padding:12px 22px; border-radius:12px;
-    font-size:.85rem; opacity:0; transition:all .3s; z-index:60; pointer-events:none;
-    display:flex; align-items:center; gap:8px;
-  }
+  .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--bg); padding:12px 20px; border-radius:10px; font-size:.83rem; opacity:0; transition:all .3s; z-index:60; pointer-events:none; max-width:88vw; }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
-  .toast svg{ width:16px; height:16px; }
+
+  @media print{
+    .topbar, .status-card, .btn, .modal-overlay, .alert-banner{ display:none !important; }
+    body{ background:#fff; padding:0; }
+  }
 </style>
 </head>
 <body>
 
   <div class="topbar">
-    <div class="topbar-row">
-      <div class="greet">
+    <div class="greet">
+      <div class="avatar" id="greetAvatar">?</div>
+      <div>
         <div class="hi">Halo</div>
         <div class="name" id="userName">Karyawan</div>
       </div>
-      <button class="logout-btn" id="logoutBtn">
+      <span class="sync-tag"><span class="sync-dot"></span>Tersinkron</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="themeToggle" title="Ganti tema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+      </button>
+      <button class="icon-btn" id="logoutBtn" title="Keluar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
   </div>
 
   <div class="wrap">
-
-    <div class="status-card" id="statusCard">
-      <div class="platform-tag">TikTok Live</div>
-      <div class="status-row"><span class="status-dot off" id="statusDot"></span><span class="status-label" id="statusLabel">Belum Live</span></div>
-      <div class="timer" id="timer">00:00:00</div>
-      <button class="big-btn start" id="startBtn">
-        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg> Mulai Live
-      </button>
-      <button class="big-btn stop" id="stopBtn" style="display:none;">
-        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg> Selesai Live
-      </button>
+    <div class="alert-banner" id="alertBanner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span id="alertText">Kamu masih tercatat live cukup lama, jangan lupa klik "Selesai Live" ya.</span>
     </div>
 
-    <div class="mini-stats">
-      <div class="mini-stat"><div class="mini-num" id="statMyKomisi">Rp 0</div><div class="mini-label">Total Komisi</div></div>
-      <div class="mini-stat"><div class="mini-num" id="statMyHours">0j 0m</div><div class="mini-label">Jam Kerja</div></div>
-      <div class="mini-stat"><div class="mini-num" id="statMySessions">0</div><div class="mini-label">Sesi Live</div></div>
-    </div>
+    <div class="layout">
+      <div>
+        <div class="card status-card" id="statusCard">
+          <div class="platform-tag">TikTok Live</div>
+          <div class="status-row"><span class="status-dot off" id="statusDot"></span><span class="status-label" id="statusLabel">Belum Live</span></div>
+          <div class="timer" id="timer">00:00:00</div>
+          <button class="big-btn start" id="startBtn"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg> Mulai Live</button>
+          <button class="big-btn stop" id="stopBtn" style="display:none;"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg> Selesai Live</button>
+        </div>
 
-    <div class="section-title">Riwayat Live</div>
-    <div id="historyList">
-      <div class="empty-state">Belum ada riwayat live</div>
-    </div>
+        <div class="card" style="margin-bottom:16px;">
+          <div class="mini-stats">
+            <div class="mini-stat"><div class="mini-num" id="statMyKomisi">Rp 0</div><div class="mini-label">Komisi Disetujui</div></div>
+            <div class="mini-stat"><div class="mini-num" id="statMyHours">0j 0m</div><div class="mini-label">Jam Kerja</div></div>
+            <div class="mini-stat"><div class="mini-num" id="statMySessions">0</div><div class="mini-label">Sesi Live</div></div>
+          </div>
+        </div>
+      </div>
 
+      <div>
+        <div class="section-block">
+          <div class="section-title">Jadwal Live Mendatang</div>
+          <div id="myScheduleList"><div class="empty-state">Memuat jadwal…</div></div>
+        </div>
+
+        <div class="section-block">
+          <div class="section-title">
+            Ringkasan Performa
+            <button class="btn" id="exportCsvBtn">Export CSV</button>
+          </div>
+          <div class="period-grid">
+            <div class="card period-card"><div class="p-label">Hari Ini</div><div class="p-num" id="periodTodayRevenue">Rp 0</div><div class="p-sub" id="periodTodaySessions">0 sesi</div></div>
+            <div class="card period-card"><div class="p-label">Minggu Ini</div><div class="p-num" id="periodWeekRevenue">Rp 0</div><div class="p-sub" id="periodWeekSessions">0 sesi</div></div>
+            <div class="card period-card"><div class="p-label">Semua Waktu</div><div class="p-num" id="periodAllRevenue">Rp 0</div><div class="p-sub" id="periodAllSessions">0 sesi</div></div>
+          </div>
+        </div>
+
+        <div class="card chart-card">
+          <div class="section-title" style="margin-bottom:14px;">Tren Penghasilan (7 Hari Terakhir)</div>
+          <div class="chart-wrap"><canvas id="myRevenueChart"></canvas></div>
+        </div>
+
+        <div class="card heatmap-card">
+          <div class="section-title" style="margin-bottom:14px;">Kalender Kehadiran Live</div>
+          <div class="heatmap-grid" id="heatmapGrid"></div>
+          <div class="heatmap-legend">
+            <span>Sedikit</span>
+            <div class="heatmap-cell"></div><div class="heatmap-cell l1"></div><div class="heatmap-cell l2"></div><div class="heatmap-cell l3"></div>
+            <span>Banyak</span>
+          </div>
+        </div>
+
+        <div class="section-block">
+          <div class="section-title">Riwayat Live</div>
+          <div id="historyList"><div class="empty-state">Memuat riwayat…</div></div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Modal isi data selesai live -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <div class="modal-handle"></div>
       <h3>Isi Data Live</h3>
       <form id="endForm">
-
         <label>Jumlah Produk Terjual (Mukenah)</label>
         <input type="number" id="productsSold" min="0" required placeholder="contoh: 12">
-
         <label>Penghasilan dari Live (Rp)</label>
         <input type="number" id="revenue" min="0" required placeholder="contoh: 1500000">
-
         <label>Jumlah Viewer</label>
         <input type="number" id="viewers" min="0" required placeholder="contoh: 320">
-
         <label>Catatan / Kendala (opsional)</label>
         <textarea id="notes" rows="3" placeholder="misal: koneksi sempat putus, banyak nanya ukuran, dll"></textarea>
-
         <div class="modal-btns">
           <button type="button" class="cancel" id="cancelEnd">Batal</button>
           <button type="submit" class="confirm" id="confirmEndBtn">Simpan & Selesai</button>
@@ -223,18 +278,29 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // ── dark mode ──
+    const root = document.documentElement;
+    function applyTheme(t) { root.setAttribute('data-theme', t); localStorage.setItem('icabeee-theme', t); }
+    applyTheme(localStorage.getItem('icabeee-theme') || 'light');
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+      if (window._lastSessions) { renderMyChart(window._lastSessions); }
+    });
+
     let currentUser = null;
     let currentUserName = '';
     let activeSessionId = null;
     let activeSessionStart = null;
     let timerInterval = null;
     let commission = { percent: 0, perProduct: 0 };
+    let myRevenueChart = null;
 
     function calcCommission(session) {
       const rev = Number(session.revenue) || 0;
       const qty = Number(session.productsSold) || 0;
       return rev * (commission.percent / 100) + qty * commission.perProduct;
     }
+    function initials(name) { return (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase(); }
 
     const statusDot = document.getElementById('statusDot');
     const statusLabel = document.getElementById('statusLabel');
@@ -248,10 +314,11 @@
     const userNameEl = document.getElementById('userName');
     const confirmEndBtn = document.getElementById('confirmEndBtn');
 
-    function showToast(msg) {
+    function showToast(msg, isError) {
       toast.textContent = msg;
+      toast.style.background = isError ? '#DC2626' : '';
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2500);
+      setTimeout(() => toast.classList.remove('show'), isError ? 6000 : 2500);
     }
 
     function formatDuration(ms) {
@@ -262,11 +329,15 @@
       return `${h}:${m}:${s}`;
     }
 
+    let liveHours = 0;
     function startTimer() {
       clearInterval(timerInterval);
       timerInterval = setInterval(() => {
-        const elapsed = Date.now() - activeSessionStart.toMillis();
-        timerEl.textContent = formatDuration(elapsed);
+        const elapsedMs = Date.now() - activeSessionStart.toMillis();
+        timerEl.textContent = formatDuration(elapsedMs);
+        liveHours = elapsedMs / 3600000;
+        const banner = document.getElementById('alertBanner');
+        if (liveHours >= 4) banner.classList.add('show'); else banner.classList.remove('show');
       }, 1000);
     }
 
@@ -276,102 +347,227 @@
         statusCard.classList.add('is-live');
         statusDot.className = 'status-dot on';
         statusLabel.textContent = 'Sedang Live';
-        startBtn.style.display = 'none';
-        stopBtn.style.display = 'flex';
+        startBtn.style.display = 'none'; stopBtn.style.display = 'flex';
         startTimer();
       } else {
         statusCard.classList.remove('is-live');
         statusDot.className = 'status-dot off';
         statusLabel.textContent = 'Belum Live';
-        startBtn.style.display = 'flex';
-        stopBtn.style.display = 'none';
-        clearInterval(timerInterval);
-        timerEl.textContent = '00:00:00';
+        startBtn.style.display = 'flex'; stopBtn.style.display = 'none';
+        clearInterval(timerInterval); timerEl.textContent = '00:00:00';
+        document.getElementById('alertBanner').classList.remove('show');
       }
     }
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.href = 'login.html'; return; }
       const snap = await getDoc(doc(db, 'users', user.uid));
-      if (!snap.exists() || snap.data().role !== 'karyawan') {
-        window.location.href = 'login.html';
-        return;
-      }
+      if (!snap.exists() || snap.data().role !== 'karyawan') { window.location.href = 'login.html'; return; }
       currentUser = user;
       currentUserName = snap.data().name || user.email;
       userNameEl.textContent = currentUserName;
+      const avatarEl = document.getElementById('greetAvatar');
+      if (snap.data().photoBase64) avatarEl.innerHTML = `<img src="${snap.data().photoBase64}">`;
+      else avatarEl.textContent = initials(currentUserName);
+
       onSnapshot(doc(db, 'config', 'commission'), (csnap) => {
-        if (csnap.exists()) {
-          commission = { percent: Number(csnap.data().percent) || 0, perProduct: Number(csnap.data().perProduct) || 0 };
-        }
-      });
+        if (csnap.exists()) commission = { percent: Number(csnap.data().percent) || 0, perProduct: Number(csnap.data().perProduct) || 0 };
+      }, (err) => console.error('Commission listener error:', err));
       listenActiveSession();
       listenHistory();
+      listenMySchedule();
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+    let heartbeatInterval = null;
+    function startHeartbeat(sessionId) {
+      clearInterval(heartbeatInterval);
+      const ping = () => updateDoc(doc(db, 'sessions', sessionId), { lastPing: Timestamp.now() }).catch(() => {});
+      ping();
+      heartbeatInterval = setInterval(ping, 60000);
+    }
+    function stopHeartbeat() {
+      clearInterval(heartbeatInterval);
+      heartbeatInterval = null;
+    }
 
     function listenActiveSession() {
       const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'active'));
       onSnapshot(q, (snap) => {
         if (!snap.empty) {
           const d = snap.docs[0];
-          activeSessionId = d.id;
-          activeSessionStart = d.data().startTime;
+          activeSessionId = d.id; activeSessionStart = d.data().startTime;
           setLiveUI(true);
-        } else {
-          activeSessionId = null;
-          setLiveUI(false);
-        }
-      });
+          startHeartbeat(activeSessionId);
+        } else { activeSessionId = null; setLiveUI(false); stopHeartbeat(); }
+      }, (err) => { showToast('Gagal memuat status live: ' + err.message, true); console.error(err); });
+    }
+
+    function relativeDateLabel(date) {
+      const today = new Date(); today.setHours(0,0,0,0);
+      const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+      const d = new Date(date); d.setHours(0,0,0,0);
+      if (d.getTime() === today.getTime()) return 'Hari Ini';
+      if (d.getTime() === yesterday.getTime()) return 'Kemarin';
+      return date.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
     }
 
     function listenHistory() {
       const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'));
       onSnapshot(q, (snap) => {
         if (snap.empty) {
-          historyList.innerHTML = '<div class="empty-state">Belum ada riwayat live</div>';
-          document.getElementById('statMyKomisi').textContent = 'Rp 0';
-          document.getElementById('statMyHours').textContent = '0j 0m';
-          document.getElementById('statMySessions').textContent = '0';
+          historyList.innerHTML = `<div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg>
+            <div>Belum ada riwayat live. Yuk mulai live pertamamu!</div>
+          </div>`;
+          renderAllStats([]);
           return;
         }
+        const sessions = [];
+        snap.forEach(d => sessions.push(d.data()));
+        window._lastSessions = sessions;
+
         historyList.innerHTML = '';
-        let totalKomisi = 0, totalMinutes = 0, totalSessions = 0;
-        snap.forEach((d) => {
-          const s = d.data();
-          totalSessions++;
-          totalKomisi += calcCommission(s);
+        let lastLabel = null;
+        sessions.forEach((s) => {
           const start = s.startTime?.toDate();
           const end = s.endTime?.toDate();
           const durMin = start && end ? Math.round((end - start) / 60000) : 0;
-          totalMinutes += durMin;
-          const dateStr = start ? start.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-';
+          const label = start ? relativeDateLabel(start) : '-';
+          if (label !== lastLabel) {
+            const heading = document.createElement('div');
+            heading.className = 'date-heading';
+            heading.textContent = label;
+            historyList.appendChild(heading);
+            lastLabel = label;
+          }
           const timeStr = start && end ? `${start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})} - ${end.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}` : '-';
-
           const el = document.createElement('div');
-          el.className = 'history-item';
+          el.className = 'card history-item';
           el.innerHTML = `
-            <div class="history-body">
-              <div class="history-top">
-                <div class="history-date">${dateStr} · ${timeStr}</div>
-                <div class="history-duration">${Math.floor(durMin/60)}j ${durMin%60}m</div>
-              </div>
-              <div class="history-grid">
-                <div>Produk: <b>${s.productsSold ?? 0}</b></div>
-                <div>Viewer: <b>${s.viewers ?? 0}</b></div>
-                <div>Penghasilan: <b>Rp ${Number(s.revenue ?? 0).toLocaleString('id-ID')}</b></div>
-              </div>
-              ${s.notes ? `<div class="history-notes">"${s.notes}"</div>` : ''}
+            <div class="history-top">
+              <div class="history-time">${timeStr}</div>
+              <div class="history-duration">${Math.floor(durMin/60)}j ${durMin%60}m</div>
             </div>
+            <div class="history-fields">
+              <div><div class="hf-label">Produk</div><div class="hf-value">${s.productsSold ?? 0}</div></div>
+              <div><div class="hf-label">Viewer</div><div class="hf-value">${s.viewers ?? 0}</div></div>
+              <div><div class="hf-label">Penghasilan</div><div class="hf-value">Rp ${Number(s.revenue ?? 0).toLocaleString('id-ID')}</div></div>
+            </div>
+            ${s.notes ? `<div class="history-notes">"${s.notes}"</div>` : ''}
           `;
           historyList.appendChild(el);
         });
 
-        document.getElementById('statMyKomisi').textContent = 'Rp ' + Math.round(totalKomisi).toLocaleString('id-ID');
-        document.getElementById('statMyHours').textContent = `${Math.floor(totalMinutes/60)}j ${totalMinutes%60}m`;
-        document.getElementById('statMySessions').textContent = totalSessions;
+        renderAllStats(sessions);
+      }, (err) => {
+        historyList.innerHTML = '<div class="empty-state">Gagal memuat riwayat. Lihat pesan di bawah.</div>';
+        showToast('Gagal memuat riwayat: ' + err.message, true);
+        console.error(err);
       });
+    }
+
+    function countUp(el, target) {
+      const start = Number(el.dataset.raw || 0);
+      if (start === target) { el.textContent = 'Rp ' + target.toLocaleString('id-ID'); return; }
+      const duration = 500;
+      const t0 = performance.now();
+      function step(now) {
+        const progress = Math.min((now - t0) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const value = Math.round(start + (target - start) * eased);
+        el.textContent = 'Rp ' + value.toLocaleString('id-ID');
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+      el.dataset.raw = target;
+    }
+
+    function renderAllStats(sessions) {
+      let totalKomisi = 0, totalMinutes = 0;
+      sessions.forEach(s => {
+        totalKomisi += calcCommission(s);
+        const start = s.startTime?.toDate(), end = s.endTime?.toDate();
+        if (start && end) totalMinutes += Math.round((end - start) / 60000);
+      });
+      countUp(document.getElementById('statMyKomisi'), Math.round(totalKomisi));
+      document.getElementById('statMyHours').textContent = `${Math.floor(totalMinutes/60)}j ${totalMinutes%60}m`;
+      document.getElementById('statMySessions').textContent = sessions.length;
+
+      const todayStr = new Date().toDateString();
+      const todaySessions = sessions.filter(s => s.startTime?.toDate().toDateString() === todayStr);
+      const todayRevenue = todaySessions.reduce((sum, s) => sum + (Number(s.revenue) || 0), 0);
+      countUp(document.getElementById('periodTodayRevenue'), todayRevenue);
+      document.getElementById('periodTodaySessions').textContent = todaySessions.length + ' sesi';
+
+      const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 6); weekAgo.setHours(0,0,0,0);
+      const weekSessions = sessions.filter(s => s.startTime?.toDate() >= weekAgo);
+      const weekRevenue = weekSessions.reduce((sum, s) => sum + (Number(s.revenue) || 0), 0);
+      countUp(document.getElementById('periodWeekRevenue'), weekRevenue);
+      document.getElementById('periodWeekSessions').textContent = weekSessions.length + ' sesi';
+
+      const allRevenue = sessions.reduce((sum, s) => sum + (Number(s.revenue) || 0), 0);
+      countUp(document.getElementById('periodAllRevenue'), allRevenue);
+      document.getElementById('periodAllSessions').textContent = sessions.length + ' sesi';
+
+      renderMyChart(sessions);
+      renderHeatmap(sessions);
+
+    }
+
+    function chartTextColor() { return getComputedStyle(document.body).getPropertyValue('color') || '#111'; }
+    function chartGridColor() { return root.getAttribute('data-theme') === 'dark' ? '#2A2A2E' : '#F4F4F5'; }
+
+    function renderMyChart(sessions) {
+      const days = [];
+      const revenueByDay = {};
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        const key = d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
+        days.push(key); revenueByDay[key] = 0;
+      }
+      sessions.forEach(s => {
+        const d = s.startTime?.toDate(); if (!d) return;
+        const key = d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
+        if (key in revenueByDay) revenueByDay[key] += Number(s.revenue) || 0;
+      });
+      const data = days.map(k => revenueByDay[k]);
+      const ctx = document.getElementById('myRevenueChart').getContext('2d');
+      if (myRevenueChart) myRevenueChart.destroy();
+      myRevenueChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: days, datasets: [{ label: 'Penghasilan', data, borderColor: '#FF5C39', backgroundColor: 'rgba(255,92,57,.08)', fill: true, tension: .35, pointRadius: 3 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), callback: v => 'Rp ' + (v/1000) + 'k', font: { size: 10 } } },
+            x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    function renderHeatmap(sessions) {
+      const countByDay = {};
+      sessions.forEach(s => {
+        const d = s.startTime?.toDate(); if (!d) return;
+        const key = d.toDateString();
+        countByDay[key] = (countByDay[key] || 0) + 1;
+      });
+      const grid = document.getElementById('heatmapGrid');
+      grid.innerHTML = '';
+      const totalDays = 84; // 12 weeks
+      const today = new Date();
+      for (let i = totalDays - 1; i >= 0; i--) {
+        const d = new Date(today); d.setDate(d.getDate() - i);
+        const count = countByDay[d.toDateString()] || 0;
+        const cell = document.createElement('div');
+        cell.className = 'heatmap-cell' + (count >= 3 ? ' l3' : count === 2 ? ' l2' : count === 1 ? ' l1' : '');
+        cell.title = `${d.toLocaleDateString('id-ID')}: ${count} sesi`;
+        grid.appendChild(cell);
+      }
     }
 
     startBtn.addEventListener('click', async () => {
@@ -379,47 +575,103 @@
       try {
         await addDoc(collection(db, 'sessions'), {
           uid: currentUser.uid, employeeName: currentUserName, platform: 'TikTok',
-          status: 'active', startTime: Timestamp.now(), endTime: null,
+          status: 'active', startTime: Timestamp.now(), endTime: null, lastPing: Timestamp.now(),
           productsSold: null, revenue: null, viewers: null, notes: ''
         });
-        showToast('Live dimulai. Semangat! 🎉');
-      } catch (err) {
-        showToast('Gagal memulai live, coba lagi.');
-      }
+        showToast('Live dimulai. Semangat!');
+      } catch (err) { showToast('Gagal memulai live: ' + err.message, true); }
       startBtn.disabled = false;
     });
 
     stopBtn.addEventListener('click', () => modalOverlay.classList.add('show'));
-    document.getElementById('cancelEnd').addEventListener('click', () => {
-      modalOverlay.classList.remove('show');
-    });
+    document.getElementById('cancelEnd').addEventListener('click', () => modalOverlay.classList.remove('show'));
 
     endForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!activeSessionId) return;
       confirmEndBtn.disabled = true;
       confirmEndBtn.textContent = 'Menyimpan…';
-
       const productsSold = Number(document.getElementById('productsSold').value);
       const revenue = Number(document.getElementById('revenue').value);
       const viewers = Number(document.getElementById('viewers').value);
       const notes = document.getElementById('notes').value.trim();
-
       try {
-        await updateDoc(doc(db, 'sessions', activeSessionId), {
-          status: 'selesai', endTime: Timestamp.now(),
-          productsSold, revenue, viewers, notes
-        });
-
-        modalOverlay.classList.remove('show');
-        endForm.reset();
-        showToast('Data live tersimpan ✓');
-      } catch (err) {
-        showToast('Gagal menyimpan, coba lagi.');
-      }
+        await updateDoc(doc(db, 'sessions', activeSessionId), { status: 'selesai', endTime: Timestamp.now(), productsSold, revenue, viewers, notes });
+        modalOverlay.classList.remove('show'); endForm.reset();
+        showToast('Data live tersimpan');
+      } catch (err) { showToast('Gagal menyimpan: ' + err.message, true); }
       confirmEndBtn.disabled = false;
       confirmEndBtn.textContent = 'Simpan & Selesai';
     });
+
+    // ── export CSV ──
+    document.getElementById('exportCsvBtn').addEventListener('click', () => {
+      const sessions = window._lastSessions || [];
+      const rows = [['Tanggal','Mulai','Selesai','Durasi (menit)','Produk','Penghasilan','Komisi','Viewer','Catatan','Status']];
+      sessions.forEach(s => {
+        const start = s.startTime?.toDate(), end = s.endTime?.toDate();
+        const durMin = start && end ? Math.round((end - start) / 60000) : '';
+        rows.push([
+          start ? start.toLocaleDateString('id-ID') : '', start ? start.toLocaleTimeString('id-ID') : '', end ? end.toLocaleTimeString('id-ID') : '',
+          durMin, s.productsSold ?? '', s.revenue ?? '', Math.round(calcCommission(s)),
+          s.viewers ?? '', (s.notes || '').replace(/,/g,';'), 'Selesai'
+        ]);
+      });
+      const csv = rows.map(r => r.join(',')).join('\n');
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `riwayat-live-saya-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click(); URL.revokeObjectURL(url);
+      showToast('CSV berhasil didownload.');
+    });
+
+    function listenMySchedule() {
+      const q = query(collection(db, 'schedules'), where('uid', '==', currentUser.uid), orderBy('startAt', 'asc'));
+      onSnapshot(q, (snap) => {
+        const list = document.getElementById('myScheduleList');
+        const now = Date.now();
+        const upcoming = [];
+        snap.forEach(d => {
+          const data = d.data();
+          if (data.endAt?.toDate().getTime() >= now) upcoming.push(data);
+        });
+
+        if (upcoming.length === 0) {
+          list.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><div>Belum ada jadwal live mendatang</div></div>';
+          return;
+        }
+
+        let lastDate = null;
+        list.innerHTML = '';
+        upcoming.forEach(s => {
+          const start = s.startAt?.toDate();
+          const end = s.endAt?.toDate();
+          const dateKey = start ? start.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long' }) : '-';
+          if (dateKey !== lastDate) {
+            const heading = document.createElement('div');
+            heading.className = 'date-heading';
+            heading.textContent = dateKey;
+            list.appendChild(heading);
+            lastDate = dateKey;
+          }
+          const row = document.createElement('div');
+          row.className = 'schedule-row';
+          row.innerHTML = `
+            <div class="schedule-time">${start ? start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'}</div>
+            <div class="schedule-info">
+              <div style="font-weight:700; font-size:.85rem;">TikTok Live</div>
+              ${s.notes ? `<div class="schedule-notes">${s.notes}</div>` : ''}
+            </div>
+            <div style="font-size:.72rem; color:var(--muted);">s/d ${end ? end.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'}</div>
+          `;
+          list.appendChild(row);
+        });
+      }, (err) => {
+        document.getElementById('myScheduleList').innerHTML = '<div class="empty-state">Gagal memuat jadwal</div>';
+        console.error('Schedule listener error:', err);
+      });
+    }
   </script>
 </body>
 </html>
