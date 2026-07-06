@@ -11,6 +11,7 @@
   :root{
     --ink:#111114; --muted:#6B7280; --border:#E5E7EB; --coral:#FF5C39;
     --bg:#FAFAFA; --card:#fff; --df:'Sora',sans-serif; --di:'Inter',sans-serif;
+    --ease:cubic-bezier(.16,1,.3,1);
   }
   html[data-theme="dark"]{
     --ink:#F4F4F5; --muted:#9CA3AF; --border:#2A2A2E; --bg:#0E0E10; --card:#18181B;
@@ -53,7 +54,17 @@
   .alert-banner svg{ width:18px; height:18px; flex-shrink:0; }
 
   .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:22px; }
-  .stat-card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; transition:background .2s,border-color .2s; }
+  .stat-card{
+    background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px;
+    transition:background .2s,border-color .2s, transform .2s ease, box-shadow .2s ease;
+    animation:fadeUp .45s var(--ease) backwards;
+  }
+  .stat-card:hover{ transform:translateY(-3px); box-shadow:0 10px 24px rgba(0,0,0,.07); }
+  .stat-grid .stat-card:nth-child(1){ animation-delay:.03s; }
+  .stat-grid .stat-card:nth-child(2){ animation-delay:.08s; }
+  .stat-grid .stat-card:nth-child(3){ animation-delay:.13s; }
+  .stat-grid .stat-card:nth-child(4){ animation-delay:.18s; }
+  .stat-grid .stat-card:nth-child(5){ animation-delay:.23s; }
   .stat-icon{ width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(128,128,128,.1); color:var(--muted); margin-bottom:12px; }
   .stat-num{ font-family:var(--df); font-weight:800; font-size:1.4rem; letter-spacing:-.02em; }
   .stat-label{ font-size:.74rem; color:var(--muted); margin-top:3px; }
@@ -61,7 +72,8 @@
   .live-now-card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:22px; }
   .live-now-card h4{ font-family:var(--df); font-weight:700; font-size:.92rem; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
   .live-now-card h4 .pulse{ width:8px; height:8px; border-radius:50%; background:#22C55E; animation:pulseDot 1.6s ease infinite; }
-  .live-row{ display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+  .live-row{ display:flex; align-items:center; gap:12px; padding:10px 8px; border-bottom:1px solid var(--border); border-radius:10px; transition:background .15s ease; animation:fadeUp .3s var(--ease); }
+  .live-row:hover{ background:rgba(128,128,128,.05); }
   .live-row:last-child{ border-bottom:none; }
   .avatar{ width:36px; height:36px; border-radius:50%; background:var(--ink); color:var(--bg); display:flex; align-items:center; justify-content:center; font-family:var(--df); font-weight:800; font-size:.72rem; flex-shrink:0; overflow:hidden; }
   .avatar img{ width:100%; height:100%; object-fit:cover; }
@@ -87,7 +99,8 @@
   .chart-card h4{ font-family:var(--df); font-weight:700; font-size:.88rem; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border); }
   .chart-wrap{ position:relative; height:210px; }
 
-  .leaderboard-item{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
+  .leaderboard-item{ display:flex; align-items:center; gap:10px; padding:9px 8px; border-bottom:1px solid var(--border); border-radius:10px; transition:background .15s ease; animation:fadeUp .3s var(--ease); }
+  .leaderboard-item:hover{ background:rgba(128,128,128,.05); }
   .leaderboard-item:last-child{ border-bottom:none; }
   .lb-rank{ font-family:var(--df); font-weight:800; font-size:.8rem; color:var(--muted); width:18px; }
   .lb-info{ flex:1; min-width:0; }
@@ -109,6 +122,7 @@
   thead th{ text-align:left; font-size:.68rem; color:var(--muted); font-weight:700; padding:12px 16px; background:rgba(128,128,128,.05); border-bottom:1px solid var(--border); white-space:nowrap; text-transform:uppercase; letter-spacing:.03em; }
   tbody td{ padding:13px 16px; font-size:.8rem; border-bottom:1px solid var(--border); white-space:nowrap; }
   tbody tr:last-child td{ border-bottom:none; }
+  tbody tr{ transition:background .15s ease; }
   tbody tr:hover{ background:rgba(128,128,128,.04); }
   .emp-name-cell{ display:flex; align-items:center; gap:10px; }
   .emp-name-cell .avatar{ width:30px; height:30px; font-size:.66rem; }
@@ -499,20 +513,20 @@
       return `<div class="avatar" style="${size?`width:${size}px;height:${size}px;`:''}">${initials(user ? user.name : '')}</div>`;
     }
     function countUp(el, target, isMoney) {
-      let cur = Number((el.textContent || '').replace(/\D/g,'')) || 0;
-      const steps = 20;
-      const inc = (target - cur) / steps;
-      let i = 0;
-      clearInterval(el._countInt);
-      el._countInt = setInterval(() => {
-        i++; cur += inc;
-        const val = Math.round(cur);
+      const start = Number(el.dataset.raw || 0);
+      if (start === target) { el.textContent = isMoney ? 'Rp ' + target.toLocaleString('id-ID') : target; return; }
+      const duration = 700;
+      const t0 = performance.now();
+      cancelAnimationFrame(el._raf);
+      function step(now) {
+        const p = Math.min((now - t0) / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const val = Math.round(start + (target - start) * eased);
         el.textContent = isMoney ? 'Rp ' + val.toLocaleString('id-ID') : val;
-        if (i >= steps) {
-          el.textContent = isMoney ? 'Rp ' + target.toLocaleString('id-ID') : target;
-          clearInterval(el._countInt);
-        }
-      }, 20);
+        if (p < 1) el._raf = requestAnimationFrame(step);
+        else el.dataset.raw = target;
+      }
+      el._raf = requestAnimationFrame(step);
     }
 
     // ── sidebar nav ──
@@ -782,12 +796,16 @@
       const list = document.getElementById('leaderboardList');
       if (sorted.length === 0) { list.innerHTML = '<div class="empty-state">Belum ada data</div>'; return; }
       list.innerHTML = sorted.map((e, i) => `
-        <div class="leaderboard-item">
+        <div class="leaderboard-item" style="animation-delay:${i*.05}s">
           <div class="lb-rank">#${i + 1}</div>
           ${avatarHtml(allUsers[e.uid] || { name: e.name }, 30)}
-          <div class="lb-info"><div class="lb-name">${e.name}</div><div class="lb-value">Rp ${e.revenue.toLocaleString('id-ID')}</div></div>
+          <div class="lb-info"><div class="lb-name">${e.name}</div><div class="lb-value" data-lb-uid="${e.uid}">Rp 0</div></div>
         </div>
       `).join('');
+      sorted.forEach(e => {
+        const el = list.querySelector(`[data-lb-uid="${e.uid}"]`);
+        if (el) countUp(el, e.revenue, true);
+      });
     }
 
     function calcStreak(uid) {
@@ -829,9 +847,10 @@
           <td><span class="status-pill ${activeSession ? 'on' : 'off'}"><span class="dot2"></span>${activeSession ? 'Sedang Live' : 'Tidak Live'}</span></td>
           <td>${h}j ${m}m</td>
           <td>${totalProduk}</td>
-          <td class="komisi-cell">Rp ${Math.round(totalKomisi).toLocaleString('id-ID')}</td>
+          <td class="komisi-cell" data-emp-komisi="${uid}">Rp 0</td>
         `;
         tbody.appendChild(tr);
+        countUp(tr.querySelector(`[data-emp-komisi="${uid}"]`), Math.round(totalKomisi), true);
       });
     }
 
@@ -1042,14 +1061,20 @@
         const user = allUsers[s.uid];
         const row = document.createElement('div');
         row.className = 'schedule-row';
+        row.style.cursor = 'pointer';
         row.innerHTML = `
           ${avatarHtml(user || { name: s.employeeName })}
           <div class="live-info">
             <div class="live-name">${s.employeeName || '-'}</div>
             <div class="live-meta">${start ? start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'} - ${end ? end.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'}${s.notes ? ' · ' + s.notes : ''}</div>
           </div>
+          <button class="force-end-btn" data-edit="${s.id}">Edit</button>
           <button class="force-end-btn" onclick="window.deleteSchedule('${s.id}')">Hapus</button>
         `;
+        row.querySelector('[data-edit]').addEventListener('click', (e) => {
+          e.stopPropagation();
+          openScheduleModal(s);
+        });
         list.appendChild(row);
       });
     }
@@ -1063,13 +1088,38 @@
     }
     window.deleteSchedule = deleteSchedule;
 
-    const scheduleModalOverlay = document.getElementById('scheduleModalOverlay');
-    document.getElementById('addScheduleBtn').addEventListener('click', () => {
+    let editingScheduleId = null;
+
+    function openScheduleModal(schedule) {
       const sel = document.getElementById('scheduleEmpUid');
       sel.innerHTML = Object.keys(allUsers).map(uid => `<option value="${uid}">${allUsers[uid].name}</option>`).join('');
       if (Object.keys(allUsers).length === 0) { showToast('Belum ada karyawan terdaftar, tambah karyawan dulu.', true); return; }
+
+      const modalTitle = document.querySelector('#scheduleModalOverlay h3');
+      const submitBtn = document.querySelector('#scheduleForm .confirm');
+
+      if (schedule) {
+        editingScheduleId = schedule.id;
+        modalTitle.textContent = 'Edit Jadwal Live';
+        submitBtn.textContent = 'Simpan Perubahan';
+        const start = schedule.startAt.toDate();
+        const end = schedule.endAt.toDate();
+        sel.value = schedule.uid;
+        document.getElementById('scheduleDate').value = start.toISOString().slice(0,10);
+        document.getElementById('scheduleTimeStart').value = start.toTimeString().slice(0,5);
+        document.getElementById('scheduleTimeEnd').value = end.toTimeString().slice(0,5);
+        document.getElementById('scheduleNotes').value = schedule.notes || '';
+      } else {
+        editingScheduleId = null;
+        modalTitle.textContent = 'Tambah Jadwal Live';
+        submitBtn.textContent = 'Simpan Jadwal';
+        document.getElementById('scheduleForm').reset();
+      }
       scheduleModalOverlay.classList.add('show');
-    });
+    }
+
+    const scheduleModalOverlay = document.getElementById('scheduleModalOverlay');
+    document.getElementById('addScheduleBtn').addEventListener('click', () => openScheduleModal(null));
     document.getElementById('cancelSchedule').addEventListener('click', () => scheduleModalOverlay.classList.remove('show'));
 
     document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
@@ -1086,12 +1136,17 @@
       if (endAt <= startAt) { showToast('Jam selesai harus lebih besar dari jam mulai.', true); return; }
 
       try {
-        await addDoc(collection(db, 'schedules'), {
+        const payload = {
           uid, employeeName: allUsers[uid]?.name || '-',
-          startAt: Timestamp.fromDate(startAt), endAt: Timestamp.fromDate(endAt),
-          notes, createdAt: Timestamp.now()
-        });
-        showToast('Jadwal live tersimpan.');
+          startAt: Timestamp.fromDate(startAt), endAt: Timestamp.fromDate(endAt), notes
+        };
+        if (editingScheduleId) {
+          await updateDoc(doc(db, 'schedules', editingScheduleId), payload);
+          showToast('Jadwal berhasil diperbarui.');
+        } else {
+          await addDoc(collection(db, 'schedules'), { ...payload, createdAt: Timestamp.now() });
+          showToast('Jadwal live tersimpan.');
+        }
         scheduleModalOverlay.classList.remove('show');
         document.getElementById('scheduleForm').reset();
       } catch (err) { showToast('Gagal menyimpan jadwal: ' + err.message, true); }
