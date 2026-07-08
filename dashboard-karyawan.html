@@ -6,7 +6,6 @@
 <title>Dashboard Karyawan — ICABEEE TEAM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
   :root{
     --ink:#111114; --muted:#6B7280; --border:#E5E7EB; --coral:#FF5C39;
@@ -65,7 +64,7 @@
   .big-btn.stop{ background:var(--coral); }
   .big-btn:disabled{ opacity:.5; }
 
-  .mini-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .mini-stats{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
   .mini-stat{ padding:14px 6px; text-align:center; }
   .mini-num{ font-family:var(--df); font-weight:800; font-size:.9rem; color:var(--coral); }
   .mini-label{ font-size:.63rem; color:var(--muted); margin-top:3px; }
@@ -85,8 +84,7 @@
   .period-card .p-num{ font-family:var(--df); font-weight:800; font-size:1.15rem; letter-spacing:-.02em; }
   .period-card .p-sub{ font-size:.7rem; color:var(--muted); margin-top:2px; }
 
-  .chart-card{ padding:20px; margin-bottom:20px; }
-  .chart-wrap{ position:relative; height:190px; }
+
 
   /* attendance heatmap */
   .heatmap-card{ padding:20px; margin-bottom:20px; }
@@ -118,6 +116,26 @@
   .history-footer{ display:flex; justify-content:flex-end; margin-top:8px; }
   .status-approved{ font-size:.68rem; font-weight:700; color:#16A34A; }
   .status-pending{ font-size:.68rem; font-weight:700; color:#D97706; }
+
+  .att-pill{ display:inline-flex; align-items:center; gap:5px; font-size:.68rem; font-weight:700; padding:4px 10px; border-radius:999px; white-space:nowrap; }
+  .att-pill .dot3{ width:6px; height:6px; border-radius:50%; }
+  .att-pill.hadir{ background:#DCFCE7; color:#16A34A; }
+  .att-pill.hadir .dot3{ background:#16A34A; }
+  .att-pill.telat{ background:#FEF3C7; color:#B45309; }
+  .att-pill.telat .dot3{ background:#D97706; }
+  .att-pill.absen{ background:#FEE2E2; color:#DC2626; }
+  .att-pill.absen .dot3{ background:#DC2626; }
+  .att-pill.extra{ background:#DBEAFE; color:#2563EB; }
+  .att-pill.extra .dot3{ background:#2563EB; }
+  html[data-theme="dark"] .att-pill.hadir{ background:#14532D; color:#4ADE80; }
+  html[data-theme="dark"] .att-pill.telat{ background:#451A03; color:#FBBF24; }
+  html[data-theme="dark"] .att-pill.absen{ background:#3A1414; color:#FCA5A5; }
+  html[data-theme="dark"] .att-pill.extra{ background:#1E3A5F; color:#93C5FD; }
+
+  .att-row{ display:flex; align-items:center; gap:12px; padding:12px 14px; margin-bottom:8px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .att-row-info{ flex:1; min-width:0; }
+  .att-row-date{ font-family:var(--df); font-weight:700; font-size:.82rem; }
+  .att-row-meta{ font-size:.7rem; color:var(--muted); margin-top:2px; }
 
   .empty-state{ text-align:center; color:var(--muted); font-size:.83rem; padding:36px 20px; }
   .empty-state svg{ width:42px; height:42px; color:var(--border); margin-bottom:10px; }
@@ -186,7 +204,6 @@
 
         <div class="card" style="margin-bottom:16px;">
           <div class="mini-stats">
-            <div class="mini-stat"><div class="mini-num" id="statMyKomisi">Rp 0</div><div class="mini-label">Komisi Disetujui</div></div>
             <div class="mini-stat"><div class="mini-num" id="statMyHours">0j 0m</div><div class="mini-label">Jam Kerja</div></div>
             <div class="mini-stat"><div class="mini-num" id="statMySessions">0</div><div class="mini-label">Sesi Live</div></div>
           </div>
@@ -200,20 +217,24 @@
         </div>
 
         <div class="section-block">
+          <div class="section-title">Absensi Saya</div>
+          <div class="period-grid" style="margin-bottom:12px;">
+            <div class="card period-card"><div class="p-label">Hadir</div><div class="p-num" id="attHadir">0</div></div>
+            <div class="card period-card"><div class="p-label">Telat</div><div class="p-num" id="attTelat">0</div></div>
+            <div class="card period-card"><div class="p-label">Tidak Hadir</div><div class="p-num" id="attTidakHadir">0</div></div>
+          </div>
+          <div id="myAttendanceList"><div class="empty-state">Memuat absensi…</div></div>
+        </div>
+
+        <div class="section-block">
           <div class="section-title">
             Ringkasan Performa
-            <button class="btn" id="exportCsvBtn">Export CSV</button>
           </div>
           <div class="period-grid">
             <div class="card period-card"><div class="p-label">Hari Ini</div><div class="p-num" id="periodTodayRevenue">Rp 0</div><div class="p-sub" id="periodTodaySessions">0 sesi</div></div>
             <div class="card period-card"><div class="p-label">Minggu Ini</div><div class="p-num" id="periodWeekRevenue">Rp 0</div><div class="p-sub" id="periodWeekSessions">0 sesi</div></div>
-            <div class="card period-card"><div class="p-label">Semua Waktu</div><div class="p-num" id="periodAllRevenue">Rp 0</div><div class="p-sub" id="periodAllSessions">0 sesi</div></div>
+            <div class="card period-card"><div class="p-label">Total</div><div class="p-num" id="periodAllRevenue">Rp 0</div><div class="p-sub" id="periodAllSessions">0 sesi</div></div>
           </div>
-        </div>
-
-        <div class="card chart-card">
-          <div class="section-title" style="margin-bottom:14px;">Tren Penghasilan (7 Hari Terakhir)</div>
-          <div class="chart-wrap"><canvas id="myRevenueChart"></canvas></div>
         </div>
 
         <div class="card heatmap-card">
@@ -284,7 +305,6 @@
     applyTheme(localStorage.getItem('icabeee-theme') || 'light');
     document.getElementById('themeToggle').addEventListener('click', () => {
       applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-      if (window._lastSessions) { renderMyChart(window._lastSessions); }
     });
 
     let currentUser = null;
@@ -292,14 +312,9 @@
     let activeSessionId = null;
     let activeSessionStart = null;
     let timerInterval = null;
-    let commission = { percent: 0, perProduct: 0 };
-    let myRevenueChart = null;
+    let mySchedules = [];
+    let myAttendanceSessions = [];
 
-    function calcCommission(session) {
-      const rev = Number(session.revenue) || 0;
-      const qty = Number(session.productsSold) || 0;
-      return rev * (commission.percent / 100) + qty * commission.perProduct;
-    }
     function initials(name) { return (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase(); }
 
     const statusDot = document.getElementById('statusDot');
@@ -370,12 +385,10 @@
       if (snap.data().photoBase64) avatarEl.innerHTML = `<img src="${snap.data().photoBase64}">`;
       else avatarEl.textContent = initials(currentUserName);
 
-      onSnapshot(doc(db, 'config', 'commission'), (csnap) => {
-        if (csnap.exists()) commission = { percent: Number(csnap.data().percent) || 0, perProduct: Number(csnap.data().perProduct) || 0 };
-      }, (err) => console.error('Commission listener error:', err));
       listenActiveSession();
       listenHistory();
       listenMySchedule();
+      listenAttendanceSessions();
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
@@ -485,13 +498,11 @@
     }
 
     function renderAllStats(sessions) {
-      let totalKomisi = 0, totalMinutes = 0;
+      let totalMinutes = 0;
       sessions.forEach(s => {
-        totalKomisi += calcCommission(s);
         const start = s.startTime?.toDate(), end = s.endTime?.toDate();
         if (start && end) totalMinutes += Math.round((end - start) / 60000);
       });
-      countUp(document.getElementById('statMyKomisi'), Math.round(totalKomisi));
       document.getElementById('statMyHours').textContent = `${Math.floor(totalMinutes/60)}j ${totalMinutes%60}m`;
       document.getElementById('statMySessions').textContent = sessions.length;
 
@@ -511,42 +522,8 @@
       countUp(document.getElementById('periodAllRevenue'), allRevenue);
       document.getElementById('periodAllSessions').textContent = sessions.length + ' sesi';
 
-      renderMyChart(sessions);
       renderHeatmap(sessions);
 
-    }
-
-    function chartTextColor() { return getComputedStyle(document.body).getPropertyValue('color') || '#111'; }
-    function chartGridColor() { return root.getAttribute('data-theme') === 'dark' ? '#2A2A2E' : '#F4F4F5'; }
-
-    function renderMyChart(sessions) {
-      const days = [];
-      const revenueByDay = {};
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(); d.setDate(d.getDate() - i);
-        const key = d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
-        days.push(key); revenueByDay[key] = 0;
-      }
-      sessions.forEach(s => {
-        const d = s.startTime?.toDate(); if (!d) return;
-        const key = d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
-        if (key in revenueByDay) revenueByDay[key] += Number(s.revenue) || 0;
-      });
-      const data = days.map(k => revenueByDay[k]);
-      const ctx = document.getElementById('myRevenueChart').getContext('2d');
-      if (myRevenueChart) myRevenueChart.destroy();
-      myRevenueChart = new Chart(ctx, {
-        type: 'line',
-        data: { labels: days, datasets: [{ label: 'Penghasilan', data, borderColor: '#FF5C39', backgroundColor: 'rgba(255,92,57,.08)', fill: true, tension: .35, pointRadius: 3 }] },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), callback: v => 'Rp ' + (v/1000) + 'k', font: { size: 10 } } },
-            x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10 } } }
-          }
-        }
-      });
     }
 
     function renderHeatmap(sessions) {
@@ -568,6 +545,92 @@
         cell.title = `${d.toLocaleDateString('id-ID')}: ${count} sesi`;
         grid.appendChild(cell);
       }
+    }
+
+    // ── absensi otomatis (jadwal vs jam mulai live sebenarnya) ──
+    function listenAttendanceSessions() {
+      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid));
+      onSnapshot(q, (snap) => {
+        myAttendanceSessions = [];
+        snap.forEach(d => myAttendanceSessions.push({ id: d.id, ...d.data() }));
+        renderMyAttendance();
+      }, (err) => console.error('Attendance session listener error:', err));
+    }
+
+    function sameDay(a, b) {
+      return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    }
+
+    function computeMyAbsensi() {
+      const now = new Date();
+      const records = [];
+      const usedSessionIds = new Set();
+
+      mySchedules.forEach(sch => {
+        const startAt = sch.startAt?.toDate();
+        const endAt = sch.endAt?.toDate();
+        if (!startAt) return;
+
+        const matches = myAttendanceSessions
+          .filter(s => s.startTime && sameDay(s.startTime.toDate(), startAt))
+          .sort((a, b) => a.startTime.toDate() - b.startTime.toDate());
+        const match = matches[0];
+
+        if (match) {
+          usedSessionIds.add(match.id);
+          const liveStart = match.startTime.toDate();
+          const diffMin = Math.round((liveStart - startAt) / 60000);
+          const status = diffMin <= 15 ? 'hadir' : 'telat';
+          records.push({
+            date: startAt, scheduleStr: startAt.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),
+            liveStr: liveStart.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), diffMin, status
+          });
+        } else if (endAt && endAt < now) {
+          records.push({
+            date: startAt, scheduleStr: startAt.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),
+            liveStr: '-', diffMin: null, status: 'absen'
+          });
+        }
+      });
+
+      myAttendanceSessions.forEach(s => {
+        if (usedSessionIds.has(s.id) || !s.startTime) return;
+        const liveStart = s.startTime.toDate();
+        records.push({ date: liveStart, scheduleStr: '-', liveStr: liveStart.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), diffMin: null, status: 'extra' });
+      });
+
+      records.sort((a, b) => b.date - a.date);
+      return records.slice(0, 20);
+    }
+
+    function renderMyAttendance() {
+      const list = document.getElementById('myAttendanceList');
+      if (!list) return;
+      const records = computeMyAbsensi();
+
+      document.getElementById('attHadir').textContent = records.filter(r => r.status === 'hadir').length;
+      document.getElementById('attTelat').textContent = records.filter(r => r.status === 'telat').length;
+      document.getElementById('attTidakHadir').textContent = records.filter(r => r.status === 'absen').length;
+
+      if (records.length === 0) {
+        list.innerHTML = '<div class="empty-state">Belum ada data absensi</div>';
+        return;
+      }
+
+      const statusLabel = { hadir: 'Hadir', telat: 'Telat', absen: 'Tidak Hadir', extra: 'Tanpa Jadwal' };
+      list.innerHTML = records.map(r => {
+        const dateStr = r.date.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
+        const metaStr = r.scheduleStr === '-' ? `Live jam ${r.liveStr} (tanpa jadwal)` : `Jadwal ${r.scheduleStr} · Live ${r.liveStr}`;
+        return `
+          <div class="att-row">
+            <div class="att-row-info">
+              <div class="att-row-date">${dateStr}</div>
+              <div class="att-row-meta">${metaStr}</div>
+            </div>
+            <span class="att-pill ${r.status}"><span class="dot3"></span>${statusLabel[r.status]}</span>
+          </div>
+        `;
+      }).join('');
     }
 
     startBtn.addEventListener('click', async () => {
@@ -604,31 +667,13 @@
       confirmEndBtn.textContent = 'Simpan & Selesai';
     });
 
-    // ── export CSV ──
-    document.getElementById('exportCsvBtn').addEventListener('click', () => {
-      const sessions = window._lastSessions || [];
-      const rows = [['Tanggal','Mulai','Selesai','Durasi (menit)','Produk','Penghasilan','Komisi','Viewer','Catatan','Status']];
-      sessions.forEach(s => {
-        const start = s.startTime?.toDate(), end = s.endTime?.toDate();
-        const durMin = start && end ? Math.round((end - start) / 60000) : '';
-        rows.push([
-          start ? start.toLocaleDateString('id-ID') : '', start ? start.toLocaleTimeString('id-ID') : '', end ? end.toLocaleTimeString('id-ID') : '',
-          durMin, s.productsSold ?? '', s.revenue ?? '', Math.round(calcCommission(s)),
-          s.viewers ?? '', (s.notes || '').replace(/,/g,';'), 'Selesai'
-        ]);
-      });
-      const csv = rows.map(r => r.join(',')).join('\n');
-      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = `riwayat-live-saya-${new Date().toISOString().slice(0,10)}.csv`;
-      a.click(); URL.revokeObjectURL(url);
-      showToast('CSV berhasil didownload.');
-    });
-
     function listenMySchedule() {
       const q = query(collection(db, 'schedules'), where('uid', '==', currentUser.uid), orderBy('startAt', 'asc'));
       onSnapshot(q, (snap) => {
+        mySchedules = [];
+        snap.forEach(d => mySchedules.push({ id: d.id, ...d.data() }));
+        renderMyAttendance();
+
         const list = document.getElementById('myScheduleList');
         const now = Date.now();
         const upcoming = [];
