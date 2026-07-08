@@ -133,6 +133,15 @@
   .status-pill .dot2{ width:6px; height:6px; border-radius:50%; }
   .status-pill.on .dot2{ background:#16A34A; }
   .status-pill.off .dot2{ background:#9CA3AF; }
+  .status-pill.telat{ background:#FEF3C7; color:#B45309; }
+  .status-pill.absen{ background:#FEE2E2; color:#DC2626; }
+  .status-pill.extra{ background:#DBEAFE; color:#2563EB; }
+  html[data-theme="dark"] .status-pill.telat{ background:#451A03; color:#FBBF24; }
+  html[data-theme="dark"] .status-pill.absen{ background:#3A1414; color:#FCA5A5; }
+  html[data-theme="dark"] .status-pill.extra{ background:#1E3A5F; color:#93C5FD; }
+  .status-pill.telat .dot2{ background:#D97706; }
+  .status-pill.absen .dot2{ background:#DC2626; }
+  .status-pill.extra .dot2{ background:#2563EB; }
   .komisi-cell{ color:var(--coral); font-weight:700; }
   .streak-badge{ display:inline-flex; align-items:center; gap:4px; font-size:.68rem; font-weight:700; color:#D97706; background:#FEF3C7; padding:3px 8px; border-radius:999px; margin-left:6px; }
   html[data-theme="dark"] .streak-badge{ background:#451A03; color:#FBBF24; }
@@ -298,6 +307,62 @@
     }
     .emp-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
   }
+
+  /* ═══ Absensi — kartu di mobile ═══ */
+  @media (max-width:640px){
+    .absensi-table-wrap{ background:none; border:none; overflow:visible; }
+    .absensi-table-wrap table{ display:block; width:100%; }
+    .absensi-table-wrap thead{ display:none; }
+    .absensi-table-wrap tbody{ display:block; }
+
+    .absensi-table-wrap tr{
+      display:grid; grid-template-columns:1fr 1fr 1fr; row-gap:10px; column-gap:8px;
+      background:var(--card); border:1px solid var(--border); border-radius:16px;
+      padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
+      animation:fadeUp .3s var(--ease);
+    }
+    .absensi-table-wrap tr:last-child{ margin-bottom:0; }
+
+    .absensi-table-wrap td{ display:block; border:none; padding:0; white-space:normal; }
+
+    /* baris 1: nama karyawan + status pill */
+    .absensi-table-wrap td:nth-child(2){ grid-column:1/3; grid-row:1; align-self:center; font-size:.92rem; font-weight:700; }
+    .absensi-table-wrap td:nth-child(6){ grid-column:3/4; grid-row:1; justify-self:end; align-self:center; }
+
+    /* baris 2: tanggal */
+    .absensi-table-wrap td:nth-child(1){
+      grid-column:1/4; grid-row:2; font-size:.74rem; color:var(--muted); font-weight:600;
+    }
+
+    /* baris 3: jadwal / live mulai / selisih */
+    .absensi-table-wrap td:nth-child(3),
+    .absensi-table-wrap td:nth-child(4),
+    .absensi-table-wrap td:nth-child(5){
+      padding-top:10px; border-top:1px solid var(--border); grid-row:3;
+    }
+    .absensi-table-wrap td:nth-child(3){ grid-column:1/2; }
+    .absensi-table-wrap td:nth-child(4){ grid-column:2/3; }
+    .absensi-table-wrap td:nth-child(5){ grid-column:3/4; }
+
+    .absensi-table-wrap td:nth-child(3)::before{ content:"Jadwal"; }
+    .absensi-table-wrap td:nth-child(4)::before{ content:"Live Mulai"; }
+    .absensi-table-wrap td:nth-child(5)::before{ content:"Selisih"; }
+    .absensi-table-wrap td:nth-child(3)::before,
+    .absensi-table-wrap td:nth-child(4)::before,
+    .absensi-table-wrap td:nth-child(5)::before{
+      display:block; font-size:.6rem; font-weight:700; color:var(--muted);
+      text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px;
+    }
+    .absensi-table-wrap td:nth-child(3),
+    .absensi-table-wrap td:nth-child(4){ font-size:.83rem; font-weight:600; }
+    .absensi-table-wrap td:nth-child(5){ font-size:.78rem; font-weight:600; color:var(--ink); }
+
+    .absensi-table-wrap tr:has(.empty-state){
+      display:block; background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:0; box-shadow:none;
+    }
+    .absensi-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
+  }
 </style>
 </head>
 <body>
@@ -332,6 +397,10 @@
         <button class="nav-item" data-tab="riwayat">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
           <span>Riwayat</span>
+        </button>
+        <button class="nav-item" data-tab="absensi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M9 16l2 2 4-4"/></svg>
+          <span>Absensi</span>
         </button>
         <button class="nav-item" data-tab="jadwal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
@@ -440,6 +509,33 @@
                 </tr>
               </thead>
               <tbody id="sessionsTableBody"><tr><td colspan="10" class="empty-state">Belum ada data</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ═══ ABSENSI ═══ -->
+        <div class="tab-panel" id="panel-absensi">
+          <div class="stat-grid" style="margin-bottom:18px;">
+            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div><div class="stat-num" data-count="0" id="statHadir">0</div><div class="stat-label">Hadir</div></div>
+            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><div class="stat-num" data-count="0" id="statTelat">0</div><div class="stat-label">Telat</div></div>
+            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg></div><div class="stat-num" data-count="0" id="statTidakHadir">0</div><div class="stat-label">Tidak Hadir</div></div>
+          </div>
+          <div class="section-title">
+            Rekap Absensi Otomatis
+          </div>
+          <p style="font-size:.78rem; color:var(--muted); margin:-8px 0 16px;">Absensi tercatat otomatis begitu karyawan memulai live — dicocokkan dengan jadwal yang sudah diatur. Sesi live tanpa jadwal tetap ditampilkan sebagai catatan tambahan.</p>
+          <div class="filter-bar">
+            <div><label>Dari Tanggal</label><input type="date" id="absensiFilterStart"></div>
+            <div><label>Sampai Tanggal</label><input type="date" id="absensiFilterEnd"></div>
+            <button class="btn" id="absensiFilterApply">Terapkan</button>
+            <button class="btn ghost" id="absensiFilterReset">Reset</button>
+          </div>
+          <div class="table-scroll absensi-table-wrap">
+            <table>
+              <thead>
+                <tr><th>Tanggal</th><th>Karyawan</th><th>Jadwal</th><th>Live Mulai</th><th>Selisih</th><th>Status</th></tr>
+              </thead>
+              <tbody id="absensiTableBody"><tr><td colspan="6" class="empty-state">Belum ada data</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -618,6 +714,7 @@
     let revenueChart = null, compareChart = null;
     let filterStartDate = null, filterEndDate = null;
     let liveTimerInterval = null;
+    let absensiFilterStart = null, absensiFilterEnd = null;
 
     function calcCommission(session) {
       const rev = Number(session.revenue) || 0;
@@ -653,6 +750,7 @@
       ringkasan: ['Ringkasan', 'Pantau performa tim live commerce hari ini'],
       karyawan: ['Direktori Karyawan', 'Status dan performa seluruh karyawan'],
       riwayat: ['Riwayat Sesi', 'Semua sesi live yang pernah dijalankan'],
+      absensi: ['Absensi Karyawan', 'Rekap kehadiran otomatis dari sesi live vs jadwal'],
       jadwal: ['Jadwal Live', 'Atur jadwal live karyawan ke depan'],
       slip: ['Slip Komisi', 'Rekap komisi bulanan per karyawan'],
       pengaturan: ['Pengaturan', 'Atur rumus komisi karyawan']
@@ -744,6 +842,7 @@
       safeRender('renderLiveNow', renderLiveNow);
       safeRender('renderEmployeeTable', renderEmployeeTable);
       safeRender('renderSessionsTable', renderSessionsTable);
+      safeRender('renderAbsensi', renderAbsensi);
       safeRender('renderSlip', renderSlip);
     }
 
@@ -1008,6 +1107,103 @@
       });
     }
 
+    // ── absensi otomatis (dari sesi live vs jadwal) ──
+    function sameDay(a, b) {
+      return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    }
+    function computeAbsensi() {
+      const now = new Date();
+      const records = [];
+      const usedSessionIds = new Set();
+
+      allSchedules.forEach(sch => {
+        const startAt = sch.startAt?.toDate();
+        const endAt = sch.endAt?.toDate();
+        if (!startAt) return;
+        if (absensiFilterStart && startAt < absensiFilterStart) return;
+        if (absensiFilterEnd && startAt > absensiFilterEnd) return;
+
+        const matches = allSessions
+          .filter(s => s.uid === sch.uid && s.startTime && sameDay(s.startTime.toDate(), startAt))
+          .sort((a, b) => a.startTime.toDate() - b.startTime.toDate());
+        const match = matches[0];
+
+        if (match) {
+          usedSessionIds.add(match.id);
+          const liveStart = match.startTime.toDate();
+          const diffMin = Math.round((liveStart - startAt) / 60000);
+          const status = diffMin <= 15 ? 'hadir' : 'telat';
+          records.push({ date: startAt, employeeName: sch.employeeName, scheduleStr: startAt.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), liveStr: liveStart.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), diffMin, status });
+        } else if (endAt && endAt < now) {
+          records.push({ date: startAt, employeeName: sch.employeeName, scheduleStr: startAt.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), liveStr: '-', diffMin: null, status: 'absen' });
+        }
+      });
+
+      allSessions.forEach(s => {
+        if (usedSessionIds.has(s.id) || !s.startTime) return;
+        const liveStart = s.startTime.toDate();
+        if (absensiFilterStart && liveStart < absensiFilterStart) return;
+        if (absensiFilterEnd && liveStart > absensiFilterEnd) return;
+        records.push({ date: liveStart, employeeName: s.employeeName, scheduleStr: '-', liveStr: liveStart.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), diffMin: null, status: 'extra' });
+      });
+
+      records.sort((a, b) => b.date - a.date);
+      return records;
+    }
+
+    function renderAbsensi() {
+      const tbody = document.getElementById('absensiTableBody');
+      if (!tbody) return;
+      const records = computeAbsensi();
+
+      const hadir = records.filter(r => r.status === 'hadir').length;
+      const telat = records.filter(r => r.status === 'telat').length;
+      const absen = records.filter(r => r.status === 'absen').length;
+      countUp(document.getElementById('statHadir'), hadir);
+      countUp(document.getElementById('statTelat'), telat);
+      countUp(document.getElementById('statTidakHadir'), absen);
+
+      if (records.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Belum ada data absensi</td></tr>'; return; }
+
+      const statusLabel = { hadir: 'Hadir', telat: 'Telat', absen: 'Tidak Hadir', extra: 'Live Tanpa Jadwal' };
+      tbody.innerHTML = records.map(r => {
+        const dateStr = r.date.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
+        const selisihStr = r.diffMin === null ? '-' : (r.diffMin <= 0 ? `${Math.abs(r.diffMin)} menit lebih awal` : `${r.diffMin} menit`);
+        return `
+          <tr>
+            <td>${dateStr}</td><td>${r.employeeName || '-'}</td><td>${r.scheduleStr}</td><td>${r.liveStr}</td>
+            <td>${selisihStr}</td>
+            <td><span class="status-pill ${r.status}"><span class="dot2"></span>${statusLabel[r.status]}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    document.getElementById('absensiFilterApply').addEventListener('click', () => {
+      const startVal = document.getElementById('absensiFilterStart').value;
+      const endVal = document.getElementById('absensiFilterEnd').value;
+      absensiFilterStart = startVal ? new Date(startVal + 'T00:00:00') : null;
+      absensiFilterEnd = endVal ? new Date(endVal + 'T23:59:59') : null;
+      renderAbsensi();
+    });
+    document.getElementById('absensiFilterReset').addEventListener('click', () => {
+      const end = new Date();
+      const start = new Date(); start.setDate(start.getDate() - 6);
+      document.getElementById('absensiFilterStart').value = start.toISOString().slice(0,10);
+      document.getElementById('absensiFilterEnd').value = end.toISOString().slice(0,10);
+      absensiFilterStart = new Date(start.toISOString().slice(0,10) + 'T00:00:00');
+      absensiFilterEnd = new Date(end.toISOString().slice(0,10) + 'T23:59:59');
+      renderAbsensi();
+    });
+    (function initAbsensiDefaultRange() {
+      const end = new Date();
+      const start = new Date(); start.setDate(start.getDate() - 6);
+      document.getElementById('absensiFilterStart').value = start.toISOString().slice(0,10);
+      document.getElementById('absensiFilterEnd').value = end.toISOString().slice(0,10);
+      absensiFilterStart = new Date(start.toISOString().slice(0,10) + 'T00:00:00');
+      absensiFilterEnd = new Date(end.toISOString().slice(0,10) + 'T23:59:59');
+    })();
+
     document.getElementById('filterApply').addEventListener('click', () => {
       const startVal = document.getElementById('filterStart').value;
       const endVal = document.getElementById('filterEnd').value;
@@ -1155,6 +1351,7 @@
         allSchedules = [];
         snap.forEach(d => allSchedules.push({ id: d.id, ...d.data() }));
         renderScheduleList();
+        safeRender('renderAbsensi', renderAbsensi);
       }, (err) => showToast('Gagal memuat jadwal: ' + err.message, true));
     }
 
