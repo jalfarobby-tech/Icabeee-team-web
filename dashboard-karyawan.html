@@ -101,10 +101,6 @@
 
   .date-heading{ font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin:16px 0 8px; }
   .date-heading:first-child{ margin-top:0; }
-  .schedule-row{ display:flex; align-items:center; gap:12px; padding:12px 14px; margin-bottom:8px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
-  .schedule-time{ font-family:var(--df); font-weight:800; font-size:.85rem; color:var(--coral); white-space:nowrap; }
-  .schedule-info{ flex:1; min-width:0; }
-  .schedule-notes{ font-size:.72rem; color:var(--muted); margin-top:2px; }
   .history-item{ padding:15px 16px; margin-bottom:9px; animation:fadeUp .3s var(--ease); }
   .history-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:10px; }
   .history-time{ font-size:.76rem; color:var(--muted); font-weight:600; }
@@ -114,23 +110,12 @@
   .hf-value{ font-size:.84rem; font-weight:700; }
   .history-notes{ font-size:.75rem; color:var(--muted); margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); font-style:italic; }
   .history-footer{ display:flex; justify-content:flex-end; margin-top:8px; }
-  .status-approved{ font-size:.68rem; font-weight:700; color:#16A34A; }
-  .status-pending{ font-size:.68rem; font-weight:700; color:#D97706; }
 
   .att-pill{ display:inline-flex; align-items:center; gap:5px; font-size:.68rem; font-weight:700; padding:4px 10px; border-radius:999px; white-space:nowrap; }
   .att-pill .dot3{ width:6px; height:6px; border-radius:50%; }
   .att-pill.hadir{ background:#DCFCE7; color:#16A34A; }
   .att-pill.hadir .dot3{ background:#16A34A; }
-  .att-pill.telat{ background:#FEF3C7; color:#B45309; }
-  .att-pill.telat .dot3{ background:#D97706; }
-  .att-pill.absen{ background:#FEE2E2; color:#DC2626; }
-  .att-pill.absen .dot3{ background:#DC2626; }
-  .att-pill.extra{ background:#DBEAFE; color:#2563EB; }
-  .att-pill.extra .dot3{ background:#2563EB; }
   html[data-theme="dark"] .att-pill.hadir{ background:#14532D; color:#4ADE80; }
-  html[data-theme="dark"] .att-pill.telat{ background:#451A03; color:#FBBF24; }
-  html[data-theme="dark"] .att-pill.absen{ background:#3A1414; color:#FCA5A5; }
-  html[data-theme="dark"] .att-pill.extra{ background:#1E3A5F; color:#93C5FD; }
 
   .att-row{ display:flex; align-items:center; gap:12px; padding:12px 14px; margin-bottom:8px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
   .att-row-info{ flex:1; min-width:0; }
@@ -155,6 +140,14 @@
   .modal-btns .cancel{ background:rgba(128,128,128,.12); color:var(--ink); }
   .modal-btns .confirm{ background:var(--ink); color:var(--bg); }
   .modal-btns .confirm:disabled{ opacity:.6; }
+
+  .proof-upload-box{ border:2px dashed var(--border); border-radius:12px; padding:16px; text-align:center; cursor:pointer; margin-bottom:6px; transition:border-color .15s ease; }
+  .proof-upload-box:hover{ border-color:var(--coral); }
+  .proof-upload-box .placeholder{ color:var(--muted); font-size:.78rem; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .proof-upload-box .placeholder svg{ width:26px; height:26px; }
+  .proof-upload-box img{ max-width:100%; max-height:160px; border-radius:8px; display:block; margin:0 auto; }
+  .proof-upload-box .remove-proof{ display:block; margin:8px auto 0; font-size:.72rem; color:#DC2626; background:none; border:none; cursor:pointer; font-weight:700; }
+  .proof-hint{ font-size:.7rem; color:var(--muted); margin:-4px 0 14px; }
 
   .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--bg); padding:12px 20px; border-radius:10px; font-size:.83rem; opacity:0; transition:all .3s; z-index:60; pointer-events:none; max-width:88vw; }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
@@ -212,17 +205,8 @@
 
       <div>
         <div class="section-block">
-          <div class="section-title">Jadwal Live Mendatang</div>
-          <div id="myScheduleList"><div class="empty-state">Memuat jadwal…</div></div>
-        </div>
-
-        <div class="section-block">
           <div class="section-title">Absensi Saya</div>
-          <div class="period-grid" style="margin-bottom:12px;">
-            <div class="card period-card"><div class="p-label">Hadir</div><div class="p-num" id="attHadir">0</div></div>
-            <div class="card period-card"><div class="p-label">Telat</div><div class="p-num" id="attTelat">0</div></div>
-            <div class="card period-card"><div class="p-label">Tidak Hadir</div><div class="p-num" id="attTidakHadir">0</div></div>
-          </div>
+          <div class="card period-card" style="margin-bottom:12px; max-width:160px;"><div class="p-label">Total Hadir</div><div class="p-num" id="attHadir">0</div></div>
           <div id="myAttendanceList"><div class="empty-state">Memuat absensi…</div></div>
         </div>
 
@@ -268,6 +252,19 @@
         <input type="number" id="viewers" min="0" required placeholder="contoh: 320">
         <label>Catatan / Kendala (opsional)</label>
         <textarea id="notes" rows="3" placeholder="misal: koneksi sempat putus, banyak nanya ukuran, dll"></textarea>
+
+        <label>Bukti Hasil Penjualan (opsional)</label>
+        <input type="file" id="proofFileInput" accept="image/*" style="display:none;">
+        <div class="proof-upload-box" id="proofUploadBox">
+          <div class="placeholder" id="proofPlaceholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span>Tap buat upload screenshot penjualan</span>
+          </div>
+          <img id="proofPreviewImg" style="display:none;">
+          <button type="button" class="remove-proof" id="removeProofBtn" style="display:none;">Hapus foto</button>
+        </div>
+        <div class="proof-hint">Foto otomatis dikompres jadi kecil, jadi hemat tempat penyimpanan.</div>
+
         <div class="modal-btns">
           <button type="button" class="cancel" id="cancelEnd">Batal</button>
           <button type="submit" class="confirm" id="confirmEndBtn">Simpan & Selesai</button>
@@ -312,7 +309,6 @@
     let activeSessionId = null;
     let activeSessionStart = null;
     let timerInterval = null;
-    let mySchedules = [];
     let myAttendanceSessions = [];
 
     function initials(name) { return (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase(); }
@@ -387,7 +383,6 @@
 
       listenActiveSession();
       listenHistory();
-      listenMySchedule();
       listenAttendanceSessions();
     });
 
@@ -547,7 +542,7 @@
       }
     }
 
-    // ── absensi otomatis (jadwal vs jam mulai live sebenarnya) ──
+    // ── absensi otomatis (tercatat langsung dari sesi live) ──
     function listenAttendanceSessions() {
       const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid));
       onSnapshot(q, (snap) => {
@@ -557,80 +552,59 @@
       }, (err) => console.error('Attendance session listener error:', err));
     }
 
-    function sameDay(a, b) {
-      return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-    }
-
     function computeMyAbsensi() {
-      const now = new Date();
-      const records = [];
-      const usedSessionIds = new Set();
-
-      mySchedules.forEach(sch => {
-        const startAt = sch.startAt?.toDate();
-        const endAt = sch.endAt?.toDate();
-        if (!startAt) return;
-
-        const matches = myAttendanceSessions
-          .filter(s => s.startTime && sameDay(s.startTime.toDate(), startAt))
-          .sort((a, b) => a.startTime.toDate() - b.startTime.toDate());
-        const match = matches[0];
-
-        if (match) {
-          usedSessionIds.add(match.id);
-          const liveStart = match.startTime.toDate();
-          const diffMin = Math.round((liveStart - startAt) / 60000);
-          const status = diffMin <= 15 ? 'hadir' : 'telat';
-          records.push({
-            date: startAt, scheduleStr: startAt.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),
-            liveStr: liveStart.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), diffMin, status
-          });
-        } else if (endAt && endAt < now) {
-          records.push({
-            date: startAt, scheduleStr: startAt.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),
-            liveStr: '-', diffMin: null, status: 'absen'
-          });
-        }
-      });
-
-      myAttendanceSessions.forEach(s => {
-        if (usedSessionIds.has(s.id) || !s.startTime) return;
-        const liveStart = s.startTime.toDate();
-        records.push({ date: liveStart, scheduleStr: '-', liveStr: liveStart.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), diffMin: null, status: 'extra' });
-      });
-
+      const records = myAttendanceSessions
+        .filter(s => s.startTime)
+        .map(s => {
+          const liveStart = s.startTime.toDate();
+          return { date: liveStart, liveStr: liveStart.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), status: 'hadir' };
+        });
       records.sort((a, b) => b.date - a.date);
-      return records.slice(0, 20);
+      return records.slice(0, 50);
     }
+
+    const ATT_PAGE_SIZE = 5;
+    let myAttendanceExpanded = false;
 
     function renderMyAttendance() {
       const list = document.getElementById('myAttendanceList');
       if (!list) return;
       const records = computeMyAbsensi();
 
-      document.getElementById('attHadir').textContent = records.filter(r => r.status === 'hadir').length;
-      document.getElementById('attTelat').textContent = records.filter(r => r.status === 'telat').length;
-      document.getElementById('attTidakHadir').textContent = records.filter(r => r.status === 'absen').length;
+      document.getElementById('attHadir').textContent = records.length;
 
       if (records.length === 0) {
         list.innerHTML = '<div class="empty-state">Belum ada data absensi</div>';
         return;
       }
 
-      const statusLabel = { hadir: 'Hadir', telat: 'Telat', absen: 'Tidak Hadir', extra: 'Tanpa Jadwal' };
-      list.innerHTML = records.map(r => {
+      const visible = myAttendanceExpanded ? records : records.slice(0, ATT_PAGE_SIZE);
+      let html = visible.map(r => {
         const dateStr = r.date.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
-        const metaStr = r.scheduleStr === '-' ? `Live jam ${r.liveStr} (tanpa jadwal)` : `Jadwal ${r.scheduleStr} · Live ${r.liveStr}`;
         return `
           <div class="att-row">
             <div class="att-row-info">
               <div class="att-row-date">${dateStr}</div>
-              <div class="att-row-meta">${metaStr}</div>
+              <div class="att-row-meta">Live jam ${r.liveStr}</div>
             </div>
-            <span class="att-pill ${r.status}"><span class="dot3"></span>${statusLabel[r.status]}</span>
+            <span class="att-pill hadir"><span class="dot3"></span>Hadir</span>
           </div>
         `;
       }).join('');
+
+      if (records.length > ATT_PAGE_SIZE) {
+        html += `<button class="btn" id="attToggleBtn" style="width:100%; padding:11px; margin-top:2px;">${myAttendanceExpanded ? 'Tampilkan Lebih Sedikit' : `Tampilkan Lebih Banyak (${records.length - ATT_PAGE_SIZE})`}</button>`;
+      }
+
+      list.innerHTML = html;
+
+      const toggleBtn = document.getElementById('attToggleBtn');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          myAttendanceExpanded = !myAttendanceExpanded;
+          renderMyAttendance();
+        });
+      }
     }
 
     startBtn.addEventListener('click', async () => {
@@ -647,7 +621,76 @@
     });
 
     stopBtn.addEventListener('click', () => modalOverlay.classList.add('show'));
-    document.getElementById('cancelEnd').addEventListener('click', () => modalOverlay.classList.remove('show'));
+    document.getElementById('cancelEnd').addEventListener('click', () => {
+      modalOverlay.classList.remove('show');
+      resetProofUpload();
+    });
+
+    // ── bukti hasil penjualan: dikompres kecil biar hemat tempat di Firestore ──
+    let selectedProofBase64 = null;
+    const proofFileInput = document.getElementById('proofFileInput');
+    const proofUploadBox = document.getElementById('proofUploadBox');
+    const proofPlaceholder = document.getElementById('proofPlaceholder');
+    const proofPreviewImg = document.getElementById('proofPreviewImg');
+    const removeProofBtn = document.getElementById('removeProofBtn');
+
+    function resetProofUpload() {
+      selectedProofBase64 = null;
+      proofFileInput.value = '';
+      proofPreviewImg.style.display = 'none';
+      proofPreviewImg.src = '';
+      removeProofBtn.style.display = 'none';
+      proofPlaceholder.style.display = 'flex';
+    }
+
+    function compressImage(file, maxDim, quality) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            let { width, height } = img;
+            if (width > height && width > maxDim) { height = Math.round(height * (maxDim / width)); width = maxDim; }
+            else if (height > maxDim) { width = Math.round(width * (maxDim / height)); height = maxDim; }
+            const canvas = document.createElement('canvas');
+            canvas.width = width; canvas.height = height;
+            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    proofUploadBox.addEventListener('click', (e) => {
+      if (e.target === removeProofBtn) return;
+      proofFileInput.click();
+    });
+
+    proofFileInput.addEventListener('change', async () => {
+      const file = proofFileInput.files[0];
+      if (!file) return;
+      try {
+        let dataUrl = await compressImage(file, 900, 0.6);
+        // kalau masih cukup besar, kompres ulang lebih agresif
+        if (dataUrl.length > 500000) dataUrl = await compressImage(file, 700, 0.4);
+        selectedProofBase64 = dataUrl;
+        proofPreviewImg.src = dataUrl;
+        proofPreviewImg.style.display = 'block';
+        proofPlaceholder.style.display = 'none';
+        removeProofBtn.style.display = 'block';
+      } catch (err) {
+        showToast('Gagal memproses foto, coba foto lain.', true);
+      }
+    });
+
+    removeProofBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetProofUpload();
+    });
 
     endForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -659,64 +702,17 @@
       const viewers = Number(document.getElementById('viewers').value);
       const notes = document.getElementById('notes').value.trim();
       try {
-        await updateDoc(doc(db, 'sessions', activeSessionId), { status: 'selesai', endTime: Timestamp.now(), productsSold, revenue, viewers, notes });
+        const payload = { status: 'selesai', endTime: Timestamp.now(), productsSold, revenue, viewers, notes };
+        if (selectedProofBase64) payload.proofBase64 = selectedProofBase64;
+        await updateDoc(doc(db, 'sessions', activeSessionId), payload);
         modalOverlay.classList.remove('show'); endForm.reset();
+        resetProofUpload();
         showToast('Data live tersimpan');
       } catch (err) { showToast('Gagal menyimpan: ' + err.message, true); }
       confirmEndBtn.disabled = false;
       confirmEndBtn.textContent = 'Simpan & Selesai';
     });
 
-    function listenMySchedule() {
-      const q = query(collection(db, 'schedules'), where('uid', '==', currentUser.uid), orderBy('startAt', 'asc'));
-      onSnapshot(q, (snap) => {
-        mySchedules = [];
-        snap.forEach(d => mySchedules.push({ id: d.id, ...d.data() }));
-        renderMyAttendance();
-
-        const list = document.getElementById('myScheduleList');
-        const now = Date.now();
-        const upcoming = [];
-        snap.forEach(d => {
-          const data = d.data();
-          if (data.endAt?.toDate().getTime() >= now) upcoming.push(data);
-        });
-
-        if (upcoming.length === 0) {
-          list.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><div>Belum ada jadwal live mendatang</div></div>';
-          return;
-        }
-
-        let lastDate = null;
-        list.innerHTML = '';
-        upcoming.forEach(s => {
-          const start = s.startAt?.toDate();
-          const end = s.endAt?.toDate();
-          const dateKey = start ? start.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long' }) : '-';
-          if (dateKey !== lastDate) {
-            const heading = document.createElement('div');
-            heading.className = 'date-heading';
-            heading.textContent = dateKey;
-            list.appendChild(heading);
-            lastDate = dateKey;
-          }
-          const row = document.createElement('div');
-          row.className = 'schedule-row';
-          row.innerHTML = `
-            <div class="schedule-time">${start ? start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'}</div>
-            <div class="schedule-info">
-              <div style="font-weight:700; font-size:.85rem;">TikTok Live</div>
-              ${s.notes ? `<div class="schedule-notes">${s.notes}</div>` : ''}
-            </div>
-            <div style="font-size:.72rem; color:var(--muted);">s/d ${end ? end.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'}</div>
-          `;
-          list.appendChild(row);
-        });
-      }, (err) => {
-        document.getElementById('myScheduleList').innerHTML = '<div class="empty-state">Gagal memuat jadwal</div>';
-        console.error('Schedule listener error:', err);
-      });
-    }
   </script>
 </body>
 </html>
