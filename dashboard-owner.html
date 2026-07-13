@@ -83,9 +83,6 @@
   .live-duration{ font-family:var(--df); font-weight:700; font-size:.8rem; color:var(--coral); }
   .live-duration.warn{ color:#DC2626; }
   .stale-warn{ font-size:.68rem; color:#D97706; font-weight:600; margin-top:2px; }
-  .date-heading{ font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin:18px 0 8px; }
-  .date-heading:first-child{ margin-top:0; }
-  .schedule-row{ display:flex; align-items:center; gap:12px; padding:12px 14px; margin-bottom:8px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
   .force-end-btn{
     border:1px solid var(--border); background:var(--card); color:var(--muted);
     padding:6px 11px; border-radius:8px; font-family:var(--df); font-weight:600; font-size:.68rem;
@@ -133,16 +130,9 @@
   .status-pill .dot2{ width:6px; height:6px; border-radius:50%; }
   .status-pill.on .dot2{ background:#16A34A; }
   .status-pill.off .dot2{ background:#9CA3AF; }
-  .status-pill.telat{ background:#FEF3C7; color:#B45309; }
-  .status-pill.absen{ background:#FEE2E2; color:#DC2626; }
-  .status-pill.extra{ background:#DBEAFE; color:#2563EB; }
-  html[data-theme="dark"] .status-pill.telat{ background:#451A03; color:#FBBF24; }
-  html[data-theme="dark"] .status-pill.absen{ background:#3A1414; color:#FCA5A5; }
-  html[data-theme="dark"] .status-pill.extra{ background:#1E3A5F; color:#93C5FD; }
-  .status-pill.telat .dot2{ background:#D97706; }
-  .status-pill.absen .dot2{ background:#DC2626; }
-  .status-pill.extra .dot2{ background:#2563EB; }
-  .komisi-cell{ color:var(--coral); font-weight:700; }
+  .status-pill.hadir{ background:#DCFCE7; color:#16A34A; }
+  html[data-theme="dark"] .status-pill.hadir{ background:#14532D; color:#4ADE80; }
+  .status-pill.hadir .dot2{ background:#16A34A; }
   .streak-badge{ display:inline-flex; align-items:center; gap:4px; font-size:.68rem; font-weight:700; color:#D97706; background:#FEF3C7; padding:3px 8px; border-radius:999px; margin-left:6px; }
   html[data-theme="dark"] .streak-badge{ background:#451A03; color:#FBBF24; }
 
@@ -161,27 +151,18 @@
   .empty-state svg{ width:38px; height:38px; color:var(--border); margin-bottom:10px; }
   .empty-state svg{ width:44px; height:44px; color:var(--border); margin-bottom:10px; }
   .badge-live{ background:#DCFCE7; color:#16A34A; padding:4px 10px; border-radius:999px; font-size:.66rem; font-weight:700; }
+  .proof-thumb{ width:36px; height:36px; border-radius:8px; object-fit:cover; cursor:pointer; border:1px solid var(--border); transition:transform .15s ease; }
+  .proof-thumb:hover{ transform:scale(1.15); }
+  .proof-lightbox{ position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; }
+  .proof-lightbox.show{ display:flex; }
+  .proof-lightbox img{ max-width:90vw; max-height:85vh; border-radius:10px; }
+  .proof-lightbox .close-lightbox{ position:absolute; top:20px; right:24px; background:rgba(255,255,255,.15); border:none; color:#fff; width:38px; height:38px; border-radius:50%; font-size:1.2rem; cursor:pointer; }
 
-  .settings-card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px; max-width:420px; }
-  .settings-card label{ font-size:.8rem; font-weight:600; display:block; margin-bottom:6px; margin-top:16px; }
-  .settings-card label:first-child{ margin-top:0; }
-  .settings-card input{ width:100%; padding:11px 13px; border-radius:8px; border:1px solid var(--border); font-family:var(--di); font-size:.86rem; outline:none; background:var(--card); color:var(--ink); }
-  .settings-card .hint{ font-size:.72rem; color:var(--muted); margin-top:4px; }
-  .settings-card button{ margin-top:20px; width:100%; padding:13px; border:none; border-radius:10px; cursor:pointer; background:var(--ink); color:var(--bg); font-family:var(--df); font-weight:700; font-size:.86rem; }
-  .settings-formula{ background:rgba(128,128,128,.06); border:1px solid var(--border); border-radius:10px; padding:13px; font-size:.75rem; color:var(--ink); margin-top:16px; line-height:1.5; font-family:var(--df); font-weight:600; }
 
-  /* slip komisi */
   .slip-controls{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; align-items:end; }
   .slip-controls label{ font-size:.7rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px; }
-  .slip-controls select, .slip-controls input{ padding:9px 12px; border-radius:8px; border:1px solid var(--border); font-family:var(--di); font-size:.8rem; background:var(--card); color:var(--ink); }
-  .slip-paper{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:32px; max-width:560px; }
-  .slip-head{ display:flex; justify-content:space-between; align-items:start; margin-bottom:24px; padding-bottom:20px; border-bottom:2px solid var(--ink); }
-  .slip-head .co{ font-family:var(--df); font-weight:800; font-size:1.1rem; }
-  .slip-head .period{ text-align:right; font-size:.8rem; color:var(--muted); }
-  .slip-row{ display:flex; justify-content:space-between; padding:8px 0; font-size:.85rem; border-bottom:1px dashed var(--border); }
-  .slip-row.total{ border-bottom:none; border-top:2px solid var(--ink); margin-top:8px; padding-top:14px; font-family:var(--df); font-weight:800; font-size:1rem; }
   @media print{
-    .sidebar, .main-header, .slip-controls, .btn-row{ display:none !important; }
+    .sidebar, .main-header, .btn-row{ display:none !important; }
     .content{ padding:0; }
     body{ background:#fff; }
   }
@@ -262,7 +243,7 @@
     .emp-table-wrap tbody{ display:block; }
 
     .emp-table-wrap tr{
-      display:grid; grid-template-columns:1fr 1fr 1fr; row-gap:12px; column-gap:8px;
+      display:grid; grid-template-columns:1fr 1fr; row-gap:12px; column-gap:8px;
       background:var(--card); border:1px solid var(--border); border-radius:16px;
       padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
       animation:fadeUp .3s var(--ease);
@@ -272,28 +253,24 @@
 
     .emp-table-wrap td{ display:block; border:none; padding:0; white-space:normal; }
 
-    .emp-table-wrap td:nth-child(1){ grid-column:1/3; grid-row:1; align-self:center; }
+    .emp-table-wrap td:nth-child(1){ grid-column:1/2; grid-row:1; align-self:center; }
     .emp-table-wrap td:nth-child(1) .emp-name-cell{ flex-wrap:wrap; gap:10px; }
     .emp-table-wrap td:nth-child(1) .emp-name-cell .avatar{ width:38px; height:38px; font-size:.78rem; }
     .emp-table-wrap td:nth-child(1) .emp-name-cell span{ font-size:.92rem; font-weight:700; }
 
-    .emp-table-wrap td:nth-child(2){ grid-column:3/4; grid-row:1; justify-self:end; align-self:center; }
+    .emp-table-wrap td:nth-child(2){ grid-column:2/3; grid-row:1; justify-self:end; align-self:center; }
 
     .emp-table-wrap td:nth-child(3),
-    .emp-table-wrap td:nth-child(4),
-    .emp-table-wrap td:nth-child(5){
+    .emp-table-wrap td:nth-child(4){
       padding-top:12px; border-top:1px solid var(--border); grid-row:2;
     }
     .emp-table-wrap td:nth-child(3){ grid-column:1/2; }
     .emp-table-wrap td:nth-child(4){ grid-column:2/3; }
-    .emp-table-wrap td:nth-child(5){ grid-column:3/4; }
 
     .emp-table-wrap td:nth-child(3)::before{ content:"Jam Kerja"; }
-    .emp-table-wrap td:nth-child(4)::before{ content:"Produk"; }
-    .emp-table-wrap td:nth-child(5)::before{ content:"Komisi"; }
+    .emp-table-wrap td:nth-child(4)::before{ content:"Produk Terjual"; }
     .emp-table-wrap td:nth-child(3)::before,
-    .emp-table-wrap td:nth-child(4)::before,
-    .emp-table-wrap td:nth-child(5)::before{
+    .emp-table-wrap td:nth-child(4)::before{
       display:block; font-size:.6rem; font-weight:700; color:var(--muted);
       text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px;
     }
@@ -316,7 +293,7 @@
     .absensi-table-wrap tbody{ display:block; }
 
     .absensi-table-wrap tr{
-      display:grid; grid-template-columns:1fr 1fr 1fr; row-gap:10px; column-gap:8px;
+      display:grid; grid-template-columns:1fr 1fr; row-gap:6px; column-gap:8px;
       background:var(--card); border:1px solid var(--border); border-radius:16px;
       padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
       animation:fadeUp .3s var(--ease);
@@ -326,42 +303,140 @@
     .absensi-table-wrap td{ display:block; border:none; padding:0; white-space:normal; }
 
     /* baris 1: nama karyawan + status pill */
-    .absensi-table-wrap td:nth-child(2){ grid-column:1/3; grid-row:1; align-self:center; font-size:.92rem; font-weight:700; }
-    .absensi-table-wrap td:nth-child(6){ grid-column:3/4; grid-row:1; justify-self:end; align-self:center; }
+    .absensi-table-wrap td:nth-child(2){ grid-column:1/2; grid-row:1; align-self:center; font-size:.92rem; font-weight:700; }
+    .absensi-table-wrap td:nth-child(3){ grid-column:2/3; grid-row:1; justify-self:end; align-self:center; }
 
-    /* baris 2: tanggal */
+    /* baris 2: tanggal & jam live */
     .absensi-table-wrap td:nth-child(1){
-      grid-column:1/4; grid-row:2; font-size:.74rem; color:var(--muted); font-weight:600;
+      grid-column:1/3; grid-row:2; font-size:.74rem; color:var(--muted); font-weight:600;
     }
-
-    /* baris 3: jadwal / live mulai / selisih */
-    .absensi-table-wrap td:nth-child(3),
-    .absensi-table-wrap td:nth-child(4),
-    .absensi-table-wrap td:nth-child(5){
-      padding-top:10px; border-top:1px solid var(--border); grid-row:3;
-    }
-    .absensi-table-wrap td:nth-child(3){ grid-column:1/2; }
-    .absensi-table-wrap td:nth-child(4){ grid-column:2/3; }
-    .absensi-table-wrap td:nth-child(5){ grid-column:3/4; }
-
-    .absensi-table-wrap td:nth-child(3)::before{ content:"Jadwal"; }
-    .absensi-table-wrap td:nth-child(4)::before{ content:"Live Mulai"; }
-    .absensi-table-wrap td:nth-child(5)::before{ content:"Selisih"; }
-    .absensi-table-wrap td:nth-child(3)::before,
-    .absensi-table-wrap td:nth-child(4)::before,
-    .absensi-table-wrap td:nth-child(5)::before{
-      display:block; font-size:.6rem; font-weight:700; color:var(--muted);
-      text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px;
-    }
-    .absensi-table-wrap td:nth-child(3),
-    .absensi-table-wrap td:nth-child(4){ font-size:.83rem; font-weight:600; }
-    .absensi-table-wrap td:nth-child(5){ font-size:.78rem; font-weight:600; color:var(--ink); }
 
     .absensi-table-wrap tr:has(.empty-state){
       display:block; background:var(--card); border:1px solid var(--border);
       border-radius:16px; padding:0; box-shadow:none;
     }
     .absensi-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
+  }
+
+  /* ═══ Keuangan — kartu di mobile ═══ */
+  @media (max-width:640px){
+    .keuangan-table-wrap{ background:none; border:none; overflow:visible; }
+    .keuangan-table-wrap table{ display:block; width:100%; }
+    .keuangan-table-wrap thead{ display:none; }
+    .keuangan-table-wrap tbody{ display:block; }
+
+    .keuangan-table-wrap tr{
+      display:grid; grid-template-columns:1fr 1fr; row-gap:10px; column-gap:8px;
+      background:var(--card); border:1px solid var(--border); border-radius:16px;
+      padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
+      animation:fadeUp .3s var(--ease);
+    }
+    .keuangan-table-wrap tr:last-child{ margin-bottom:0; }
+    .keuangan-table-wrap td{ display:block; border:none; padding:0; white-space:normal; }
+
+    /* baris 1: nama + pendapatan */
+    .keuangan-table-wrap td:nth-child(1){ grid-column:1/2; grid-row:1; align-self:center; font-size:.92rem; font-weight:700; }
+    .keuangan-table-wrap td:nth-child(4){ grid-column:2/3; grid-row:1; justify-self:end; align-self:center; font-weight:800; color:var(--coral); }
+
+    /* baris 2: sesi & produk */
+    .keuangan-table-wrap td:nth-child(2),
+    .keuangan-table-wrap td:nth-child(3){
+      padding-top:10px; border-top:1px solid var(--border); font-size:.83rem; font-weight:600; grid-row:2;
+    }
+    .keuangan-table-wrap td:nth-child(2){ grid-column:1/2; }
+    .keuangan-table-wrap td:nth-child(3){ grid-column:2/3; }
+
+    .keuangan-table-wrap td:nth-child(2)::before{ content:"Sesi"; }
+    .keuangan-table-wrap td:nth-child(3)::before{ content:"Produk"; }
+    .keuangan-table-wrap td:nth-child(2)::before,
+    .keuangan-table-wrap td:nth-child(3)::before{
+      display:block; font-size:.6rem; font-weight:700; color:var(--muted);
+      text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px;
+    }
+
+    .keuangan-table-wrap tr:has(.empty-state){
+      display:block; background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:0; box-shadow:none;
+    }
+    .keuangan-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
+  }
+
+  /* ═══ Riwayat Sesi Live — kartu di mobile ═══ */
+  @media (max-width:640px){
+    .filter-bar{ padding:12px; gap:10px 8px; }
+    .filter-bar > div{ flex:1 1 130px; }
+    .filter-bar input{ width:100%; }
+    .filter-bar .btn, .filter-bar .btn.ghost{ flex:1 1 auto; }
+
+    .riwayat-table-wrap{ background:none; border:none; overflow:visible; }
+    .riwayat-table-wrap table{ display:block; width:100%; }
+    .riwayat-table-wrap thead{ display:none; }
+    .riwayat-table-wrap tbody{ display:block; }
+
+    .riwayat-table-wrap tr{
+      display:grid; grid-template-columns:1fr 1fr; row-gap:10px; column-gap:10px;
+      background:var(--card); border:1px solid var(--border); border-radius:16px;
+      padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
+      animation:fadeUp .3s var(--ease);
+    }
+    .riwayat-table-wrap tr:last-child{ margin-bottom:0; }
+    .riwayat-table-wrap td{ display:block; border:none; padding:0; white-space:normal; }
+
+    /* baris 1: nama karyawan + status */
+    .riwayat-table-wrap td:nth-child(1){
+      grid-column:1/2; grid-row:1; align-self:center; font-size:.92rem; font-weight:700;
+    }
+    .riwayat-table-wrap td:nth-child(10){ grid-column:2/3; grid-row:1; justify-self:end; align-self:center; }
+
+    /* baris 2: tanggal + waktu */
+    .riwayat-table-wrap td:nth-child(2){
+      grid-column:1/3; grid-row:2; font-size:.78rem; color:var(--muted); font-weight:600;
+      padding-top:10px; border-top:1px solid var(--border);
+    }
+    .riwayat-table-wrap td:nth-child(2)::after{ content:" • " attr(data-time); }
+    .riwayat-table-wrap td:nth-child(3){ display:none; }
+
+    /* baris 3: durasi / produk */
+    .riwayat-table-wrap td:nth-child(4){ grid-column:1/2; grid-row:3; }
+    .riwayat-table-wrap td:nth-child(5){ grid-column:2/3; grid-row:3; }
+
+    /* baris 4: penghasilan / viewer */
+    .riwayat-table-wrap td:nth-child(6){ grid-column:1/2; grid-row:4; font-weight:800; color:var(--coral); }
+    .riwayat-table-wrap td:nth-child(8){ grid-column:2/3; grid-row:4; }
+
+    .riwayat-table-wrap td:nth-child(4)::before{ content:"Durasi"; }
+    .riwayat-table-wrap td:nth-child(5)::before{ content:"Produk"; }
+    .riwayat-table-wrap td:nth-child(6)::before{ content:"Penghasilan"; }
+    .riwayat-table-wrap td:nth-child(8)::before{ content:"Viewer"; }
+    .riwayat-table-wrap td:nth-child(4)::before,
+    .riwayat-table-wrap td:nth-child(5)::before,
+    .riwayat-table-wrap td:nth-child(6)::before,
+    .riwayat-table-wrap td:nth-child(8)::before{
+      display:block; font-size:.6rem; font-weight:700; color:var(--muted);
+      text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px;
+    }
+    .riwayat-table-wrap td:nth-child(4),
+    .riwayat-table-wrap td:nth-child(5),
+    .riwayat-table-wrap td:nth-child(8){ font-size:.85rem; font-weight:600; }
+
+    /* baris 5: catatan (kalau ada) */
+    .riwayat-table-wrap td:nth-child(9){
+      grid-column:1/3; grid-row:5; font-size:.78rem; color:var(--muted);
+      padding-top:10px; border-top:1px solid var(--border);
+    }
+    .riwayat-table-wrap td:nth-child(9):empty,
+    .riwayat-table-wrap td:nth-child(9)[data-empty="1"]{ display:none; }
+
+    /* baris 6: bukti foto */
+    .riwayat-table-wrap td:nth-child(7){ grid-column:1/3; grid-row:6; }
+    .riwayat-table-wrap td:nth-child(7)[data-empty="1"]{ display:none; }
+    .riwayat-table-wrap td:nth-child(7) .proof-thumb{ width:48px; height:48px; }
+
+    .riwayat-table-wrap tr:has(.empty-state){
+      display:block; background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:0; box-shadow:none;
+    }
+    .riwayat-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
   }
 </style>
 </head>
@@ -402,17 +477,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M9 16l2 2 4-4"/></svg>
           <span>Absensi</span>
         </button>
-        <button class="nav-item" data-tab="jadwal">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
-          <span>Jadwal Live</span>
-        </button>
-        <button class="nav-item" data-tab="slip">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
-          <span>Slip Komisi</span>
-        </button>
-        <button class="nav-item" data-tab="pengaturan">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          <span>Pengaturan</span>
+        <button class="nav-item" data-tab="keuangan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 6v.01M18 18v-.01"/></svg>
+          <span>Keuangan</span>
         </button>
       </nav>
       <div class="sidebar-foot">
@@ -447,7 +514,6 @@
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></div><div class="stat-num" data-count="0" id="statLiveNow">0</div><div class="stat-label">Sedang Live</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><div class="stat-num" data-count="0" id="statSessionsToday">0</div><div class="stat-label">Sesi Hari Ini</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-num" id="statRevenueToday">Rp 0</div><div class="stat-label">Penghasilan Hari Ini</div></div>
-            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7"/></svg></div><div class="stat-num" id="statKomisiMonth">Rp 0</div><div class="stat-label">Komisi Bulan Ini</div></div>
           </div>
 
           <div class="live-now-card">
@@ -480,7 +546,7 @@
           </div>
           <div class="emp-table-wrap">
             <table>
-              <thead><tr><th>Nama</th><th>Status</th><th>Jam Kerja</th><th>Produk Terjual</th><th>Total Komisi</th></tr></thead>
+              <thead><tr><th>Nama</th><th>Status</th><th>Jam Kerja</th><th>Produk Terjual</th></tr></thead>
               <tbody id="empTableBody"><tr><td colspan="5" class="empty-state">Belum ada karyawan terdaftar</td></tr></tbody>
             </table>
           </div>
@@ -500,12 +566,12 @@
             <button class="btn" id="filterApply">Terapkan</button>
             <button class="btn ghost" id="filterReset">Reset</button>
           </div>
-          <div class="table-scroll">
+          <div class="table-scroll riwayat-table-wrap">
             <table>
               <thead>
                 <tr>
                   <th>Karyawan</th><th>Tanggal</th><th>Waktu</th><th>Durasi</th>
-                  <th>Produk</th><th>Penghasilan</th><th>Komisi</th><th>Viewer</th><th>Catatan</th><th>Status</th>
+                  <th>Produk</th><th>Penghasilan</th><th>Bukti</th><th>Viewer</th><th>Catatan</th><th>Status</th>
                 </tr>
               </thead>
               <tbody id="sessionsTableBody"><tr><td colspan="10" class="empty-state">Belum ada data</td></tr></tbody>
@@ -516,14 +582,12 @@
         <!-- ═══ ABSENSI ═══ -->
         <div class="tab-panel" id="panel-absensi">
           <div class="stat-grid" style="margin-bottom:18px;">
-            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div><div class="stat-num" data-count="0" id="statHadir">0</div><div class="stat-label">Hadir</div></div>
-            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><div class="stat-num" data-count="0" id="statTelat">0</div><div class="stat-label">Telat</div></div>
-            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg></div><div class="stat-num" data-count="0" id="statTidakHadir">0</div><div class="stat-label">Tidak Hadir</div></div>
+            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div><div class="stat-num" data-count="0" id="statHadir">0</div><div class="stat-label">Total Hadir (Live)</div></div>
           </div>
           <div class="section-title">
             Rekap Absensi Otomatis
           </div>
-          <p style="font-size:.78rem; color:var(--muted); margin:-8px 0 16px;">Absensi tercatat otomatis begitu karyawan memulai live — dicocokkan dengan jadwal yang sudah diatur. Sesi live tanpa jadwal tetap ditampilkan sebagai catatan tambahan.</p>
+          <p style="font-size:.78rem; color:var(--muted); margin:-8px 0 16px;">Absensi tercatat otomatis begitu karyawan memulai live — nggak perlu jadwal atau input manual.</p>
           <div class="filter-bar">
             <div><label>Dari Tanggal</label><input type="date" id="absensiFilterStart"></div>
             <div><label>Sampai Tanggal</label><input type="date" id="absensiFilterEnd"></div>
@@ -533,57 +597,54 @@
           <div class="table-scroll absensi-table-wrap">
             <table>
               <thead>
-                <tr><th>Tanggal</th><th>Karyawan</th><th>Jadwal</th><th>Live Mulai</th><th>Selisih</th><th>Status</th></tr>
+                <tr><th>Tanggal &amp; Jam Live</th><th>Karyawan</th><th>Status</th></tr>
               </thead>
-              <tbody id="absensiTableBody"><tr><td colspan="6" class="empty-state">Belum ada data</td></tr></tbody>
+              <tbody id="absensiTableBody"><tr><td colspan="3" class="empty-state">Belum ada data</td></tr></tbody>
             </table>
           </div>
         </div>
 
-        <!-- ═══ JADWAL LIVE ═══ -->
-        <div class="tab-panel" id="panel-jadwal">
-          <div class="section-title">
-            Jadwal Live Mendatang
-            <button class="add-btn" id="addScheduleBtn">+ Tambah Jadwal</button>
+        <!-- ═══ KEUANGAN ═══ -->
+        <div class="tab-panel" id="panel-keuangan">
+          <div class="filter-bar">
+            <div><label>Dari Tanggal</label><input type="date" id="keuFilterStart"></div>
+            <div><label>Sampai Tanggal</label><input type="date" id="keuFilterEnd"></div>
+            <button class="btn" id="keuFilterApply">Terapkan</button>
+            <button class="btn ghost" id="keuPresetToday">Hari Ini</button>
+            <button class="btn ghost" id="keuPresetWeek">Minggu Ini</button>
+            <button class="btn ghost" id="keuPresetMonth">Bulan Ini</button>
           </div>
-          <div id="scheduleList">
-            <div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><div>Belum ada jadwal live</div></div>
+
+          <div class="stat-grid">
+            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-num" id="keuPendapatan">Rp 0</div><div class="stat-label">Total Pendapatan</div></div>
+            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><div class="stat-num" data-count="0" id="keuSesi">0</div><div class="stat-label">Sesi Live</div></div>
+            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg></div><div class="stat-num" data-count="0" id="keuProduk">0</div><div class="stat-label">Produk Terjual</div></div>
           </div>
-        </div>
 
-        <!-- ═══ SLIP KOMISI ═══ -->
-        <div class="tab-panel" id="panel-slip">
-          <div class="section-title">Slip Komisi Karyawan</div>
-          <div class="slip-controls">
-            <div><label>Karyawan</label><select id="slipEmployee"></select></div>
-            <div><label>Bulan</label><input type="month" id="slipMonth"></div>
-            <button class="btn" id="slipPrintBtn">Cetak / Simpan PDF</button>
+          <div class="chart-card" style="margin-bottom:20px;">
+            <h4>Pendapatan per Hari</h4>
+            <div class="chart-wrap"><canvas id="keuanganChart"></canvas></div>
           </div>
-          <div class="slip-paper" id="slipPaper">
-            <div class="empty-state">Pilih karyawan dan bulan untuk melihat slip</div>
-          </div>
-        </div>
 
-        <!-- ═══ PENGATURAN ═══ -->
-        <div class="tab-panel" id="panel-pengaturan">
-          <div class="section-title">Pengaturan Komisi</div>
-          <div class="settings-card">
-            <label>Persentase dari Penghasilan Live (%)</label>
-            <input type="number" id="commPercent" min="0" step="0.1" placeholder="contoh: 5">
-            <div class="hint">Contoh: isi 5 kalau karyawan dapat 5% dari penghasilan tiap sesi live</div>
-
-            <label>Bonus per Produk Terjual (Rp)</label>
-            <input type="number" id="commPerProduct" min="0" placeholder="contoh: 5000">
-            <div class="hint">Bonus tetap per 1 mukenah yang terjual, di luar persentase di atas</div>
-
-            <div class="settings-formula" id="formulaPreview">Komisi per sesi = (Penghasilan × 0%) + (Produk Terjual × Rp 0)</div>
-
-            <button id="saveSettings">Simpan Pengaturan</button>
+          <div class="section-title">Rincian per Karyawan</div>
+          <div class="table-scroll keuangan-table-wrap">
+            <table>
+              <thead>
+                <tr><th>Nama</th><th>Sesi</th><th>Produk</th><th>Pendapatan</th></tr>
+              </thead>
+              <tbody id="keuanganTableBody"><tr><td colspan="4" class="empty-state">Belum ada data</td></tr></tbody>
+            </table>
           </div>
         </div>
 
       </div>
     </main>
+  </div>
+
+  <!-- Lightbox bukti penjualan -->
+  <div class="proof-lightbox" id="proofLightbox">
+    <button class="close-lightbox" id="closeProofLightbox">✕</button>
+    <img id="proofLightboxImg" src="" alt="Bukti hasil penjualan">
   </div>
 
   <!-- Modal tambah karyawan -->
@@ -604,34 +665,6 @@
         <div class="modal-btns">
           <button type="button" class="cancel" id="cancelAdd">Batal</button>
           <button type="submit" class="confirm">Simpan</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal tambah jadwal live -->
-  <div class="modal-overlay" id="scheduleModalOverlay">
-    <div class="modal">
-      <h3>Tambah Jadwal Live</h3>
-      <form id="scheduleForm">
-        <label>Karyawan</label>
-        <select id="scheduleEmpUid" required></select>
-
-        <label>Tanggal</label>
-        <input type="date" id="scheduleDate" required>
-
-        <label>Jam Mulai</label>
-        <input type="time" id="scheduleTimeStart" required>
-
-        <label>Jam Selesai (perkiraan)</label>
-        <input type="time" id="scheduleTimeEnd" required>
-
-        <label>Catatan (opsional)</label>
-        <input type="text" id="scheduleNotes" placeholder="misal: fokus produk baru, dll">
-
-        <div class="modal-btns">
-          <button type="button" class="cancel" id="cancelSchedule">Batal</button>
-          <button type="submit" class="confirm">Simpan Jadwal</button>
         </div>
       </form>
     </div>
@@ -710,17 +743,12 @@
 
     let allUsers = {};
     let allSessions = [];
-    let commission = { percent: 0, perProduct: 0 };
-    let revenueChart = null, compareChart = null;
+    let revenueChart = null, compareChart = null, keuanganChart = null;
     let filterStartDate = null, filterEndDate = null;
     let liveTimerInterval = null;
     let absensiFilterStart = null, absensiFilterEnd = null;
+    let keuFilterStart = null, keuFilterEnd = null;
 
-    function calcCommission(session) {
-      const rev = Number(session.revenue) || 0;
-      const qty = Number(session.productsSold) || 0;
-      return rev * (commission.percent / 100) + qty * commission.perProduct;
-    }
     function initials(name) {
       return (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
     }
@@ -750,10 +778,8 @@
       ringkasan: ['Ringkasan', 'Pantau performa tim live commerce hari ini'],
       karyawan: ['Direktori Karyawan', 'Status dan performa seluruh karyawan'],
       riwayat: ['Riwayat Sesi', 'Semua sesi live yang pernah dijalankan'],
-      absensi: ['Absensi Karyawan', 'Rekap kehadiran otomatis dari sesi live vs jadwal'],
-      jadwal: ['Jadwal Live', 'Atur jadwal live karyawan ke depan'],
-      slip: ['Slip Komisi', 'Rekap komisi bulanan per karyawan'],
-      pengaturan: ['Pengaturan', 'Atur rumus komisi karyawan']
+      absensi: ['Absensi Karyawan', 'Rekap kehadiran otomatis dari sesi live'],
+      keuangan: ['Rekap Keuangan', 'Pendapatan dan hasil penjualan tim — dihitung otomatis dari sesi live']
     };
     document.querySelectorAll('.nav-item').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -772,40 +798,11 @@
       if (!user) { window.location.href = 'login.html'; return; }
       const snap = await getDoc(doc(db, 'users', user.uid));
       if (!snap.exists() || snap.data().role !== 'owner') { window.location.href = 'login.html'; return; }
-      listenCommissionSettings();
       listenUsers();
       listenSessions();
-      listenSchedules();
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
-
-    function listenCommissionSettings() {
-      onSnapshot(doc(db, 'config', 'commission'), (snap) => {
-        if (snap.exists()) {
-          commission = { percent: Number(snap.data().percent) || 0, perProduct: Number(snap.data().perProduct) || 0 };
-          document.getElementById('commPercent').value = commission.percent;
-          document.getElementById('commPerProduct').value = commission.perProduct;
-          updateFormulaPreview();
-        }
-        render();
-      }, (err) => showToast('Gagal memuat pengaturan komisi: ' + err.message, true));
-    }
-    function updateFormulaPreview() {
-      const p = document.getElementById('commPercent').value || 0;
-      const pp = document.getElementById('commPerProduct').value || 0;
-      document.getElementById('formulaPreview').textContent = `Komisi per sesi = (Penghasilan × ${p}%) + (Produk Terjual × Rp ${Number(pp).toLocaleString('id-ID')})`;
-    }
-    document.getElementById('commPercent').addEventListener('input', updateFormulaPreview);
-    document.getElementById('commPerProduct').addEventListener('input', updateFormulaPreview);
-    document.getElementById('saveSettings').addEventListener('click', async () => {
-      const percent = Number(document.getElementById('commPercent').value) || 0;
-      const perProduct = Number(document.getElementById('commPerProduct').value) || 0;
-      try {
-        await setDoc(doc(db, 'config', 'commission'), { percent, perProduct });
-        showToast('Pengaturan komisi tersimpan.');
-      } catch (err) { showToast('Gagal menyimpan: ' + err.message, true); }
-    });
 
     function listenUsers() {
       const q = query(collection(db, 'users'), where('role', '==', 'karyawan'));
@@ -813,7 +810,6 @@
         allUsers = {};
         snap.forEach((d) => { allUsers[d.id] = d.data(); });
         countUp(document.getElementById('statTotalEmp'), snap.size);
-        populateSlipEmployeeSelect();
         render();
       }, (err) => showToast('Gagal memuat data karyawan: ' + err.message, true));
     }
@@ -843,7 +839,7 @@
       safeRender('renderEmployeeTable', renderEmployeeTable);
       safeRender('renderSessionsTable', renderSessionsTable);
       safeRender('renderAbsensi', renderAbsensi);
-      safeRender('renderSlip', renderSlip);
+      safeRender('renderKeuangan', renderKeuangan);
     }
 
     function renderAlert() {
@@ -871,14 +867,6 @@
 
       const todayRevenue = todaySessions.reduce((sum, s) => sum + (Number(s.revenue) || 0), 0);
       countUp(document.getElementById('statRevenueToday'), todayRevenue, true);
-
-      const now = new Date();
-      const monthApproved = allSessions.filter(s => {
-        const d = s.startTime?.toDate();
-        return d && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && s.status === 'selesai';
-      });
-      const monthKomisi = monthApproved.reduce((sum, s) => sum + calcCommission(s), 0);
-      countUp(document.getElementById('statKomisiMonth'), Math.round(monthKomisi), true);
     }
 
     function renderLiveNow() {
@@ -937,6 +925,20 @@
       }
     }
     window.forceEndSession = forceEndSession;
+
+    function viewProof(sessionId) {
+      const session = allSessions.find(s => s.id === sessionId);
+      if (!session || !session.proofBase64) return;
+      document.getElementById('proofLightboxImg').src = session.proofBase64;
+      document.getElementById('proofLightbox').classList.add('show');
+    }
+    window.viewProof = viewProof;
+    document.getElementById('closeProofLightbox').addEventListener('click', () => {
+      document.getElementById('proofLightbox').classList.remove('show');
+    });
+    document.getElementById('proofLightbox').addEventListener('click', (e) => {
+      if (e.target.id === 'proofLightbox') document.getElementById('proofLightbox').classList.remove('show');
+    });
 
     function chartTextColor() { return getComputedStyle(document.body).getPropertyValue('color') || '#111'; }
     function chartGridColor() { return root.getAttribute('data-theme') === 'dark' ? '#2A2A2E' : '#F4F4F5'; }
@@ -1048,7 +1050,7 @@
     function renderEmployeeTable() {
       const tbody = document.getElementById('empTableBody');
       const uids = Object.keys(allUsers);
-      if (uids.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Belum ada karyawan terdaftar</td></tr>'; return; }
+      if (uids.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Belum ada karyawan terdaftar</td></tr>'; return; }
       tbody.innerHTML = '';
       uids.forEach((uid) => {
         const user = allUsers[uid];
@@ -1058,7 +1060,6 @@
           if (!s.startTime || !s.endTime) return sum;
           return sum + Math.round((s.endTime.toDate() - s.startTime.toDate()) / 60000);
         }, 0);
-        const totalKomisi = completedSessions.reduce((sum, s) => sum + calcCommission(s), 0);
         const totalProduk = completedSessions.reduce((sum, s) => sum + (Number(s.productsSold) || 0), 0);
         const h = Math.floor(totalMinutes / 60), m = totalMinutes % 60;
         const streak = calcStreak(uid);
@@ -1069,10 +1070,8 @@
           <td><span class="status-pill ${activeSession ? 'on' : 'off'}"><span class="dot2"></span>${activeSession ? 'Sedang Live' : 'Tidak Live'}</span></td>
           <td>${h}j ${m}m</td>
           <td>${totalProduk}</td>
-          <td class="komisi-cell" data-emp-komisi="${uid}">Rp 0</td>
         `;
         tbody.appendChild(tr);
-        countUp(tr.querySelector(`[data-emp-komisi="${uid}"]`), Math.round(totalKomisi), true);
       });
     }
 
@@ -1091,62 +1090,32 @@
         const timeStr = start ? start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) + (end ? ' - ' + end.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : ' - sekarang') : '-';
         const durMin = start && end ? Math.round((end - start) / 60000) : null;
         const durStr = s.status === 'active' ? '<span class="badge-live">LIVE</span>' : (durMin !== null ? `${Math.floor(durMin/60)}j ${durMin%60}m` : '-');
-        const komisiStr = s.status === 'selesai' ? 'Rp ' + Math.round(calcCommission(s)).toLocaleString('id-ID') : '-';
+        const buktiStr = s.proofBase64 ? `<img src="${s.proofBase64}" class="proof-thumb" onclick="window.viewProof('${s.id}')">` : '-';
         let statusCell = '-';
         if (s.status === 'selesai') statusCell = '<span class="status-approved">✓ Selesai</span>';
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${s.employeeName || '-'}</td><td>${dateStr}</td><td>${timeStr}</td><td>${durStr}</td>
+          <td>${s.employeeName || '-'}</td><td data-time="${timeStr}">${dateStr}</td><td>${timeStr}</td><td>${durStr}</td>
           <td>${s.productsSold ?? '-'}</td>
           <td>${s.revenue != null ? 'Rp ' + Number(s.revenue).toLocaleString('id-ID') : '-'}</td>
-          <td class="komisi-cell">${komisiStr}</td><td>${s.viewers ?? '-'}</td><td>${s.notes || '-'}</td>
+          <td${s.proofBase64 ? '' : ' data-empty="1"'}>${buktiStr}</td><td>${s.viewers ?? '-'}</td><td${s.notes ? '' : ' data-empty="1"'}>${s.notes || '-'}</td>
           <td>${statusCell}</td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    // ── absensi otomatis (dari sesi live vs jadwal) ──
-    function sameDay(a, b) {
-      return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-    }
+    // ── absensi otomatis (tercatat langsung dari sesi live, tanpa jadwal) ──
     function computeAbsensi() {
-      const now = new Date();
-      const records = [];
-      const usedSessionIds = new Set();
-
-      allSchedules.forEach(sch => {
-        const startAt = sch.startAt?.toDate();
-        const endAt = sch.endAt?.toDate();
-        if (!startAt) return;
-        if (absensiFilterStart && startAt < absensiFilterStart) return;
-        if (absensiFilterEnd && startAt > absensiFilterEnd) return;
-
-        const matches = allSessions
-          .filter(s => s.uid === sch.uid && s.startTime && sameDay(s.startTime.toDate(), startAt))
-          .sort((a, b) => a.startTime.toDate() - b.startTime.toDate());
-        const match = matches[0];
-
-        if (match) {
-          usedSessionIds.add(match.id);
-          const liveStart = match.startTime.toDate();
-          const diffMin = Math.round((liveStart - startAt) / 60000);
-          const status = diffMin <= 15 ? 'hadir' : 'telat';
-          records.push({ date: startAt, employeeName: sch.employeeName, scheduleStr: startAt.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), liveStr: liveStart.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), diffMin, status });
-        } else if (endAt && endAt < now) {
-          records.push({ date: startAt, employeeName: sch.employeeName, scheduleStr: startAt.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), liveStr: '-', diffMin: null, status: 'absen' });
-        }
-      });
-
-      allSessions.forEach(s => {
-        if (usedSessionIds.has(s.id) || !s.startTime) return;
-        const liveStart = s.startTime.toDate();
-        if (absensiFilterStart && liveStart < absensiFilterStart) return;
-        if (absensiFilterEnd && liveStart > absensiFilterEnd) return;
-        records.push({ date: liveStart, employeeName: s.employeeName, scheduleStr: '-', liveStr: liveStart.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), diffMin: null, status: 'extra' });
-      });
-
+      let records = allSessions
+        .filter(s => s.startTime)
+        .map(s => {
+          const liveStart = s.startTime.toDate();
+          return { date: liveStart, employeeName: s.employeeName, liveStr: liveStart.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) };
+        });
+      if (absensiFilterStart) records = records.filter(r => r.date >= absensiFilterStart);
+      if (absensiFilterEnd) records = records.filter(r => r.date <= absensiFilterEnd);
       records.sort((a, b) => b.date - a.date);
       return records;
     }
@@ -1156,28 +1125,132 @@
       if (!tbody) return;
       const records = computeAbsensi();
 
-      const hadir = records.filter(r => r.status === 'hadir').length;
-      const telat = records.filter(r => r.status === 'telat').length;
-      const absen = records.filter(r => r.status === 'absen').length;
-      countUp(document.getElementById('statHadir'), hadir);
-      countUp(document.getElementById('statTelat'), telat);
-      countUp(document.getElementById('statTidakHadir'), absen);
+      countUp(document.getElementById('statHadir'), records.length);
 
-      if (records.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Belum ada data absensi</td></tr>'; return; }
+      if (records.length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Belum ada data absensi</td></tr>'; return; }
 
-      const statusLabel = { hadir: 'Hadir', telat: 'Telat', absen: 'Tidak Hadir', extra: 'Live Tanpa Jadwal' };
       tbody.innerHTML = records.map(r => {
         const dateStr = r.date.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
-        const selisihStr = r.diffMin === null ? '-' : (r.diffMin <= 0 ? `${Math.abs(r.diffMin)} menit lebih awal` : `${r.diffMin} menit`);
         return `
           <tr>
-            <td>${dateStr}</td><td>${r.employeeName || '-'}</td><td>${r.scheduleStr}</td><td>${r.liveStr}</td>
-            <td>${selisihStr}</td>
-            <td><span class="status-pill ${r.status}"><span class="dot2"></span>${statusLabel[r.status]}</span></td>
+            <td>${dateStr} · ${r.liveStr}</td><td>${r.employeeName || '-'}</td>
+            <td><span class="status-pill hadir"><span class="dot2"></span>Hadir</span></td>
           </tr>
         `;
       }).join('');
     }
+
+    // ── keuangan otomatis (pendapatan & hasil penjualan) ──
+    function computeKeuangan() {
+      let sessions = allSessions.filter(s => s.status === 'selesai' && s.startTime);
+      if (keuFilterStart) sessions = sessions.filter(s => s.startTime.toDate() >= keuFilterStart);
+      if (keuFilterEnd) sessions = sessions.filter(s => s.startTime.toDate() <= keuFilterEnd);
+
+      const byEmployee = {};
+      let totalPendapatan = 0, totalProduk = 0;
+      const byDay = {};
+
+      sessions.forEach(s => {
+        const rev = Number(s.revenue) || 0;
+        const produk = Number(s.productsSold) || 0;
+        totalPendapatan += rev; totalProduk += produk;
+
+        if (!byEmployee[s.uid]) byEmployee[s.uid] = { name: s.employeeName || allUsers[s.uid]?.name || '-', sesi: 0, produk: 0, pendapatan: 0 };
+        byEmployee[s.uid].sesi += 1;
+        byEmployee[s.uid].produk += produk;
+        byEmployee[s.uid].pendapatan += rev;
+
+        const d = s.startTime.toDate();
+        const dayKey = d.toLocaleDateString('id-ID', { day:'2-digit', month:'2-digit' });
+        if (!byDay[dayKey]) byDay[dayKey] = { pendapatan: 0, order: d.getTime() };
+        byDay[dayKey].pendapatan += rev;
+      });
+
+      const perEmployee = Object.values(byEmployee).sort((a, b) => b.pendapatan - a.pendapatan);
+      const perDay = Object.entries(byDay).map(([label, v]) => ({ label, ...v })).sort((a, b) => a.order - b.order);
+
+      return { totalPendapatan, totalProduk, totalSesi: sessions.length, perEmployee, perDay };
+    }
+
+    function renderKeuangan() {
+      const tbody = document.getElementById('keuanganTableBody');
+      if (!tbody) return;
+      const data = computeKeuangan();
+
+      countUp(document.getElementById('keuPendapatan'), Math.round(data.totalPendapatan), true);
+      countUp(document.getElementById('keuSesi'), data.totalSesi);
+      countUp(document.getElementById('keuProduk'), data.totalProduk);
+
+      if (data.perEmployee.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Belum ada data keuangan di rentang ini</td></tr>';
+      } else {
+        tbody.innerHTML = data.perEmployee.map(e => `
+          <tr>
+            <td>${e.name}</td><td>${e.sesi}</td><td>${e.produk}</td>
+            <td>Rp ${Math.round(e.pendapatan).toLocaleString('id-ID')}</td>
+          </tr>
+        `).join('');
+      }
+
+      const ctx = document.getElementById('keuanganChart').getContext('2d');
+      if (keuanganChart) keuanganChart.destroy();
+      if (data.perDay.length === 0) return;
+      keuanganChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.perDay.map(d => d.label),
+          datasets: [
+            { label: 'Pendapatan', data: data.perDay.map(d => d.pendapatan), backgroundColor: '#FF5C39', borderRadius: 5, maxBarThickness: 28 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), callback: v => 'Rp ' + (v/1000) + 'k', font: { size: 10 } } },
+            x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    function setKeuRange(start, end) {
+      keuFilterStart = start; keuFilterEnd = end;
+      document.getElementById('keuFilterStart').value = start ? start.toISOString().slice(0,10) : '';
+      document.getElementById('keuFilterEnd').value = end ? end.toISOString().slice(0,10) : '';
+      renderKeuangan();
+    }
+    document.getElementById('keuFilterApply').addEventListener('click', () => {
+      const startVal = document.getElementById('keuFilterStart').value;
+      const endVal = document.getElementById('keuFilterEnd').value;
+      keuFilterStart = startVal ? new Date(startVal + 'T00:00:00') : null;
+      keuFilterEnd = endVal ? new Date(endVal + 'T23:59:59') : null;
+      renderKeuangan();
+    });
+    document.getElementById('keuPresetToday').addEventListener('click', () => {
+      const d = new Date(); d.setHours(0,0,0,0);
+      const end = new Date(); end.setHours(23,59,59,999);
+      setKeuRange(d, end);
+    });
+    document.getElementById('keuPresetWeek').addEventListener('click', () => {
+      const start = new Date(); start.setDate(start.getDate() - 6); start.setHours(0,0,0,0);
+      const end = new Date(); end.setHours(23,59,59,999);
+      setKeuRange(start, end);
+    });
+    document.getElementById('keuPresetMonth').addEventListener('click', () => {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      const end = new Date(); end.setHours(23,59,59,999);
+      setKeuRange(start, end);
+    });
+    (function initKeuDefaultRange() {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      const end = new Date(); end.setHours(23,59,59,999);
+      keuFilterStart = start; keuFilterEnd = end;
+      document.getElementById('keuFilterStart').value = start.toISOString().slice(0,10);
+      document.getElementById('keuFilterEnd').value = end.toISOString().slice(0,10);
+    })();
 
     document.getElementById('absensiFilterApply').addEventListener('click', () => {
       const startVal = document.getElementById('absensiFilterStart').value;
@@ -1221,15 +1294,16 @@
       let filtered = allSessions;
       if (filterStartDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() >= filterStartDate);
       if (filterEndDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() <= filterEndDate);
-      const rows = [['Karyawan','Tanggal','Mulai','Selesai','Durasi (menit)','Produk','Penghasilan','Komisi','Viewer','Catatan','Status']];
+      const rows = [['Karyawan','Tanggal','Mulai','Selesai','Durasi (menit)','Produk','Penghasilan','Viewer','Catatan','Status','Bukti']];
       filtered.forEach(s => {
         const start = s.startTime?.toDate(), end = s.endTime?.toDate();
         const durMin = start && end ? Math.round((end - start) / 60000) : '';
         rows.push([
           s.employeeName || '', start ? start.toLocaleDateString('id-ID') : '',
           start ? start.toLocaleTimeString('id-ID') : '', end ? end.toLocaleTimeString('id-ID') : '',
-          durMin, s.productsSold ?? '', s.revenue ?? '', s.status === 'selesai' ? Math.round(calcCommission(s)) : '',
-          s.viewers ?? '', (s.notes || '').replace(/,/g,';'), s.status === 'selesai' ? 'Selesai' : 'Live'
+          durMin, s.productsSold ?? '', s.revenue ?? '',
+          s.viewers ?? '', (s.notes || '').replace(/,/g,';'), s.status === 'selesai' ? 'Selesai' : 'Live',
+          s.proofBase64 ? 'Ada' : 'Tidak ada'
         ]);
       });
       const csv = rows.map(r => r.join(',')).join('\n');
@@ -1240,57 +1314,6 @@
       a.click(); URL.revokeObjectURL(url);
       showToast('CSV berhasil didownload.');
     });
-
-    // ── slip komisi ──
-    function populateSlipEmployeeSelect() {
-      const sel = document.getElementById('slipEmployee');
-      const current = sel.value;
-      sel.innerHTML = Object.entries(allUsers).map(([uid,u]) => `<option value="${uid}">${u.name}</option>`).join('');
-      if (current) sel.value = current;
-      if (!document.getElementById('slipMonth').value) {
-        document.getElementById('slipMonth').value = new Date().toISOString().slice(0,7);
-      }
-    }
-    document.getElementById('slipEmployee').addEventListener('change', renderSlip);
-    document.getElementById('slipMonth').addEventListener('change', renderSlip);
-    document.getElementById('slipPrintBtn').addEventListener('click', () => window.print());
-
-    function renderSlip() {
-      const paper = document.getElementById('slipPaper');
-      const uid = document.getElementById('slipEmployee').value;
-      const monthVal = document.getElementById('slipMonth').value;
-      if (!uid || !monthVal) { paper.innerHTML = '<div class="empty-state">Pilih karyawan dan bulan untuk melihat slip</div>'; return; }
-      const [year, month] = monthVal.split('-').map(Number);
-      const sessions = allSessions.filter(s => {
-        if (s.uid !== uid || s.status !== 'selesai') return false;
-        const d = s.startTime?.toDate();
-        return d && d.getFullYear() === year && d.getMonth() === month - 1;
-      });
-      const user = allUsers[uid];
-      const totalSesi = sessions.length;
-      const totalProduk = sessions.reduce((sum, s) => sum + (Number(s.productsSold) || 0), 0);
-      const totalRevenue = sessions.reduce((sum, s) => sum + (Number(s.revenue) || 0), 0);
-      const totalKomisi = sessions.reduce((sum, s) => sum + calcCommission(s), 0);
-      const monthName = new Date(year, month - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-
-      paper.innerHTML = `
-        <div class="slip-head">
-          <div>
-            <div class="co">ICABEEE TEAM</div>
-            <div style="font-size:.8rem; color:var(--muted); margin-top:2px;">Slip Komisi Karyawan</div>
-          </div>
-          <div class="period">
-            <div style="font-weight:700;">${user ? user.name : '-'}</div>
-            <div>${monthName}</div>
-          </div>
-        </div>
-        <div class="slip-row"><span>Jumlah Sesi Live</span><b>${totalSesi}</b></div>
-        <div class="slip-row"><span>Total Produk Terjual</span><b>${totalProduk}</b></div>
-        <div class="slip-row"><span>Total Penghasilan Live</span><b>Rp ${totalRevenue.toLocaleString('id-ID')}</b></div>
-        <div class="slip-row"><span>Rumus Komisi</span><b>${commission.percent}% + Rp ${commission.perProduct.toLocaleString('id-ID')}/produk</b></div>
-        <div class="slip-row total"><span>Total Komisi</span><span>Rp ${Math.round(totalKomisi).toLocaleString('id-ID')}</span></div>
-      `;
-    }
 
     // ── add employee with photo ──
     const modalOverlay = document.getElementById('modalOverlay');
@@ -1342,135 +1365,6 @@
       } catch (err) { showToast('Gagal menambahkan: ' + err.message, true); }
     });
 
-    // ══ JADWAL LIVE ══
-    let allSchedules = [];
-
-    function listenSchedules() {
-      const q = query(collection(db, 'schedules'), orderBy('startAt', 'asc'));
-      onSnapshot(q, (snap) => {
-        allSchedules = [];
-        snap.forEach(d => allSchedules.push({ id: d.id, ...d.data() }));
-        renderScheduleList();
-        safeRender('renderAbsensi', renderAbsensi);
-      }, (err) => showToast('Gagal memuat jadwal: ' + err.message, true));
-    }
-
-    function renderScheduleList() {
-      const list = document.getElementById('scheduleList');
-      const now = Date.now();
-      const upcoming = allSchedules.filter(s => s.endAt?.toDate().getTime() >= now);
-
-      if (upcoming.length === 0) {
-        list.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><div>Belum ada jadwal live mendatang</div></div>';
-        return;
-      }
-
-      let lastDate = null;
-      list.innerHTML = '';
-      upcoming.forEach(s => {
-        const start = s.startAt?.toDate();
-        const end = s.endAt?.toDate();
-        const dateKey = start ? start.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) : '-';
-        if (dateKey !== lastDate) {
-          const heading = document.createElement('div');
-          heading.className = 'date-heading';
-          heading.textContent = dateKey;
-          list.appendChild(heading);
-          lastDate = dateKey;
-        }
-        const user = allUsers[s.uid];
-        const row = document.createElement('div');
-        row.className = 'schedule-row';
-        row.style.cursor = 'pointer';
-        row.innerHTML = `
-          ${avatarHtml(user || { name: s.employeeName })}
-          <div class="live-info">
-            <div class="live-name">${s.employeeName || '-'}</div>
-            <div class="live-meta">${start ? start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'} - ${end ? end.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'}${s.notes ? ' · ' + s.notes : ''}</div>
-          </div>
-          <button class="force-end-btn" data-edit="${s.id}">Edit</button>
-          <button class="force-end-btn" onclick="window.deleteSchedule('${s.id}')">Hapus</button>
-        `;
-        row.querySelector('[data-edit]').addEventListener('click', (e) => {
-          e.stopPropagation();
-          openScheduleModal(s);
-        });
-        list.appendChild(row);
-      });
-    }
-
-    async function deleteSchedule(id) {
-      if (!confirm('Hapus jadwal live ini?')) return;
-      try {
-        await deleteDoc(doc(db, 'schedules', id));
-        showToast('Jadwal dihapus.');
-      } catch (err) { showToast('Gagal menghapus: ' + err.message, true); }
-    }
-    window.deleteSchedule = deleteSchedule;
-
-    let editingScheduleId = null;
-
-    function openScheduleModal(schedule) {
-      const sel = document.getElementById('scheduleEmpUid');
-      sel.innerHTML = Object.keys(allUsers).map(uid => `<option value="${uid}">${allUsers[uid].name}</option>`).join('');
-      if (Object.keys(allUsers).length === 0) { showToast('Belum ada karyawan terdaftar, tambah karyawan dulu.', true); return; }
-
-      const modalTitle = document.querySelector('#scheduleModalOverlay h3');
-      const submitBtn = document.querySelector('#scheduleForm .confirm');
-
-      if (schedule) {
-        editingScheduleId = schedule.id;
-        modalTitle.textContent = 'Edit Jadwal Live';
-        submitBtn.textContent = 'Simpan Perubahan';
-        const start = schedule.startAt.toDate();
-        const end = schedule.endAt.toDate();
-        sel.value = schedule.uid;
-        document.getElementById('scheduleDate').value = start.toISOString().slice(0,10);
-        document.getElementById('scheduleTimeStart').value = start.toTimeString().slice(0,5);
-        document.getElementById('scheduleTimeEnd').value = end.toTimeString().slice(0,5);
-        document.getElementById('scheduleNotes').value = schedule.notes || '';
-      } else {
-        editingScheduleId = null;
-        modalTitle.textContent = 'Tambah Jadwal Live';
-        submitBtn.textContent = 'Simpan Jadwal';
-        document.getElementById('scheduleForm').reset();
-      }
-      scheduleModalOverlay.classList.add('show');
-    }
-
-    const scheduleModalOverlay = document.getElementById('scheduleModalOverlay');
-    document.getElementById('addScheduleBtn').addEventListener('click', () => openScheduleModal(null));
-    document.getElementById('cancelSchedule').addEventListener('click', () => scheduleModalOverlay.classList.remove('show'));
-
-    document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const uid = document.getElementById('scheduleEmpUid').value;
-      const dateVal = document.getElementById('scheduleDate').value;
-      const timeStart = document.getElementById('scheduleTimeStart').value;
-      const timeEnd = document.getElementById('scheduleTimeEnd').value;
-      const notes = document.getElementById('scheduleNotes').value.trim();
-      if (!uid || !dateVal || !timeStart || !timeEnd) return;
-
-      const startAt = new Date(`${dateVal}T${timeStart}:00`);
-      const endAt = new Date(`${dateVal}T${timeEnd}:00`);
-      if (endAt <= startAt) { showToast('Jam selesai harus lebih besar dari jam mulai.', true); return; }
-
-      try {
-        const payload = {
-          uid, employeeName: allUsers[uid]?.name || '-',
-          startAt: Timestamp.fromDate(startAt), endAt: Timestamp.fromDate(endAt), notes
-        };
-        if (editingScheduleId) {
-          await updateDoc(doc(db, 'schedules', editingScheduleId), payload);
-          showToast('Jadwal berhasil diperbarui.');
-        } else {
-          await addDoc(collection(db, 'schedules'), { ...payload, createdAt: Timestamp.now() });
-          showToast('Jadwal live tersimpan.');
-        }
-        scheduleModalOverlay.classList.remove('show');
-        document.getElementById('scheduleForm').reset();
-      } catch (err) { showToast('Gagal menyimpan jadwal: ' + err.message, true); }
-    });
   </script>
 </body>
 </html>
