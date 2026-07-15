@@ -141,6 +141,16 @@
   .status-approved{ display:inline-flex; align-items:center; gap:4px; font-size:.68rem; font-weight:700; color:#16A34A; }
   .status-pending{ display:inline-flex; align-items:center; gap:4px; font-size:.68rem; font-weight:700; color:#D97706; }
 
+  .expense-type-pill{ display:inline-flex; align-items:center; font-size:.68rem; font-weight:700; padding:4px 9px; border-radius:999px; }
+  .expense-type-pill.gaji{ background:#DBEAFE; color:#2563EB; }
+  .expense-type-pill.operasional{ background:#FEF3C7; color:#D97706; }
+  .expense-type-pill.lainnya{ background:rgba(128,128,128,.12); color:var(--muted); }
+  html[data-theme="dark"] .expense-type-pill.gaji{ background:#1E3A8A; color:#93C5FD; }
+  html[data-theme="dark"] .expense-type-pill.operasional{ background:#451A03; color:#FBBF24; }
+  .delete-expense-btn{ border:1px solid var(--border); background:var(--card); color:#DC2626; width:28px; height:28px; border-radius:7px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+  .delete-expense-btn:hover{ background:#FEF2F2; border-color:#DC2626; }
+  html[data-theme="dark"] .delete-expense-btn:hover{ background:#450A0A; }
+
   .filter-bar{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; align-items:end; background:var(--card); padding:14px; border:1px solid var(--border); border-radius:12px; }
   .filter-bar label{ font-size:.7rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px; }
   .filter-bar input, .filter-bar select{ padding:9px 12px; border-radius:8px; border:1px solid var(--border); font-family:var(--di); font-size:.8rem; background:var(--card); color:var(--ink); }
@@ -438,6 +448,43 @@
     }
     .riwayat-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
   }
+
+  /* ═══ Pengeluaran & Gaji — kartu di mobile ═══ */
+  @media (max-width:640px){
+    .expense-table-wrap{ background:none; border:none; overflow:visible; }
+    .expense-table-wrap table{ display:block; width:100%; }
+    .expense-table-wrap thead{ display:none; }
+    .expense-table-wrap tbody{ display:block; }
+
+    .expense-table-wrap tr{
+      display:grid; grid-template-columns:1fr 1fr; row-gap:8px; column-gap:10px;
+      background:var(--card); border:1px solid var(--border); border-radius:16px;
+      padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
+      animation:fadeUp .3s var(--ease);
+    }
+    .expense-table-wrap tr:last-child{ margin-bottom:0; }
+    .expense-table-wrap td{ display:block; border:none; padding:0; white-space:normal; }
+
+    /* baris 1: jenis + tombol hapus */
+    .expense-table-wrap td:nth-child(2){ grid-column:1/2; grid-row:1; align-self:center; }
+    .expense-table-wrap td:nth-child(5){ grid-column:2/3; grid-row:1; justify-self:end; align-self:center; }
+
+    /* baris 2: keterangan */
+    .expense-table-wrap td:nth-child(3){
+      grid-column:1/3; grid-row:2; font-size:.9rem; font-weight:700;
+      padding-top:8px; border-top:1px solid var(--border);
+    }
+
+    /* baris 3: tanggal + jumlah */
+    .expense-table-wrap td:nth-child(1){ grid-column:1/2; grid-row:3; font-size:.78rem; color:var(--muted); font-weight:600; align-self:center; }
+    .expense-table-wrap td:nth-child(4){ grid-column:2/3; grid-row:3; justify-self:end; align-self:center; font-family:var(--df); font-weight:800; font-size:.92rem; color:#DC2626; }
+
+    .expense-table-wrap tr:has(.empty-state){
+      display:block; background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:0; box-shadow:none;
+    }
+    .expense-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
+  }
 </style>
 </head>
 <body>
@@ -606,6 +653,12 @@
 
         <!-- ═══ KEUANGAN ═══ -->
         <div class="tab-panel" id="panel-keuangan">
+          <div class="section-title">
+            Rekap Keuangan
+            <div class="btn-row">
+              <button class="btn" id="addExpenseBtn">+ Catat Pengeluaran / Gaji</button>
+            </div>
+          </div>
           <div class="filter-bar">
             <div><label>Dari Tanggal</label><input type="date" id="keuFilterStart"></div>
             <div><label>Sampai Tanggal</label><input type="date" id="keuFilterEnd"></div>
@@ -619,6 +672,8 @@
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-num" id="keuPendapatan">Rp 0</div><div class="stat-label">Total Pendapatan</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><div class="stat-num" data-count="0" id="keuSesi">0</div><div class="stat-label">Sesi Live</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg></div><div class="stat-num" data-count="0" id="keuProduk">0</div><div class="stat-label">Produk Terjual</div></div>
+            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div><div class="stat-num" id="keuPengeluaran" style="color:#DC2626;">Rp 0</div><div class="stat-label">Total Pengeluaran &amp; Gaji</div></div>
+            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l6-6 4 4 8-8M21 2h-6M21 2v6"/></svg></div><div class="stat-num" id="keuLabaBersih">Rp 0</div><div class="stat-label">Laba Bersih</div></div>
           </div>
 
           <div class="chart-card" style="margin-bottom:20px;">
@@ -633,6 +688,16 @@
                 <tr><th>Nama</th><th>Sesi</th><th>Produk</th><th>Pendapatan</th></tr>
               </thead>
               <tbody id="keuanganTableBody"><tr><td colspan="4" class="empty-state">Belum ada data</td></tr></tbody>
+            </table>
+          </div>
+
+          <div class="section-title" style="margin-top:24px;">Pengeluaran &amp; Gaji</div>
+          <div class="table-scroll expense-table-wrap">
+            <table>
+              <thead>
+                <tr><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Jumlah</th><th></th></tr>
+              </thead>
+              <tbody id="expenseTableBody"><tr><td colspan="5" class="empty-state">Belum ada catatan pengeluaran/gaji</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -664,6 +729,32 @@
         </div>
         <div class="modal-btns">
           <button type="button" class="cancel" id="cancelAdd">Batal</button>
+          <button type="submit" class="confirm">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal tambah pengeluaran / gaji -->
+  <div class="modal-overlay" id="expenseModalOverlay">
+    <div class="modal">
+      <h3>Catat Pengeluaran / Gaji</h3>
+      <div class="hint">Dicatat manual oleh owner — otomatis masuk ke rekap keuangan supaya laba bersih tetap akurat.</div>
+      <form id="expenseForm">
+        <label>Jenis</label>
+        <select id="expenseType" required>
+          <option value="gaji">Gaji Karyawan</option>
+          <option value="operasional">Pengeluaran Operasional Kantor</option>
+          <option value="lainnya">Lainnya</option>
+        </select>
+        <label>Keterangan</label>
+        <input type="text" id="expenseTitle" required placeholder="contoh: Gaji Siti Aminah - Juli, atau Beli ATK">
+        <label>Jumlah (Rp)</label>
+        <input type="number" id="expenseAmount" required min="0" step="1000" placeholder="contoh: 1500000">
+        <label>Tanggal</label>
+        <input type="date" id="expenseDate" required>
+        <div class="modal-btns">
+          <button type="button" class="cancel" id="cancelExpense">Batal</button>
           <button type="submit" class="confirm">Simpan</button>
         </div>
       </form>
@@ -743,6 +834,7 @@
 
     let allUsers = {};
     let allSessions = [];
+    let allExpenses = [];
     let revenueChart = null, compareChart = null, keuanganChart = null;
     let filterStartDate = null, filterEndDate = null;
     let liveTimerInterval = null;
@@ -800,6 +892,7 @@
       if (!snap.exists() || snap.data().role !== 'owner') { window.location.href = 'login.html'; return; }
       listenUsers();
       listenSessions();
+      listenExpenses();
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
@@ -822,6 +915,18 @@
         render();
       }, (err) => {
         showToast('Gagal memuat data sesi live: ' + err.message, true);
+        console.error(err);
+      });
+    }
+
+    function listenExpenses() {
+      const q = query(collection(db, 'expenses'), orderBy('date', 'desc'));
+      onSnapshot(q, (snap) => {
+        allExpenses = [];
+        snap.forEach((d) => allExpenses.push({ id: d.id, ...d.data() }));
+        render();
+      }, (err) => {
+        showToast('Gagal memuat data pengeluaran: ' + err.message, true);
         console.error(err);
       });
     }
@@ -1172,14 +1277,29 @@
       return { totalPendapatan, totalProduk, totalSesi: sessions.length, perEmployee, perDay };
     }
 
+    function computeExpenses() {
+      let expenses = allExpenses;
+      if (keuFilterStart) expenses = expenses.filter(e => e.date && e.date.toDate() >= keuFilterStart);
+      if (keuFilterEnd) expenses = expenses.filter(e => e.date && e.date.toDate() <= keuFilterEnd);
+      const total = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+      return { expenses, total };
+    }
+
     function renderKeuangan() {
       const tbody = document.getElementById('keuanganTableBody');
       if (!tbody) return;
       const data = computeKeuangan();
+      const { total: totalPengeluaran } = computeExpenses();
+      const labaBersih = data.totalPendapatan - totalPengeluaran;
 
       countUp(document.getElementById('keuPendapatan'), Math.round(data.totalPendapatan), true);
       countUp(document.getElementById('keuSesi'), data.totalSesi);
       countUp(document.getElementById('keuProduk'), data.totalProduk);
+      document.getElementById('keuPengeluaran').textContent = 'Rp ' + Math.round(totalPengeluaran).toLocaleString('id-ID');
+      const labaEl = document.getElementById('keuLabaBersih');
+      labaEl.textContent = 'Rp ' + Math.round(labaBersih).toLocaleString('id-ID');
+      labaEl.style.color = labaBersih < 0 ? '#DC2626' : '';
+      renderExpenseTable();
 
       if (data.perEmployee.length === 0) {
         tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Belum ada data keuangan di rentang ini</td></tr>';
@@ -1213,6 +1333,38 @@
         }
       });
     }
+
+    function renderExpenseTable() {
+      const tbody = document.getElementById('expenseTableBody');
+      if (!tbody) return;
+      const { expenses } = computeExpenses();
+      if (expenses.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Belum ada catatan pengeluaran/gaji</td></tr>';
+        return;
+      }
+      const typeLabel = { gaji: 'Gaji Karyawan', operasional: 'Operasional', lainnya: 'Lainnya' };
+      tbody.innerHTML = expenses.map(e => {
+        const dateStr = e.date ? e.date.toDate().toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-';
+        const type = e.type || 'lainnya';
+        return `
+          <tr>
+            <td>${dateStr}</td>
+            <td><span class="expense-type-pill ${type}">${typeLabel[type] || 'Lainnya'}</span></td>
+            <td>${e.title || '-'}</td>
+            <td>Rp ${Math.round(Number(e.amount) || 0).toLocaleString('id-ID')}</td>
+            <td><button class="delete-expense-btn" onclick="window.deleteExpenseRow('${e.id}')" title="Hapus">🗑</button></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    window.deleteExpenseRow = async (id) => {
+      if (!confirm('Hapus catatan ini?')) return;
+      try {
+        await deleteDoc(doc(db, 'expenses', id));
+        showToast('Catatan berhasil dihapus.');
+      } catch (err) { showToast('Gagal menghapus: ' + err.message, true); }
+    };
 
     function setKeuRange(start, end) {
       keuFilterStart = start; keuFilterEnd = end;
@@ -1363,6 +1515,33 @@
         selectedPhotoBase64 = null;
         photoUploadBox.innerHTML = '<input type="file" id="photoInput" accept="image/*"><p>Tap untuk pilih foto</p>';
       } catch (err) { showToast('Gagal menambahkan: ' + err.message, true); }
+    });
+
+    // ── modal catat pengeluaran / gaji ──
+    const expenseModalOverlay = document.getElementById('expenseModalOverlay');
+    document.getElementById('addExpenseBtn').addEventListener('click', () => {
+      document.getElementById('expenseDate').value = new Date().toISOString().slice(0, 10);
+      expenseModalOverlay.classList.add('show');
+    });
+    document.getElementById('cancelExpense').addEventListener('click', () => expenseModalOverlay.classList.remove('show'));
+
+    document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const type = document.getElementById('expenseType').value;
+      const title = document.getElementById('expenseTitle').value.trim();
+      const amount = Number(document.getElementById('expenseAmount').value);
+      const dateVal = document.getElementById('expenseDate').value;
+      if (!title || !amount || !dateVal) return;
+      try {
+        await addDoc(collection(db, 'expenses'), {
+          type, title, amount,
+          date: Timestamp.fromDate(new Date(dateVal + 'T00:00:00')),
+          createdAt: Timestamp.now()
+        });
+        showToast('Catatan berhasil disimpan.');
+        expenseModalOverlay.classList.remove('show');
+        document.getElementById('expenseForm').reset();
+      } catch (err) { showToast('Gagal menyimpan: ' + err.message, true); }
     });
 
   </script>
