@@ -150,6 +150,12 @@
   .delete-expense-btn{ border:1px solid var(--border); background:var(--card); color:#DC2626; width:28px; height:28px; border-radius:7px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
   .delete-expense-btn:hover{ background:#FEF2F2; border-color:#DC2626; }
   html[data-theme="dark"] .delete-expense-btn:hover{ background:#450A0A; }
+  .edit-session-btn{
+    border:1px solid var(--border); background:var(--card); color:var(--text);
+    font-size:.76rem; font-weight:700; padding:6px 12px; border-radius:8px; cursor:pointer;
+    display:inline-flex; align-items:center; gap:4px; white-space:nowrap;
+  }
+  .edit-session-btn:hover{ background:var(--coral); border-color:var(--coral); color:#fff; }
 
   .filter-bar{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; align-items:end; background:var(--card); padding:14px; border:1px solid var(--border); border-radius:12px; }
   .filter-bar label{ font-size:.7rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px; }
@@ -182,6 +188,7 @@
   .modal{ background:var(--card); border-radius:16px; padding:26px; width:100%; max-width:400px; box-shadow:0 20px 60px rgba(0,0,0,.3); max-height:90vh; overflow-y:auto; }
   .modal h3{ font-family:var(--df); font-weight:700; font-size:1.05rem; margin-bottom:6px; }
   .modal .hint{ font-size:.75rem; color:var(--muted); margin-bottom:16px; line-height:1.5; background:rgba(128,128,128,.06); padding:10px 12px; border-radius:8px; border:1px solid var(--border); }
+  p.hint{ font-size:.82rem; color:var(--muted); line-height:1.5; }
   .modal label{ font-size:.8rem; font-weight:600; display:block; margin-bottom:6px; }
   .modal input, .modal select{ width:100%; padding:11px 13px; border-radius:8px; border:1px solid var(--border); font-family:var(--di); font-size:.86rem; margin-bottom:14px; outline:none; background:var(--card); color:var(--ink); }
   .photo-upload{ border:2px dashed var(--border); border-radius:12px; padding:16px; text-align:center; margin-bottom:14px; cursor:pointer; position:relative; }
@@ -192,6 +199,38 @@
   .modal-btns button{ flex:1; padding:12px; border-radius:8px; border:none; cursor:pointer; font-family:var(--df); font-weight:700; font-size:.84rem; }
   .modal-btns .cancel{ background:rgba(128,128,128,.12); color:var(--ink); }
   .modal-btns .confirm{ background:var(--ink); color:var(--bg); }
+
+  .bell-btn{ position:relative; }
+  .notif-badge{
+    position:absolute; top:2px; right:2px; background:#DC2626; color:#fff;
+    font-size:.62rem; font-weight:800; min-width:16px; height:16px; border-radius:999px;
+    display:flex; align-items:center; justify-content:center; padding:0 3px; line-height:1;
+  }
+  .sidebar-foot .notif-badge{ position:static; margin-left:auto; }
+  .nav-item{ position:relative; }
+  .nav-item .notif-badge{ position:absolute; top:6px; right:10px; }
+
+  .notif-overlay{ position:fixed; inset:0; background:rgba(17,17,20,.4); display:none; align-items:flex-start; justify-content:flex-end; z-index:90; padding:20px; }
+  .notif-overlay.show{ display:flex; animation:fadeUp .2s ease; }
+  .notif-panel{ background:var(--card); border:1px solid var(--border); border-radius:16px; width:100%; max-width:380px; max-height:80vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.3); }
+  .notif-panel-head{ display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--card); }
+  .notif-panel-head h3{ font-family:var(--df); font-weight:700; font-size:1rem; }
+  .notif-panel-head .close-lightbox{ position:static; background:rgba(128,128,128,.12); color:var(--ink); width:30px; height:30px; }
+  .notif-list{ padding:10px; }
+  .notif-item{ padding:12px; border-radius:10px; margin-bottom:6px; background:rgba(128,128,128,.05); border:1px solid var(--border); }
+  .notif-item.unread{ background:rgba(255,92,57,.08); border-color:rgba(255,92,57,.3); }
+  .notif-item-title{ font-size:.82rem; font-weight:700; margin-bottom:3px; }
+  .notif-item-body{ font-size:.76rem; color:var(--muted); line-height:1.5; }
+  .notif-item-time{ font-size:.68rem; color:var(--muted); margin-top:6px; }
+  .notif-diff{ display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+  .notif-diff span{ font-size:.7rem; background:rgba(128,128,128,.1); padding:3px 8px; border-radius:6px; }
+  .notif-diff .old-val{ text-decoration:line-through; opacity:.6; }
+
+  @media (max-width:640px){
+    .notif-overlay{ padding:0; align-items:flex-start; justify-content:stretch; }
+    .notif-panel{ max-width:none; width:100%; border-radius:0 0 16px 16px; max-height:85vh; }
+    .sidebar-foot .notif-badge{ margin-left:0; position:absolute; top:8px; right:16px; }
+  }
 
   @keyframes pulseDot{ 0%,100%{ opacity:1; } 50%{ opacity:.4; } }
 
@@ -442,11 +481,39 @@
     .riwayat-table-wrap td:nth-child(7)[data-empty="1"]{ display:none; }
     .riwayat-table-wrap td:nth-child(7) .proof-thumb{ width:48px; height:48px; }
 
+    /* baris 7: tombol edit */
+    .riwayat-table-wrap td:nth-child(11){
+      grid-column:1/3; grid-row:7; padding-top:10px; border-top:1px solid var(--border);
+    }
+    .riwayat-table-wrap td:nth-child(11) .edit-session-btn{ width:100%; justify-content:center; padding:9px; }
+
     .riwayat-table-wrap tr:has(.empty-state){
       display:block; background:var(--card); border:1px solid var(--border);
       border-radius:16px; padding:0; box-shadow:none;
     }
     .riwayat-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
+  }
+
+  /* ═══ Riwayat Edit — kartu di mobile ═══ */
+  @media (max-width:640px){
+    .riwayat-edit-table-wrap{ background:none; border:none; overflow:visible; }
+    .riwayat-edit-table-wrap table{ display:block; width:100%; }
+    .riwayat-edit-table-wrap thead{ display:none; }
+    .riwayat-edit-table-wrap tbody{ display:block; }
+    .riwayat-edit-table-wrap tr{
+      display:block; background:var(--card); border:1px solid var(--border); border-radius:16px;
+      padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
+    }
+    .riwayat-edit-table-wrap tr:last-child{ margin-bottom:0; }
+    .riwayat-edit-table-wrap td{ display:block; border:none; padding:0; white-space:normal; }
+    .riwayat-edit-table-wrap td:nth-child(1){ font-size:.72rem; color:var(--muted); font-weight:600; margin-bottom:6px; }
+    .riwayat-edit-table-wrap td:nth-child(2){ font-size:.92rem; font-weight:700; margin-bottom:4px; }
+    .riwayat-edit-table-wrap td:nth-child(3){ font-size:.8rem; color:var(--muted); margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+    .riwayat-edit-table-wrap td:nth-child(4){ font-size:.8rem; }
+    .riwayat-edit-table-wrap tr:has(.empty-state){
+      display:block; background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:0; box-shadow:none;
+    }
   }
 
   /* ═══ Pengeluaran & Gaji — kartu di mobile ═══ */
@@ -497,6 +564,10 @@
       <div class="mobile-clock" id="mobileClock">--:--</div>
       <div class="mobile-date" id="mobileDate">-</div>
     </div>
+    <button class="icon-btn bell-btn" id="notifBellBtnMobile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="notif-badge" id="notifBadgeMobile" style="display:none;">0</span>
+    </button>
   </div>
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
@@ -528,8 +599,18 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 6v.01M18 18v-.01"/></svg>
           <span>Keuangan</span>
         </button>
+        <button class="nav-item" data-tab="riwayat-edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <span>Riwayat Edit</span>
+          <span class="notif-badge" id="notifBadgeNav" style="display:none;"></span>
+        </button>
       </nav>
       <div class="sidebar-foot">
+        <button class="icon-btn bell-btn" id="notifBellBtnDesktop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span>Notifikasi</span>
+          <span class="notif-badge" id="notifBadgeDesktop" style="display:none;">0</span>
+        </button>
         <button class="icon-btn" id="themeToggle">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
           <span id="themeLabel">Mode Gelap</span>
@@ -618,10 +699,10 @@
               <thead>
                 <tr>
                   <th>Karyawan</th><th>Tanggal</th><th>Waktu</th><th>Durasi</th>
-                  <th>Produk</th><th>Penghasilan</th><th>Bukti</th><th>Viewer</th><th>Catatan</th><th>Status</th>
+                  <th>Produk</th><th>Penghasilan</th><th>Bukti</th><th>Viewer</th><th>Catatan</th><th>Status</th><th>Aksi</th>
                 </tr>
               </thead>
-              <tbody id="sessionsTableBody"><tr><td colspan="10" class="empty-state">Belum ada data</td></tr></tbody>
+              <tbody id="sessionsTableBody"><tr><td colspan="11" class="empty-state">Belum ada data</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -702,6 +783,20 @@
           </div>
         </div>
 
+        <!-- ═══ RIWAYAT EDIT ═══ -->
+        <div class="tab-panel" id="panel-riwayat-edit">
+          <div class="section-title">Riwayat Edit / Koreksi Data</div>
+          <p class="hint" style="margin-bottom:16px;">Log semua perubahan data penjualan yang dilakukan owner — buat lacak siapa yang koreksi, kapan, dan datanya sebelum/sesudah diubah.</p>
+          <div class="table-scroll riwayat-edit-table-wrap">
+            <table>
+              <thead>
+                <tr><th>Waktu</th><th>Karyawan</th><th>Diedit Oleh</th><th>Perubahan</th></tr>
+              </thead>
+              <tbody id="riwayatEditTableBody"><tr><td colspan="4" class="empty-state">Belum ada riwayat edit</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </main>
   </div>
@@ -710,6 +805,17 @@
   <div class="proof-lightbox" id="proofLightbox">
     <button class="close-lightbox" id="closeProofLightbox">✕</button>
     <img id="proofLightboxImg" src="" alt="Bukti hasil penjualan">
+  </div>
+
+  <!-- Panel notifikasi -->
+  <div class="notif-overlay" id="notifOverlay">
+    <div class="notif-panel">
+      <div class="notif-panel-head">
+        <h3>Notifikasi</h3>
+        <button class="close-lightbox" id="closeNotifPanel">✕</button>
+      </div>
+      <div class="notif-list" id="notifList"><div class="empty-state">Belum ada notifikasi</div></div>
+    </div>
   </div>
 
   <!-- Modal tambah karyawan -->
@@ -761,6 +867,28 @@
     </div>
   </div>
 
+  <!-- Modal edit data sesi live -->
+  <div class="modal-overlay" id="editSessionModalOverlay">
+    <div class="modal">
+      <h3>Edit Data Sesi Live</h3>
+      <div class="hint" id="editSessionInfo"></div>
+      <form id="editSessionForm">
+        <label>Produk Terjual</label>
+        <input type="number" id="editProductsSold" min="0" step="1" placeholder="contoh: 12">
+        <label>Penghasilan (Rp)</label>
+        <input type="number" id="editRevenue" min="0" step="1000" placeholder="contoh: 1500000">
+        <label>Jumlah Viewer</label>
+        <input type="number" id="editViewers" min="0" step="1" placeholder="contoh: 250">
+        <label>Catatan</label>
+        <input type="text" id="editNotes" placeholder="opsional">
+        <div class="modal-btns">
+          <button type="button" class="cancel" id="cancelEditSession">Batal</button>
+          <button type="submit" class="confirm">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script type="module">
@@ -768,7 +896,7 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import {
       getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, collection, query, where,
-      onSnapshot, orderBy, Timestamp
+      onSnapshot, orderBy, Timestamp, arrayUnion
     } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -835,6 +963,8 @@
     let allUsers = {};
     let allSessions = [];
     let allExpenses = [];
+    let allNotifications = [];
+    let currentOwnerUid = null, currentOwnerName = 'Owner';
     let revenueChart = null, compareChart = null, keuanganChart = null;
     let filterStartDate = null, filterEndDate = null;
     let liveTimerInterval = null;
@@ -871,7 +1001,8 @@
       karyawan: ['Direktori Karyawan', 'Status dan performa seluruh karyawan'],
       riwayat: ['Riwayat Sesi', 'Semua sesi live yang pernah dijalankan'],
       absensi: ['Absensi Karyawan', 'Rekap kehadiran otomatis dari sesi live'],
-      keuangan: ['Rekap Keuangan', 'Pendapatan dan hasil penjualan tim — dihitung otomatis dari sesi live']
+      keuangan: ['Rekap Keuangan', 'Pendapatan dan hasil penjualan tim — dihitung otomatis dari sesi live'],
+      'riwayat-edit': ['Riwayat Edit', 'Log semua koreksi data penjualan — siapa mengedit, kapan, dan apa yang diubah']
     };
     document.querySelectorAll('.nav-item').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -890,9 +1021,12 @@
       if (!user) { window.location.href = 'login.html'; return; }
       const snap = await getDoc(doc(db, 'users', user.uid));
       if (!snap.exists() || snap.data().role !== 'owner') { window.location.href = 'login.html'; return; }
+      currentOwnerUid = user.uid;
+      currentOwnerName = snap.data().name || 'Owner';
       listenUsers();
       listenSessions();
       listenExpenses();
+      listenNotifications();
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
@@ -931,6 +1065,98 @@
       });
     }
 
+    function listenNotifications() {
+      const q = query(collection(db, 'notifications'), orderBy('createdAt', 'desc'));
+      onSnapshot(q, (snap) => {
+        allNotifications = [];
+        snap.forEach((d) => allNotifications.push({ id: d.id, ...d.data() }));
+        renderNotifications();
+        renderRiwayatEditTable();
+      }, (err) => console.error(err));
+    }
+
+    function renderNotifications() {
+      const unreadCount = allNotifications.filter(n => !(n.readBy || []).includes(currentOwnerUid)).length;
+      [document.getElementById('notifBadgeMobile'), document.getElementById('notifBadgeDesktop'), document.getElementById('notifBadgeNav')].forEach(el => {
+        if (!el) return;
+        el.textContent = unreadCount > 9 ? '9+' : String(unreadCount);
+        el.style.display = unreadCount > 0 ? 'flex' : 'none';
+      });
+
+      const list = document.getElementById('notifList');
+      if (!list) return;
+      if (allNotifications.length === 0) {
+        list.innerHTML = '<div class="empty-state">Belum ada notifikasi</div>';
+        return;
+      }
+      list.innerHTML = allNotifications.slice(0, 50).map(n => {
+        const isUnread = !(n.readBy || []).includes(currentOwnerUid);
+        const time = n.createdAt ? n.createdAt.toDate().toLocaleString('id-ID', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '-';
+        const diffs = [];
+        if (n.before && n.after) {
+          const fields = [
+            ['productsSold', 'Produk'], ['revenue', 'Penghasilan'], ['viewers', 'Viewer'], ['notes', 'Catatan']
+          ];
+          fields.forEach(([key, label]) => {
+            const before = n.before[key], after = n.after[key];
+            if (String(before ?? '') !== String(after ?? '')) {
+              const fmt = v => key === 'revenue' ? 'Rp ' + Number(v || 0).toLocaleString('id-ID') : (v ?? '-');
+              diffs.push(`<span><b>${label}:</b> <span class="old-val">${fmt(before)}</span> → ${fmt(after)}</span>`);
+            }
+          });
+        }
+        return `
+          <div class="notif-item ${isUnread ? 'unread' : ''}">
+            <div class="notif-item-title">✎ Koreksi data — ${n.employeeName || '-'}</div>
+            <div class="notif-item-body">Diedit oleh <b>${n.editedByName || 'Owner'}</b> karena data penjualan yang diisi karyawan salah.</div>
+            ${diffs.length ? `<div class="notif-diff">${diffs.join('')}</div>` : ''}
+            <div class="notif-item-time">${time}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function markAllNotificationsRead() {
+      const unread = allNotifications.filter(n => !(n.readBy || []).includes(currentOwnerUid));
+      for (const n of unread) {
+        try { await updateDoc(doc(db, 'notifications', n.id), { readBy: arrayUnion(currentOwnerUid) }); }
+        catch (err) { console.error(err); }
+      }
+    }
+
+    function renderRiwayatEditTable() {
+      const tbody = document.getElementById('riwayatEditTableBody');
+      if (!tbody) return;
+      if (allNotifications.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Belum ada riwayat edit</td></tr>';
+        return;
+      }
+      const fields = [
+        ['productsSold', 'Produk'], ['revenue', 'Penghasilan'], ['viewers', 'Viewer'], ['notes', 'Catatan']
+      ];
+      tbody.innerHTML = allNotifications.map(n => {
+        const time = n.createdAt ? n.createdAt.toDate().toLocaleString('id-ID', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-';
+        const diffs = [];
+        if (n.before && n.after) {
+          fields.forEach(([key, label]) => {
+            const before = n.before[key], after = n.after[key];
+            if (String(before ?? '') !== String(after ?? '')) {
+              const fmt = v => key === 'revenue' ? 'Rp ' + Number(v || 0).toLocaleString('id-ID') : (v || v === 0 ? v : '-');
+              diffs.push(`<span><b>${label}:</b> <span class="old-val">${fmt(before)}</span> → ${fmt(after)}</span>`);
+            }
+          });
+        }
+        return `
+          <tr>
+            <td>${time}</td>
+            <td>${n.employeeName || '-'}</td>
+            <td>${n.editedByName || 'Owner'}</td>
+            <td>${diffs.length ? `<div class="notif-diff">${diffs.join('')}</div>` : '-'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
     function safeRender(name, fn) {
       try { fn(); } catch (err) { console.error(`Render error di ${name}:`, err); }
     }
@@ -945,6 +1171,7 @@
       safeRender('renderSessionsTable', renderSessionsTable);
       safeRender('renderAbsensi', renderAbsensi);
       safeRender('renderKeuangan', renderKeuangan);
+      safeRender('renderRiwayatEditTable', renderRiwayatEditTable);
     }
 
     function renderAlert() {
@@ -1186,7 +1413,7 @@
       if (filterStartDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() >= filterStartDate);
       if (filterEndDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() <= filterEndDate);
 
-      if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="10" class="empty-state">Belum ada data</td></tr>'; return; }
+      if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="11" class="empty-state">Belum ada data</td></tr>'; return; }
       tbody.innerHTML = '';
       filtered.forEach((s) => {
         const start = s.startTime?.toDate();
@@ -1206,6 +1433,7 @@
           <td>${s.revenue != null ? 'Rp ' + Number(s.revenue).toLocaleString('id-ID') : '-'}</td>
           <td${s.proofBase64 ? '' : ' data-empty="1"'}>${buktiStr}</td><td>${s.viewers ?? '-'}</td><td${s.notes ? '' : ' data-empty="1"'}>${s.notes || '-'}</td>
           <td>${statusCell}</td>
+          <td><button class="edit-session-btn" onclick="window.openEditSession('${s.id}')" title="Edit data">✎ Edit</button></td>
         `;
         tbody.appendChild(tr);
       });
@@ -1542,6 +1770,67 @@
         expenseModalOverlay.classList.remove('show');
         document.getElementById('expenseForm').reset();
       } catch (err) { showToast('Gagal menyimpan: ' + err.message, true); }
+    });
+
+    // ── modal edit data sesi live (koreksi input karyawan) ──
+    const editSessionModalOverlay = document.getElementById('editSessionModalOverlay');
+    let editingSessionId = null;
+
+    window.openEditSession = (sessionId) => {
+      const s = allSessions.find(x => x.id === sessionId);
+      if (!s) return;
+      editingSessionId = sessionId;
+      document.getElementById('editSessionInfo').textContent =
+        `${s.employeeName || '-'} — ${s.startTime ? s.startTime.toDate().toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-'}`;
+      document.getElementById('editProductsSold').value = s.productsSold ?? '';
+      document.getElementById('editRevenue').value = s.revenue ?? '';
+      document.getElementById('editViewers').value = s.viewers ?? '';
+      document.getElementById('editNotes').value = s.notes || '';
+      editSessionModalOverlay.classList.add('show');
+    };
+    document.getElementById('cancelEditSession').addEventListener('click', () => editSessionModalOverlay.classList.remove('show'));
+
+    // ── panel notifikasi ──
+    const notifOverlay = document.getElementById('notifOverlay');
+    function openNotifPanel() {
+      notifOverlay.classList.add('show');
+      renderNotifications();
+      markAllNotificationsRead();
+    }
+    document.getElementById('notifBellBtnMobile').addEventListener('click', openNotifPanel);
+    document.getElementById('notifBellBtnDesktop').addEventListener('click', openNotifPanel);
+    document.getElementById('closeNotifPanel').addEventListener('click', () => notifOverlay.classList.remove('show'));
+    notifOverlay.addEventListener('click', (e) => { if (e.target === notifOverlay) notifOverlay.classList.remove('show'); });
+
+    document.getElementById('editSessionForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!editingSessionId) return;
+      const s = allSessions.find(x => x.id === editingSessionId);
+      const before = { productsSold: s?.productsSold ?? 0, revenue: s?.revenue ?? 0, viewers: s?.viewers ?? 0, notes: s?.notes || '' };
+      const productsSold = Number(document.getElementById('editProductsSold').value) || 0;
+      const revenue = Number(document.getElementById('editRevenue').value) || 0;
+      const viewers = Number(document.getElementById('editViewers').value) || 0;
+      const notes = document.getElementById('editNotes').value.trim();
+      const after = { productsSold, revenue, viewers, notes };
+      const hasChange = JSON.stringify(before) !== JSON.stringify(after);
+      try {
+        await updateDoc(doc(db, 'sessions', editingSessionId), after);
+        if (hasChange) {
+          await addDoc(collection(db, 'notifications'), {
+            type: 'edit_koreksi',
+            sessionId: editingSessionId,
+            employeeName: s?.employeeName || '-',
+            editedByUid: currentOwnerUid,
+            editedByName: currentOwnerName,
+            before, after,
+            createdAt: Timestamp.now(),
+            readBy: [currentOwnerUid]
+          });
+        }
+        showToast('Data sesi berhasil diperbarui.');
+        editSessionModalOverlay.classList.remove('show');
+        editingSessionId = null;
+      } catch (err) { showToast('Gagal memperbarui: ' + err.message, true); }
     });
 
   </script>
