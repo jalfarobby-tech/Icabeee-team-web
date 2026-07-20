@@ -153,6 +153,31 @@
   .status-pill.hadir .dot2{ background:#16A34A; }
   .streak-badge{ display:inline-flex; align-items:center; gap:4px; font-size:.68rem; font-weight:700; color:#D97706; background:#FEF3C7; padding:3px 8px; border-radius:999px; margin-left:6px; }
   html[data-theme="dark"] .streak-badge{ background:#451A03; color:#FBBF24; }
+  .status-pill.resigned{ background:rgba(220,38,38,.1); color:#DC2626; }
+  .status-pill.resigned .dot2{ background:#DC2626; }
+
+  .resign-btn{
+    border:1px solid var(--border); background:var(--card); color:var(--muted);
+    padding:6px 12px; border-radius:8px; font-family:var(--df); font-weight:600; font-size:.72rem;
+    cursor:pointer; white-space:nowrap; transition:all .15s;
+  }
+  .resign-btn:hover{ border-color:#DC2626; color:#DC2626; }
+  .reactivate-btn{
+    border:1px solid var(--border); background:var(--card); color:var(--muted);
+    padding:6px 12px; border-radius:8px; font-family:var(--df); font-weight:600; font-size:.72rem;
+    cursor:pointer; white-space:nowrap; transition:all .15s; margin-right:6px;
+  }
+  .reactivate-btn:hover{ border-color:#16A34A; color:#16A34A; }
+  .delete-perm-btn{
+    border:1px solid var(--border); background:var(--card); color:var(--muted);
+    padding:6px 12px; border-radius:8px; font-family:var(--df); font-weight:600; font-size:.72rem;
+    cursor:pointer; white-space:nowrap; transition:all .15s;
+  }
+  .delete-perm-btn:hover{ border-color:#DC2626; color:#DC2626; }
+  .former-section-title{
+    font-family:var(--df); font-weight:700; font-size:.92rem; margin:28px 0 14px;
+    padding-bottom:10px; border-bottom:1px solid var(--border);
+  }
 
   .approve-btn{ border:1px solid #16A34A; background:#F0FDF4; color:#16A34A; padding:5px 10px; border-radius:7px; font-size:.68rem; font-weight:700; cursor:pointer; }
   html[data-theme="dark"] .approve-btn{ background:#14532D; }
@@ -343,7 +368,11 @@
     }
     .emp-table-wrap td:nth-child(3),
     .emp-table-wrap td:nth-child(4){ font-size:.85rem; font-weight:600; }
-    .emp-table-wrap td:nth-child(5){ font-family:var(--df); font-weight:800; font-size:.95rem; }
+
+    .emp-table-wrap td:nth-child(5){
+      grid-column:1/3; grid-row:3; padding-top:12px; border-top:1px solid var(--border);
+    }
+    .emp-table-wrap td:nth-child(5) .resign-btn{ width:100%; padding:9px; }
 
     .emp-table-wrap tr:has(.empty-state){
       display:block; background:var(--card); border:1px solid var(--border);
@@ -698,8 +727,17 @@
           </div>
           <div class="emp-table-wrap">
             <table>
-              <thead><tr><th>Nama</th><th>Status</th><th>Jam Kerja</th><th>Produk Terjual</th></tr></thead>
+              <thead><tr><th>Nama</th><th>Status</th><th>Jam Kerja</th><th>Produk Terjual</th><th>Aksi</th></tr></thead>
               <tbody id="empTableBody"><tr><td colspan="5" class="empty-state">Belum ada karyawan terdaftar</td></tr></tbody>
+            </table>
+          </div>
+
+          <div class="former-section-title">Riwayat Karyawan (Nonaktif / Resign)</div>
+          <p style="font-size:.78rem; color:var(--muted); margin:-8px 0 16px;">Karyawan yang dinonaktifkan gak ikut kehapus datanya — histori sesi live & penjualan mereka tetap tersimpan di sini buat pantau perputaran tim.</p>
+          <div class="table-scroll former-emp-table-wrap">
+            <table>
+              <thead><tr><th>Nama</th><th>Tanggal Nonaktif</th><th>Total Jam Kerja</th><th>Total Produk</th><th>Aksi</th></tr></thead>
+              <tbody id="formerEmpTableBody"><tr><td colspan="5" class="empty-state">Belum ada karyawan yang nonaktif</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -1061,7 +1099,8 @@
       onSnapshot(q, (snap) => {
         allUsers = {};
         snap.forEach((d) => { allUsers[d.id] = d.data(); });
-        countUp(document.getElementById('statTotalEmp'), snap.size);
+        const activeCount = Object.values(allUsers).filter(u => u.active !== false).length;
+        countUp(document.getElementById('statTotalEmp'), activeCount);
         render();
       }, (err) => showToast('Gagal memuat data karyawan: ' + err.message, true));
     }
@@ -1208,6 +1247,7 @@
       safeRender('renderLeaderboard', renderLeaderboard);
       safeRender('renderLiveNow', renderLiveNow);
       safeRender('renderEmployeeTable', renderEmployeeTable);
+      safeRender('renderFormerEmployeeTable', renderFormerEmployeeTable);
       safeRender('renderSessionsTable', renderSessionsTable);
       safeRender('renderAbsensi', renderAbsensi);
       safeRender('renderKeuangan', renderKeuangan);
@@ -1430,8 +1470,8 @@
 
     function renderEmployeeTable() {
       const tbody = document.getElementById('empTableBody');
-      const uids = Object.keys(allUsers);
-      if (uids.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Belum ada karyawan terdaftar</td></tr>'; return; }
+      const uids = Object.keys(allUsers).filter(uid => allUsers[uid].active !== false);
+      if (uids.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Belum ada karyawan terdaftar</td></tr>'; return; }
       tbody.innerHTML = '';
       uids.forEach((uid) => {
         const user = allUsers[uid];
@@ -1451,10 +1491,79 @@
           <td><span class="status-pill ${activeSession ? 'on' : 'off'}"><span class="dot2"></span>${activeSession ? 'Sedang Live' : 'Tidak Live'}</span></td>
           <td>${h}j ${m}m</td>
           <td>${totalProduk}</td>
+          <td><button class="resign-btn" onclick="window.resignEmployee('${uid}')" title="Nonaktifkan karyawan ini">Nonaktifkan</button></td>
         `;
         tbody.appendChild(tr);
       });
     }
+
+    function renderFormerEmployeeTable() {
+      const tbody = document.getElementById('formerEmpTableBody');
+      if (!tbody) return;
+      const uids = Object.keys(allUsers).filter(uid => allUsers[uid].active === false);
+      if (uids.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Belum ada karyawan yang nonaktif</td></tr>'; return; }
+      // urutkan yang paling baru nonaktif duluan
+      uids.sort((a, b) => {
+        const ta = allUsers[a].resignedAt?.toMillis?.() || 0;
+        const tb = allUsers[b].resignedAt?.toMillis?.() || 0;
+        return tb - ta;
+      });
+      tbody.innerHTML = '';
+      uids.forEach((uid) => {
+        const user = allUsers[uid];
+        const completedSessions = allSessions.filter(s => s.uid === uid && s.status === 'selesai');
+        const totalMinutes = completedSessions.reduce((sum, s) => {
+          if (!s.startTime || !s.endTime) return sum;
+          return sum + Math.round((s.endTime.toDate() - s.startTime.toDate()) / 60000);
+        }, 0);
+        const totalProduk = completedSessions.reduce((sum, s) => sum + (Number(s.productsSold) || 0), 0);
+        const h = Math.floor(totalMinutes / 60), m = totalMinutes % 60;
+        const resignedStr = user.resignedAt ? user.resignedAt.toDate().toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><div class="emp-name-cell">${avatarHtml(user, 30)}<span>${user.name}</span></div></td>
+          <td>${resignedStr}</td>
+          <td>${h}j ${m}m</td>
+          <td>${totalProduk}</td>
+          <td>
+            <button class="reactivate-btn" onclick="window.reactivateEmployee('${uid}')" title="Aktifkan kembali karyawan ini">Aktifkan Kembali</button>
+            <button class="delete-perm-btn" onclick="window.deleteEmployeePermanent('${uid}')" title="Hapus permanen, tidak bisa dibatalkan">Hapus Permanen</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function resignEmployee(uid) {
+      const user = allUsers[uid];
+      if (!confirm(`Nonaktifkan ${user?.name || 'karyawan ini'}? Karyawan tidak akan bisa login lagi ke dashboard, tapi histori sesi live & penjualannya tetap tersimpan di "Riwayat Karyawan".`)) return;
+      try {
+        await updateDoc(doc(db, 'users', uid), { active: false, resignedAt: Timestamp.now() });
+        showToast('Karyawan berhasil dinonaktifkan.');
+      } catch (err) { showToast('Gagal menonaktifkan: ' + err.message, true); }
+    }
+    window.resignEmployee = resignEmployee;
+
+    async function reactivateEmployee(uid) {
+      const user = allUsers[uid];
+      if (!confirm(`Aktifkan kembali ${user?.name || 'karyawan ini'}?`)) return;
+      try {
+        await updateDoc(doc(db, 'users', uid), { active: true, resignedAt: null });
+        showToast('Karyawan berhasil diaktifkan kembali.');
+      } catch (err) { showToast('Gagal mengaktifkan: ' + err.message, true); }
+    }
+    window.reactivateEmployee = reactivateEmployee;
+
+    async function deleteEmployeePermanent(uid) {
+      const user = allUsers[uid];
+      if (!confirm(`Hapus PERMANEN data karyawan ${user?.name || ''}? Ini cuma menghapus profilnya (nama/foto) — histori sesi live yang sudah ada tidak ikut terhapus, tapi karyawan ini tidak akan muncul lagi di daftar mana pun. Tindakan ini tidak bisa dibatalkan.`)) return;
+      try {
+        await deleteDoc(doc(db, 'users', uid));
+        showToast('Data karyawan berhasil dihapus permanen.');
+      } catch (err) { showToast('Gagal menghapus: ' + err.message, true); }
+    }
+    window.deleteEmployeePermanent = deleteEmployeePermanent;
 
     let riwayatPageSize = 25;
 
@@ -1819,7 +1928,7 @@
       const name = document.getElementById('empName').value.trim();
       if (!uid || !name) return;
       try {
-        const data = { name, role: 'karyawan' };
+        const data = { name, role: 'karyawan', active: true };
         if (selectedPhotoBase64) data.photoBase64 = selectedPhotoBase64;
         await setDoc(doc(db, 'users', uid), data);
         showToast('Karyawan berhasil ditambahkan.');
