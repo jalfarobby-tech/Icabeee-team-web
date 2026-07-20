@@ -7,6 +7,19 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>
+  // Fallback: kalau CDN utama gagal (diblokir/koneksi bermasalah), coba CDN cadangan.
+  window.addEventListener('DOMContentLoaded', function () {
+    if (typeof Chart === 'undefined') {
+      console.warn('Chart.js dari CDN utama gagal dimuat, mencoba CDN cadangan...');
+      var fallback = document.createElement('script');
+      fallback.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
+      fallback.onload = function () { console.log('Chart.js berhasil dimuat dari CDN cadangan.'); if (window.render) render(); };
+      fallback.onerror = function () { console.error('Chart.js gagal dimuat dari kedua CDN. Grafik tidak akan tampil.'); };
+      document.head.appendChild(fallback);
+    }
+  });
+</script>
 <style>
   :root{
     --ink:#111114; --muted:#6B7280; --border:#E5E7EB; --coral:#FF5C39;
@@ -957,7 +970,7 @@
     applyTheme(localStorage.getItem('icabeee-theme') || 'light');
     themeToggle.addEventListener('click', () => {
       applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-      renderChart(); renderCompareChart();
+      renderChart(); renderCompareChart(); renderKeuangan();
     });
 
     let allUsers = {};
@@ -1173,6 +1186,7 @@
       safeRender('renderKeuangan', renderKeuangan);
       safeRender('renderRiwayatEditTable', renderRiwayatEditTable);
     }
+    window.render = render;
 
     function renderAlert() {
       const banner = document.getElementById('alertBanner');
@@ -1272,8 +1286,16 @@
       if (e.target.id === 'proofLightbox') document.getElementById('proofLightbox').classList.remove('show');
     });
 
-    function chartTextColor() { return getComputedStyle(document.body).getPropertyValue('color') || '#111'; }
+    function chartTextColor() { return getComputedStyle(root).getPropertyValue('--ink').trim() || '#111114'; }
     function chartGridColor() { return root.getAttribute('data-theme') === 'dark' ? '#2A2A2E' : '#F4F4F5'; }
+    function chartBarColor() { return root.getAttribute('data-theme') === 'dark' ? '#FF5C39' : '#111114'; }
+    function formatRupiahShort(v) {
+      v = Number(v) || 0;
+      if (v === 0) return 'Rp 0';
+      if (Math.abs(v) >= 1000000) return 'Rp ' + (v / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + 'jt';
+      if (Math.abs(v) >= 1000) return 'Rp ' + (v / 1000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + 'rb';
+      return 'Rp ' + v.toLocaleString('id-ID');
+    }
 
     function renderChart() {
       const days = [];
@@ -1299,7 +1321,7 @@
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            y: { grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), callback: v => 'Rp ' + (v/1000) + 'k', font: { size: 10 } } },
+            y: { beginAtZero: true, suggestedMax: 100000, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10 } } },
             x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10 } } }
           }
         }
@@ -1324,12 +1346,12 @@
       if (entries.length === 0) return;
       compareChart = new Chart(ctx, {
         type: 'bar',
-        data: { labels: entries.map(e => e.name), datasets: [{ label: 'Penghasilan Bulan Ini', data: entries.map(e => e.revenue), backgroundColor: '#111114', borderRadius: 6, maxBarThickness: 40 }] },
+        data: { labels: entries.map(e => e.name), datasets: [{ label: 'Penghasilan Bulan Ini', data: entries.map(e => e.revenue), backgroundColor: chartBarColor(), borderRadius: 6, maxBarThickness: 40 }] },
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            y: { grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), callback: v => 'Rp ' + (v/1000) + 'k', font: { size: 10 } } },
+            y: { beginAtZero: true, suggestedMax: 100000, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10 } } },
             x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10 } } }
           }
         }
@@ -1555,7 +1577,7 @@
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            y: { grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), callback: v => 'Rp ' + (v/1000) + 'k', font: { size: 10 } } },
+            y: { beginAtZero: true, suggestedMax: 100000, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10 } } },
             x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10 } } }
           }
         }
