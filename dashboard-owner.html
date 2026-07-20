@@ -297,7 +297,7 @@
     .chart-grid{ grid-template-columns:1fr; }
   }
 
-  /* ═══ Direktori Karyawan — kartu di mobile ═══ */
+  /* ═══ Data Karyawan — kartu di mobile ═══ */
   @media (max-width:640px){
     .emp-table-wrap{ background:none; border:none; overflow:visible; }
     .emp-table-wrap table{ display:block; width:100%; }
@@ -378,6 +378,8 @@
       border-radius:16px; padding:0; box-shadow:none;
     }
     .absensi-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
+    .absensi-table-wrap tr.load-more-row{ display:block; background:none; border:none; box-shadow:none; padding:0; }
+    .absensi-table-wrap tr.load-more-row td{ display:block; padding:0; border:none; }
   }
 
   /* ═══ Keuangan — kartu di mobile ═══ */
@@ -505,6 +507,8 @@
       border-radius:16px; padding:0; box-shadow:none;
     }
     .riwayat-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
+    .riwayat-table-wrap tr.load-more-row{ display:block; background:none; border:none; box-shadow:none; padding:0; }
+    .riwayat-table-wrap tr.load-more-row td{ display:block; grid-column:unset; padding:0; border:none; }
   }
 
   /* ═══ Riwayat Edit — kartu di mobile ═══ */
@@ -527,6 +531,8 @@
       display:block; background:var(--card); border:1px solid var(--border);
       border-radius:16px; padding:0; box-shadow:none;
     }
+    .riwayat-edit-table-wrap tr.load-more-row{ display:block; background:none; border:none; box-shadow:none; padding:0; }
+    .riwayat-edit-table-wrap tr.load-more-row td{ display:block; padding:0; border:none; }
   }
 
   /* ═══ Pengeluaran & Gaji — kartu di mobile ═══ */
@@ -587,7 +593,7 @@
   <div class="app">
     <aside class="sidebar">
       <div class="sidebar-logo">
-        ICABEEE Owner
+        <span id="sidebarOwnerName">Memuat…</span>
         <div class="sidebar-clock" id="sidebarClock">--:--</div>
         <div class="sidebar-date" id="sidebarDate">-</div>
       </div>
@@ -682,8 +688,7 @@
         <!-- ═══ KARYAWAN ═══ -->
         <div class="tab-panel" id="panel-karyawan">
           <div class="section-title">
-            Direktori Karyawan
-            <button class="btn" id="addEmpBtn">+ Tambah Karyawan</button>
+            <button class="btn" id="addEmpBtn" style="margin-left:auto;">+ Tambah Karyawan</button>
           </div>
           <div class="emp-table-wrap">
             <table>
@@ -748,8 +753,7 @@
         <!-- ═══ KEUANGAN ═══ -->
         <div class="tab-panel" id="panel-keuangan">
           <div class="section-title">
-            Rekap Keuangan
-            <div class="btn-row">
+            <div class="btn-row" style="margin-left:auto;">
               <button class="btn" id="addExpenseBtn">+ Catat Pengeluaran / Gaji</button>
             </div>
           </div>
@@ -1011,7 +1015,7 @@
     // ── sidebar nav ──
     const headerInfo = {
       ringkasan: ['Ringkasan', 'Pantau performa tim live commerce hari ini'],
-      karyawan: ['Direktori Karyawan', 'Status dan performa seluruh karyawan'],
+      karyawan: ['Data Karyawan', 'Status dan performa seluruh karyawan'],
       riwayat: ['Riwayat Sesi', 'Semua sesi live yang pernah dijalankan'],
       absensi: ['Absensi Karyawan', 'Rekap kehadiran otomatis dari sesi live'],
       keuangan: ['Rekap Keuangan', 'Pendapatan dan hasil penjualan tim — dihitung otomatis dari sesi live'],
@@ -1036,6 +1040,7 @@
       if (!snap.exists() || snap.data().role !== 'owner') { window.location.href = 'login.html'; return; }
       currentOwnerUid = user.uid;
       currentOwnerName = snap.data().name || 'Owner';
+      document.getElementById('sidebarOwnerName').textContent = currentOwnerName;
       listenUsers();
       listenSessions();
       listenExpenses();
@@ -1137,6 +1142,8 @@
       }
     }
 
+    let riwayatEditPageSize = 25;
+
     function renderRiwayatEditTable() {
       const tbody = document.getElementById('riwayatEditTableBody');
       if (!tbody) return;
@@ -1147,7 +1154,8 @@
       const fields = [
         ['productsSold', 'Produk'], ['revenue', 'Penghasilan'], ['viewers', 'Viewer'], ['notes', 'Catatan']
       ];
-      tbody.innerHTML = allNotifications.map(n => {
+      const visible = allNotifications.slice(0, riwayatEditPageSize);
+      tbody.innerHTML = visible.map(n => {
         const time = n.createdAt ? n.createdAt.toDate().toLocaleString('id-ID', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-';
         const diffs = [];
         if (n.before && n.after) {
@@ -1168,6 +1176,18 @@
           </tr>
         `;
       }).join('');
+
+      if (allNotifications.length > riwayatEditPageSize) {
+        tbody.innerHTML += `<tr class="load-more-row"><td colspan="4" style="text-align:center; padding:14px;">
+          <button class="btn ghost" id="riwayatEditMoreBtn" style="width:auto; padding:9px 20px;">
+            Muat Lebih Banyak (${allNotifications.length - riwayatEditPageSize} lagi)
+          </button>
+        </td></tr>`;
+        document.getElementById('riwayatEditMoreBtn').addEventListener('click', () => {
+          riwayatEditPageSize += 25;
+          renderRiwayatEditTable();
+        });
+      }
     }
 
     function safeRender(name, fn) {
@@ -1429,6 +1449,8 @@
       });
     }
 
+    let riwayatPageSize = 25;
+
     function renderSessionsTable() {
       const tbody = document.getElementById('sessionsTableBody');
       let filtered = allSessions;
@@ -1437,7 +1459,8 @@
 
       if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="11" class="empty-state">Belum ada data</td></tr>'; return; }
       tbody.innerHTML = '';
-      filtered.forEach((s) => {
+      const visible = filtered.slice(0, riwayatPageSize);
+      visible.forEach((s) => {
         const start = s.startTime?.toDate();
         const end = s.endTime?.toDate();
         const dateStr = start ? start.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-';
@@ -1459,6 +1482,21 @@
         `;
         tbody.appendChild(tr);
       });
+
+      if (filtered.length > riwayatPageSize) {
+        const moreRow = document.createElement('tr');
+        moreRow.className = 'load-more-row';
+        moreRow.innerHTML = `<td colspan="11" style="text-align:center; padding:14px;">
+          <button class="btn ghost" id="riwayatMoreBtn" style="width:auto; padding:9px 20px;">
+            Muat Lebih Banyak (${filtered.length - riwayatPageSize} lagi)
+          </button>
+        </td>`;
+        tbody.appendChild(moreRow);
+        document.getElementById('riwayatMoreBtn').addEventListener('click', () => {
+          riwayatPageSize += 25;
+          renderSessionsTable();
+        });
+      }
     }
 
     // ── absensi otomatis (tercatat langsung dari sesi live, tanpa jadwal) ──
@@ -1475,6 +1513,8 @@
       return records;
     }
 
+    let absensiPageSize = 25;
+
     function renderAbsensi() {
       const tbody = document.getElementById('absensiTableBody');
       if (!tbody) return;
@@ -1484,7 +1524,8 @@
 
       if (records.length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Belum ada data absensi</td></tr>'; return; }
 
-      tbody.innerHTML = records.map(r => {
+      const visible = records.slice(0, absensiPageSize);
+      tbody.innerHTML = visible.map(r => {
         const dateStr = r.date.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
         return `
           <tr>
@@ -1493,6 +1534,18 @@
           </tr>
         `;
       }).join('');
+
+      if (records.length > absensiPageSize) {
+        tbody.innerHTML += `<tr class="load-more-row"><td colspan="3" style="text-align:center; padding:14px;">
+          <button class="btn ghost" id="absensiMoreBtn" style="width:auto; padding:9px 20px;">
+            Muat Lebih Banyak (${records.length - absensiPageSize} lagi)
+          </button>
+        </td></tr>`;
+        document.getElementById('absensiMoreBtn').addEventListener('click', () => {
+          absensiPageSize += 25;
+          renderAbsensi();
+        });
+      }
     }
 
     // ── keuangan otomatis (pendapatan & hasil penjualan) ──
@@ -1659,6 +1712,7 @@
       const endVal = document.getElementById('absensiFilterEnd').value;
       absensiFilterStart = startVal ? new Date(startVal + 'T00:00:00') : null;
       absensiFilterEnd = endVal ? new Date(endVal + 'T23:59:59') : null;
+      absensiPageSize = 25;
       renderAbsensi();
     });
     document.getElementById('absensiFilterReset').addEventListener('click', () => {
@@ -1668,6 +1722,7 @@
       document.getElementById('absensiFilterEnd').value = end.toISOString().slice(0,10);
       absensiFilterStart = new Date(start.toISOString().slice(0,10) + 'T00:00:00');
       absensiFilterEnd = new Date(end.toISOString().slice(0,10) + 'T23:59:59');
+      absensiPageSize = 25;
       renderAbsensi();
     });
     (function initAbsensiDefaultRange() {
@@ -1684,11 +1739,12 @@
       const endVal = document.getElementById('filterEnd').value;
       filterStartDate = startVal ? new Date(startVal + 'T00:00:00') : null;
       filterEndDate = endVal ? new Date(endVal + 'T23:59:59') : null;
+      riwayatPageSize = 25;
       renderSessionsTable();
     });
     document.getElementById('filterReset').addEventListener('click', () => {
       document.getElementById('filterStart').value = ''; document.getElementById('filterEnd').value = '';
-      filterStartDate = null; filterEndDate = null; renderSessionsTable();
+      filterStartDate = null; filterEndDate = null; riwayatPageSize = 25; renderSessionsTable();
     });
 
     // ── CSV export ──
