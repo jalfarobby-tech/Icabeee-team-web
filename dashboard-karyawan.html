@@ -277,10 +277,10 @@
       <div class="modal-handle"></div>
       <h3>Isi Data Live</h3>
       <form id="endForm">
-        <label>Jumlah Produk Terjual (Mukenah)</label>
+        <label>Jumlah Produk Terjual</label>
         <input type="number" id="productsSold" min="0" required placeholder="contoh: 12">
         <label>Penghasilan dari Live (Rp)</label>
-        <input type="number" id="revenue" min="0" required placeholder="contoh: 1500000">
+        <input type="text" inputmode="numeric" id="revenue" required placeholder="contoh: 1.500.000">
         <label>Jumlah Viewer</label>
         <input type="number" id="viewers" min="0" required placeholder="contoh: 320">
         <label>Catatan / Kendala (opsional)</label>
@@ -354,6 +354,11 @@
     const historyList = document.getElementById('historyList');
     const modalOverlay = document.getElementById('modalOverlay');
     const endForm = document.getElementById('endForm');
+    const revenueInput = document.getElementById('revenue');
+    revenueInput.addEventListener('input', () => {
+      const raw = revenueInput.value.replace(/\D/g, '');
+      revenueInput.value = raw ? Number(raw).toLocaleString('id-ID') : '';
+    });
     const toast = document.getElementById('toast');
     const userNameEl = document.getElementById('userName');
     const confirmEndBtn = document.getElementById('confirmEndBtn');
@@ -786,9 +791,14 @@
       confirmEndBtn.disabled = true;
       confirmEndBtn.textContent = 'Menyimpan…';
       const productsSold = Number(document.getElementById('productsSold').value);
-      const revenue = Number(document.getElementById('revenue').value);
+      const revenue = Number(document.getElementById('revenue').value.replace(/\./g, ''));
       const viewers = Number(document.getElementById('viewers').value);
       const notes = document.getElementById('notes').value.trim();
+      if (!document.getElementById('revenue').value || isNaN(revenue)) {
+        showToast('Isi penghasilan dari live dulu ya.', true);
+        confirmEndBtn.disabled = false;
+        return;
+      }
       try {
         const payload = { status: 'selesai', endTime: Timestamp.now(), productsSold, revenue, viewers, notes };
         if (selectedProofBase64) payload.proofBase64 = selectedProofBase64;
