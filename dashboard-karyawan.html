@@ -313,7 +313,7 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import {
       getFirestore, doc, getDoc, collection, addDoc, updateDoc,
-      query, where, orderBy, onSnapshot, Timestamp
+      query, where, orderBy, onSnapshot, Timestamp, limit
     } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -416,6 +416,7 @@
 
       listenActiveSession();
       listenHistory();
+      listenStatsAndCalendar();
       listenAttendanceSessions();
     });
 
@@ -454,9 +455,12 @@
       return date.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
     }
 
+    let historyLimit = 20;
+    let historyUnsub = null;
     function listenHistory() {
-      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'));
-      onSnapshot(q, (snap) => {
+      if (historyUnsub) historyUnsub();
+      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'), limit(historyLimit));
+      historyUnsub = onSnapshot(q, (snap) => {
         if (snap.empty) {
           historyList.innerHTML = `<div class="empty-state">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg>
@@ -501,12 +505,29 @@
           historyList.appendChild(el);
         });
 
-        renderAllStats(sessions);
+        if (snap.size >= historyLimit) {
+          const moreBtn = document.createElement('button');
+          moreBtn.className = 'btn';
+          moreBtn.style.cssText = 'width:100%; padding:11px; margin-top:10px;';
+          moreBtn.textContent = 'Muat Lebih Banyak';
+          moreBtn.onclick = () => { historyLimit += 20; listenHistory(); };
+          historyList.appendChild(moreBtn);
+        }
       }, (err) => {
         historyList.innerHTML = '<div class="empty-state">Gagal memuat riwayat. Lihat pesan di bawah.</div>';
         showToast('Gagal memuat riwayat: ' + err.message, true);
-        console.error(err);
       });
+    }
+
+    // Listener terpisah tanpa limit, khusus buat hitung statistik & kalender —
+    // supaya angka "Total" tetap akurat walau daftar riwayat di atas dibatasi.
+    function listenStatsAndCalendar() {
+      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'));
+      onSnapshot(q, (snap) => {
+        const sessions = [];
+        snap.forEach(d => sessions.push(d.data()));
+        renderAllStats(sessions);
+      }, (err) => console.error('Stats listener error:', err));
     }
 
     function countUp(el, target) {
