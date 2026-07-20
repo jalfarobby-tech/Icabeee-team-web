@@ -86,10 +86,33 @@
 
 
 
-  /* attendance heatmap */
+  /* attendance calendar */
   .heatmap-card{ padding:20px; margin-bottom:20px; }
-  .heatmap-grid{ display:grid; grid-auto-flow:column; grid-template-rows:repeat(7,1fr); gap:3px; overflow-x:auto; padding-bottom:4px; }
-  .heatmap-cell{ width:12px; height:12px; border-radius:3px; background:rgba(128,128,128,.12); }
+  .cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .cal-nav{ display:flex; align-items:center; gap:10px; font-size:.82rem; font-weight:700; color:var(--muted); }
+  .cal-nav span{ min-width:92px; text-align:center; color:var(--ink); }
+  .cal-nav button{
+    width:26px; height:26px; border-radius:8px; border:1px solid var(--border); background:var(--card);
+    color:var(--ink); font-size:1rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .cal-nav button:hover{ border-color:var(--muted); }
+  .cal-dow{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px; }
+  .cal-dow span{ text-align:center; font-size:.68rem; font-weight:700; color:var(--muted); text-transform:uppercase; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .cal-cell{
+    aspect-ratio:1; border-radius:9px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-size:.78rem; font-weight:600; color:var(--muted); background:rgba(128,128,128,.06); position:relative; gap:1px;
+  }
+  .cal-cell .cal-count{ font-size:.6rem; font-weight:800; line-height:1; }
+  .cal-cell.empty{ background:none; }
+  .cal-cell.today{ box-shadow:inset 0 0 0 1.5px var(--coral); color:var(--ink); }
+  .cal-cell.l1{ background:#FED7C3; color:#7C2D12; }
+  .cal-cell.l2{ background:#FCA57D; color:#7C2D12; }
+  .cal-cell.l3{ background:#FF5C39; color:#fff; }
+  html[data-theme="dark"] .cal-cell.l1{ background:#7C2D12; color:#FED7C3; }
+  html[data-theme="dark"] .cal-cell.l2{ background:#C2410C; color:#fff; }
+  html[data-theme="dark"] .cal-cell.l3{ background:#FF5C39; color:#fff; }
+  .heatmap-cell{ width:12px; height:12px; border-radius:3px; background:rgba(128,128,128,.12); display:inline-block; }
   .heatmap-cell.l1{ background:#FED7C3; }
   .heatmap-cell.l2{ background:#FCA57D; }
   .heatmap-cell.l3{ background:#FF5C39; }
@@ -222,8 +245,18 @@
         </div>
 
         <div class="card heatmap-card">
-          <div class="section-title" style="margin-bottom:14px;">Kalender Kehadiran Live</div>
-          <div class="heatmap-grid" id="heatmapGrid"></div>
+          <div class="cal-head">
+            <div class="section-title" style="margin-bottom:0;">Kalender Kehadiran Live</div>
+            <div class="cal-nav">
+              <button type="button" id="calPrevBtn" aria-label="Bulan sebelumnya">‹</button>
+              <span id="calLabel">-</span>
+              <button type="button" id="calNextBtn" aria-label="Bulan berikutnya">›</button>
+            </div>
+          </div>
+          <div class="cal-dow">
+            <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span>Min</span>
+          </div>
+          <div class="cal-grid" id="heatmapGrid"></div>
           <div class="heatmap-legend">
             <span>Sedikit</span>
             <div class="heatmap-cell"></div><div class="heatmap-cell l1"></div><div class="heatmap-cell l2"></div><div class="heatmap-cell l3"></div>
@@ -521,26 +554,60 @@
 
     }
 
+    let calDate = new Date();
+    let allSessionsForCalendar = [];
+
     function renderHeatmap(sessions) {
+      allSessionsForCalendar = sessions;
+      renderCalendar();
+    }
+
+    function renderCalendar() {
       const countByDay = {};
-      sessions.forEach(s => {
+      allSessionsForCalendar.forEach(s => {
         const d = s.startTime?.toDate(); if (!d) return;
         const key = d.toDateString();
         countByDay[key] = (countByDay[key] || 0) + 1;
       });
+
+      const year = calDate.getFullYear(), month = calDate.getMonth();
+      document.getElementById('calLabel').textContent =
+        calDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+
       const grid = document.getElementById('heatmapGrid');
       grid.innerHTML = '';
-      const totalDays = 84; // 12 weeks
+
+      const firstDay = new Date(year, month, 1);
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const leadingBlanks = (firstDay.getDay() + 6) % 7; // Senin = 0
+
       const today = new Date();
-      for (let i = totalDays - 1; i >= 0; i--) {
-        const d = new Date(today); d.setDate(d.getDate() - i);
+      const isSameMonth = today.getFullYear() === year && today.getMonth() === month;
+
+      for (let i = 0; i < leadingBlanks; i++) {
+        const blank = document.createElement('div');
+        blank.className = 'cal-cell empty';
+        grid.appendChild(blank);
+      }
+      for (let day = 1; day <= daysInMonth; day++) {
+        const d = new Date(year, month, day);
         const count = countByDay[d.toDateString()] || 0;
         const cell = document.createElement('div');
-        cell.className = 'heatmap-cell' + (count >= 3 ? ' l3' : count === 2 ? ' l2' : count === 1 ? ' l1' : '');
+        cell.className = 'cal-cell' + (count >= 3 ? ' l3' : count === 2 ? ' l2' : count === 1 ? ' l1' : '') + (isSameMonth && day === today.getDate() ? ' today' : '');
+        cell.innerHTML = `<span>${day}</span>${count > 0 ? `<span class="cal-count">${count}x</span>` : ''}`;
         cell.title = `${d.toLocaleDateString('id-ID')}: ${count} sesi`;
         grid.appendChild(cell);
       }
     }
+
+    document.getElementById('calPrevBtn').addEventListener('click', () => {
+      calDate = new Date(calDate.getFullYear(), calDate.getMonth() - 1, 1);
+      renderCalendar();
+    });
+    document.getElementById('calNextBtn').addEventListener('click', () => {
+      calDate = new Date(calDate.getFullYear(), calDate.getMonth() + 1, 1);
+      renderCalendar();
+    });
 
     // ── absensi otomatis (tercatat langsung dari sesi live) ──
     function listenAttendanceSessions() {
