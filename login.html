@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0D0D12; --muted:#8B8B96; --coral:#FF5C39; --gold:#f5a020;
+    --ink:#0D0D12; --muted:#8B8B96; --coral:#FF5C39; --gold:#f5a020; --green:#22C55E; --green-dark:#16A34A;
     --df:'Sora',sans-serif; --di:'Inter',sans-serif;
     --ease:cubic-bezier(.16,1,.3,1);
   }
@@ -19,10 +19,12 @@
     min-height:100vh; display:flex; align-items:center; justify-content:center;
     padding:24px; overflow-x:hidden; position:relative;
   }
-  .glow{ position:fixed; border-radius:50%; filter:blur(60px); pointer-events:none; animation:drift 10s ease-in-out infinite alternate; }
+  .glow{ position:fixed; border-radius:50%; filter:blur(60px); pointer-events:none; animation:drift 10s ease-in-out infinite alternate; transition:background .5s; }
   .glow1{ width:280px; height:280px; top:-80px; right:-60px; background:radial-gradient(circle,rgba(255,92,57,.45),transparent 70%); }
   .glow2{ width:320px; height:320px; bottom:-100px; left:-80px; background:radial-gradient(circle,rgba(139,92,246,.4),transparent 70%); animation-delay:-4s; }
   @keyframes drift{ to{ transform:translate(20px,16px) scale(1.1); } }
+  body.state-success .glow1{ background:radial-gradient(circle,rgba(34,197,94,.5),transparent 70%); }
+  body.state-success .glow2{ background:radial-gradient(circle,rgba(34,197,94,.3),transparent 70%); }
 
   .card{
     position:relative; z-index:2; width:100%; max-width:380px;
@@ -32,20 +34,98 @@
   }
   @keyframes cardIn{ from{opacity:0; transform:translateY(24px) scale(.96);} to{opacity:1; transform:none;} }
 
-  .badge{
-    width:52px; height:52px; border-radius:16px; margin:0 auto 18px;
-    background:linear-gradient(135deg,var(--coral),var(--gold));
-    display:flex; align-items:center; justify-content:center;
-    box-shadow:0 10px 24px rgba(255,92,57,.35);
+  /* ═══ Robot mascot ═══ */
+  .robot-wrap{ display:flex; justify-content:center; margin-bottom:16px; position:relative; height:118px; align-items:flex-end; }
+  .robot-badge{
+    width:118px; height:118px; position:relative;
+    filter:drop-shadow(0 14px 30px rgba(255,92,57,.35));
+    transition:filter .4s;
   }
-  .badge svg{ width:26px; height:26px; }
+  .robot-badge svg{ width:100%; height:100%; overflow:visible; }
+  .robot-head{ fill:url(#robotGrad); transition:fill .4s; }
+  .robot-antenna-light{ fill:#fff; animation:blinkLight 2.8s ease-in-out infinite; }
+  @keyframes blinkLight{ 0%,100%{ opacity:1; } 50%{ opacity:.35; } }
+  .eye{ fill:#fff; transform-origin:center; animation:blinkEye 5.5s ease-in-out infinite; }
+  .eye.right{ animation-delay:.08s; }
+  @keyframes blinkEye{ 0%,92%,100%{ transform:scaleY(1); } 95%{ transform:scaleY(.15); } }
+  #robotMouth{ stroke:#fff; }
+
+  /* idle bob */
+  .robot-badge{ animation:robotBob 4.6s ease-in-out infinite; }
+  @keyframes robotBob{ 0%,100%{ transform:translateY(0) rotate(0); } 50%{ transform:translateY(-6px) rotate(-1.5deg); } }
+
+  /* error state: shake + red + X eyes handled via JS path swap */
+  .robot-badge.shake{ animation:robotShake .9s var(--ease); }
+  @keyframes robotShake{
+    0%,100%{ transform:translateX(0) rotate(0); }
+    15%{ transform:translateX(-12px) rotate(-7deg); }
+    30%{ transform:translateX(11px) rotate(6deg); }
+    45%{ transform:translateX(-9px) rotate(-5deg); }
+    60%{ transform:translateX(8px) rotate(4deg); }
+    75%{ transform:translateX(-5px) rotate(-2deg); }
+    90%{ transform:translateX(3px) rotate(1deg); }
+  }
+  .robot-badge.state-error{ filter:drop-shadow(0 14px 30px rgba(220,38,38,.4)); }
+  .robot-badge.state-error .eye{ animation:none; }
+
+  /* success state: bounce + green */
+  .robot-badge.state-success{
+    filter:drop-shadow(0 16px 36px rgba(34,197,94,.5));
+    animation:robotCelebrate 1.3s var(--ease);
+  }
+  @keyframes robotCelebrate{
+    0%{ transform:scale(1) translateY(0); }
+    30%{ transform:scale(1.22) translateY(-16px) rotate(-5deg); }
+    50%{ transform:scale(1.08) translateY(4px) rotate(4deg); }
+    70%{ transform:scale(1.14) translateY(-6px) rotate(-2deg); }
+    100%{ transform:scale(1.12) translateY(-4px) rotate(0); }
+  }
+  .robot-badge.state-success .eye{ animation:none; }
+
+  /* sweat drop for error */
+  .sweat-drop{
+    position:absolute; top:20px; right:6px; width:12px; height:16px; opacity:0;
+    background:linear-gradient(180deg,#93C5FD,#3B82F6); border-radius:0 60% 60% 60%;
+    transform:rotate(45deg) scale(0);
+  }
+  .robot-badge.state-error .sweat-drop{ animation:sweatDrop 2s ease-out; }
+  @keyframes sweatDrop{
+    0%{ opacity:0; transform:rotate(45deg) scale(0) translateY(0); }
+    20%{ opacity:1; transform:rotate(45deg) scale(1) translateY(0); }
+    80%{ opacity:1; transform:rotate(45deg) scale(1) translateY(14px); }
+    100%{ opacity:0; transform:rotate(45deg) scale(.8) translateY(20px); }
+  }
+
+  /* sparkles for success */
+  .sparkle{
+    position:absolute; width:10px; height:10px; opacity:0; pointer-events:none;
+    background:radial-gradient(circle,#FDE68A,#F59E0B); clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  }
+  .sp1{ top:6px; left:2px; } .sp2{ top:0; right:0; } .sp3{ bottom:10px; left:-8px; }
+  .sp4{ bottom:2px; right:-6px; } .sp5{ top:40%; left:-16px; } .sp6{ top:35%; right:-14px; }
+  .robot-badge.state-success ~ .sparkle,
+  .robot-wrap.sparkle-show .sparkle{ animation:sparklePop 1.3s var(--ease) forwards; }
+  .sparkle.sp2{ animation-delay:.08s !important; }
+  .sparkle.sp3{ animation-delay:.14s !important; }
+  .sparkle.sp4{ animation-delay:.05s !important; }
+  .sparkle.sp5{ animation-delay:.18s !important; }
+  .sparkle.sp6{ animation-delay:.1s !important; }
+  @keyframes sparklePop{
+    0%{ opacity:0; transform:scale(0) rotate(0deg); }
+    35%{ opacity:1; transform:scale(1.3) rotate(90deg); }
+    70%{ opacity:1; transform:scale(1) rotate(140deg) translateY(-6px); }
+    100%{ opacity:0; transform:scale(.6) rotate(200deg) translateY(-14px); }
+  }
+
   .title{ font-family:var(--df); font-weight:800; font-size:1.25rem; text-align:center; color:var(--ink); }
-  .sub{ text-align:center; color:var(--muted); font-size:.82rem; margin-top:4px; margin-bottom:28px; }
+  .sub{ text-align:center; color:var(--muted); font-size:.82rem; margin-top:4px; margin-bottom:26px; transition:color .3s; }
+  .sub.success{ color:var(--green-dark); font-weight:700; }
+  .sub.error{ color:#DC2626; font-weight:700; }
 
   .field{ position:relative; margin-bottom:16px; }
   .field label{ font-size:.76rem; font-weight:700; color:var(--ink); display:block; margin-bottom:6px; }
   .field .input-wrap{ position:relative; }
-  .field svg{ position:absolute; left:14px; top:50%; transform:translateY(-50%); width:17px; height:17px; color:var(--muted); }
+  .field svg{ position:absolute; left:14px; top:50%; transform:translateY(-50%); width:17px; height:17px; color:var(--muted); pointer-events:none; }
   input{
     width:100%; padding:13px 14px 13px 40px; border-radius:13px; border:1.5px solid #ECECEF;
     font-family:var(--di); font-size:.92rem; outline:none; background:#FAFAFB;
@@ -53,21 +133,44 @@
   }
   input:focus{ border-color:var(--coral); background:#fff; }
 
+  .field-foot{ display:flex; justify-content:flex-end; margin-top:8px; margin-bottom:14px; }
+  .link-btn{
+    background:none; border:none; padding:0; cursor:pointer; font-family:var(--di);
+    font-size:.76rem; font-weight:700; color:var(--coral); text-decoration:none;
+  }
+  .link-btn:hover{ text-decoration:underline; }
+
   button.submit{
     width:100%; padding:14px; border:none; border-radius:14px; cursor:pointer;
     background:linear-gradient(135deg,var(--coral),var(--gold)); color:#fff;
     font-family:var(--df); font-weight:700; font-size:.92rem; margin-top:6px;
     box-shadow:0 10px 26px rgba(255,92,57,.3);
-    transition:transform .15s, opacity .2s;
+    transition:transform .15s, opacity .2s, background .3s, box-shadow .3s;
   }
   button.submit:active{ transform:scale(.98); }
   button.submit:disabled{ opacity:.6; cursor:not-allowed; }
+  button.submit.success{ background:linear-gradient(135deg,var(--green),var(--green-dark)); box-shadow:0 10px 26px rgba(34,197,94,.35); }
+
+  button.ghost-btn{
+    width:100%; padding:12px; border-radius:13px; cursor:pointer; margin-top:10px;
+    background:#F4F4F6; border:1.5px solid #ECECEF; color:var(--ink);
+    font-family:var(--di); font-weight:700; font-size:.84rem; transition:background .15s;
+  }
+  button.ghost-btn:hover{ background:#ECECEF; }
 
   .err{
     background:#FEF2F2; color:#DC2626; font-size:.78rem; padding:11px 13px;
-    border-radius:11px; margin-bottom:16px; display:none; animation:shake .4s;
+    border-radius:11px; margin-bottom:16px; display:none;
   }
-  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+  .err.show{ display:block; animation:shakeBox .4s; }
+  @keyframes shakeBox{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+
+  .info-box{
+    background:#EFF6FF; color:#1D4ED8; font-size:.78rem; padding:11px 13px;
+    border-radius:11px; margin-bottom:16px; display:none; line-height:1.5;
+  }
+  .info-box.show{ display:block; animation:cardIn .3s var(--ease); }
+  .info-box.success-box{ background:#F0FDF4; color:var(--green-dark); }
 
   .loader-wrap{ display:none; text-align:center; padding:20px 0; }
   .spinner{
@@ -76,6 +179,12 @@
   }
   @keyframes spin{ to{ transform:rotate(360deg); } }
   .loader-wrap p{ color:var(--muted); font-size:.8rem; }
+
+  .panel{ display:none; }
+  .panel.show{ display:block; animation:cardIn .3s var(--ease); }
+  .back-row{ display:flex; align-items:center; gap:6px; margin-bottom:18px; cursor:pointer; color:var(--muted); font-size:.8rem; font-weight:600; }
+  .back-row svg{ width:16px; height:16px; }
+  .back-row:hover{ color:var(--ink); }
 </style>
 </head>
 <body>
@@ -83,31 +192,83 @@
   <div class="glow glow2"></div>
 
   <div class="card">
-    <div class="badge">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v6c0 5 4 8.5 9 9 5-.5 9-4 9-9V7l-9-5Z"/></svg>
+
+    <div class="robot-wrap">
+      <div class="robot-badge" id="robotBadge">
+        <svg viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="robotGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop id="robotGradStart" offset="0%" stop-color="#FF5C39"/>
+              <stop id="robotGradEnd" offset="100%" stop-color="#f5a020"/>
+            </linearGradient>
+          </defs>
+          <line x1="50" y1="6" x2="50" y2="17" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          <circle class="robot-antenna-light" cx="50" cy="6" r="4.5"/>
+          <rect class="robot-head" x="16" y="16" width="68" height="60" rx="20"/>
+          <circle class="eye left" id="eyeLeft" cx="37" cy="46" r="6.5" fill="#fff"/>
+          <circle class="eye right" id="eyeRight" cx="63" cy="46" r="6.5" fill="#fff"/>
+          <path id="robotMouth" d="M37 60 Q50 67 63 60" fill="none" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <div class="sweat-drop"></div>
+      </div>
+      <div class="sparkle sp1"></div>
+      <div class="sparkle sp2"></div>
+      <div class="sparkle sp3"></div>
+      <div class="sparkle sp4"></div>
+      <div class="sparkle sp5"></div>
+      <div class="sparkle sp6"></div>
     </div>
+
     <div class="title">ICABEEE TEAM</div>
-    <div class="sub">Masuk untuk lanjut ke dashboard kamu</div>
+    <div class="sub" id="subText">Masuk untuk lanjut ke dashboard kamu</div>
 
     <div class="err" id="errBox"></div>
 
-    <form id="loginForm">
-      <div class="field">
-        <label for="email">Email</label>
-        <div class="input-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 6 8 6 8-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
-          <input type="email" id="email" required autocomplete="username" placeholder="nama@email.com">
+    <!-- ═══ Form login ═══ -->
+    <div class="panel show" id="loginPanel">
+      <form id="loginForm">
+        <div class="field">
+          <label for="email">Email</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 6 8 6 8-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+            <input type="email" id="email" required autocomplete="username" placeholder="nama@email.com">
+          </div>
         </div>
-      </div>
-      <div class="field">
-        <label for="password">Password</label>
-        <div class="input-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-          <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
+        <div class="field" style="margin-bottom:0;">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
+          </div>
         </div>
+        <div class="field-foot">
+          <button type="button" class="link-btn" id="forgotLinkBtn">Lupa Password?</button>
+        </div>
+        <button type="submit" class="submit" id="loginBtn">Masuk</button>
+      </form>
+    </div>
+
+    <!-- ═══ Panel lupa password ═══ -->
+    <div class="panel" id="forgotPanel">
+      <div class="back-row" id="backToLoginBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        Kembali ke login
       </div>
-      <button type="submit" class="submit" id="loginBtn">Masuk</button>
-    </form>
+      <div class="info-box" id="forgotInfoBox">
+        Masukin email akun kamu. Kalau terdaftar, link buat bikin password baru bakal dikirim ke email itu.
+      </div>
+      <form id="forgotForm">
+        <div class="field" style="margin-bottom:14px;">
+          <label for="forgotEmail">Email</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 6 8 6 8-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+            <input type="email" id="forgotEmail" required autocomplete="username" placeholder="nama@email.com">
+          </div>
+        </div>
+        <button type="submit" class="submit" id="forgotBtn">Kirim Link Reset</button>
+      </form>
+      <button type="button" class="ghost-btn" id="backToLoginBtn2">Kembali ke Login</button>
+    </div>
 
     <div class="loader-wrap" id="loader">
       <div class="spinner"></div>
@@ -117,7 +278,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -137,30 +298,84 @@
     const errBox = document.getElementById('errBox');
     const loginBtn = document.getElementById('loginBtn');
     const loader = document.getElementById('loader');
+    const loginPanel = document.getElementById('loginPanel');
+    const subText = document.getElementById('subText');
+    const robot = document.getElementById('robotBadge');
+    const mouth = document.getElementById('robotMouth');
+    const eyeLeft = document.getElementById('eyeLeft');
+    const eyeRight = document.getElementById('eyeRight');
+    const gradStart = document.getElementById('robotGradStart');
+    const gradEnd = document.getElementById('robotGradEnd');
 
     function showError(msg) {
       errBox.textContent = msg;
-      errBox.style.display = 'block';
+      errBox.classList.remove('show'); void errBox.offsetWidth; errBox.classList.add('show');
+      subText.textContent = 'Waduh, ada yang salah nih.';
+      subText.className = 'sub error';
+      robotError();
+    }
+
+    function robotError() {
+      robot.classList.remove('state-success');
+      robot.classList.add('state-error');
+      gradStart.setAttribute('stop-color', '#EF4444');
+      gradEnd.setAttribute('stop-color', '#DC2626');
+      eyeLeft.setAttribute('r', '2.2'); eyeLeft.setAttribute('cy', '48');
+      eyeRight.setAttribute('r', '2.2'); eyeRight.setAttribute('cy', '48');
+      mouth.setAttribute('d', 'M37 66 Q50 56 63 66');
+      robot.classList.remove('shake'); void robot.offsetWidth; robot.classList.add('shake');
+      setTimeout(() => {
+        robot.classList.remove('state-error', 'shake');
+        gradStart.setAttribute('stop-color', '#FF5C39');
+        gradEnd.setAttribute('stop-color', '#f5a020');
+        eyeLeft.setAttribute('r', '6.5'); eyeLeft.setAttribute('cy', '46');
+        eyeRight.setAttribute('r', '6.5'); eyeRight.setAttribute('cy', '46');
+        mouth.setAttribute('d', 'M37 60 Q50 67 63 60');
+        subText.textContent = 'Masuk untuk lanjut ke dashboard kamu';
+        subText.className = 'sub';
+      }, 2800);
+    }
+
+    function robotSuccess(name) {
+      robot.classList.add('state-success');
+      gradStart.setAttribute('stop-color', '#4ADE80');
+      gradEnd.setAttribute('stop-color', '#16A34A');
+      eyeLeft.setAttribute('r', '3'); eyeLeft.setAttribute('cy', '42');
+      eyeRight.setAttribute('r', '3'); eyeRight.setAttribute('cy', '42');
+      mouth.setAttribute('d', 'M35 56 Q50 76 65 56');
+      loginBtn.classList.add('success');
+      subText.textContent = name ? `Selamat datang, ${name}! 🎉` : 'Selamat datang! 🎉';
+      subText.className = 'sub success';
     }
 
     async function redirectByRole(uid) {
-      loader.style.display = 'block';
-      form.style.display = 'none';
       const snap = await getDoc(doc(db, 'users', uid));
       if (!snap.exists()) {
         showError('Akun kamu belum terdaftar di sistem. Hubungi owner.');
         loader.style.display = 'none';
-        form.style.display = 'block';
+        loginPanel.style.display = 'block';
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Masuk';
         return;
       }
-      window.location.href = snap.data().role === 'owner' ? 'dashboard-owner.html' : 'dashboard-karyawan.html';
+      robotSuccess(snap.data().name);
+      loginBtn.textContent = 'Berhasil masuk!';
+      setTimeout(() => {
+        window.location.href = snap.data().role === 'owner' ? 'dashboard-owner.html' : 'dashboard-karyawan.html';
+      }, 1800);
     }
 
-    onAuthStateChanged(auth, (user) => { if (user) redirectByRole(user.uid); });
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loader.style.display = 'block';
+        loginPanel.style.display = 'none';
+        redirectByRole(user.uid);
+      }
+    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      errBox.style.display = 'none';
+      errBox.classList.remove('show');
       loginBtn.disabled = true;
       loginBtn.textContent = 'Memproses…';
       const email = document.getElementById('email').value.trim();
@@ -176,6 +391,54 @@
         loginBtn.disabled = false;
         loginBtn.textContent = 'Masuk';
       }
+    });
+
+    // ── lupa password ──
+    const loginPanelEl = document.getElementById('loginPanel');
+    const forgotPanel = document.getElementById('forgotPanel');
+    const forgotForm = document.getElementById('forgotForm');
+    const forgotBtn = document.getElementById('forgotBtn');
+    const forgotInfoBox = document.getElementById('forgotInfoBox');
+
+    function openForgotPanel() {
+      errBox.classList.remove('show');
+      loginPanelEl.classList.remove('show');
+      forgotPanel.classList.add('show');
+      forgotInfoBox.className = 'info-box show';
+      forgotInfoBox.textContent = 'Masukin email akun kamu. Kalau terdaftar, link buat bikin password baru bakal dikirim ke email itu.';
+      document.getElementById('forgotEmail').value = document.getElementById('email').value.trim();
+      subText.textContent = 'Reset password akun kamu';
+      subText.className = 'sub';
+    }
+    function closeForgotPanel() {
+      forgotPanel.classList.remove('show');
+      loginPanelEl.classList.add('show');
+      subText.textContent = 'Masuk untuk lanjut ke dashboard kamu';
+      subText.className = 'sub';
+      forgotForm.style.display = 'block';
+    }
+    document.getElementById('forgotLinkBtn').addEventListener('click', openForgotPanel);
+    document.getElementById('backToLoginBtn').addEventListener('click', closeForgotPanel);
+    document.getElementById('backToLoginBtn2').addEventListener('click', closeForgotPanel);
+
+    forgotForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      forgotBtn.disabled = true;
+      forgotBtn.textContent = 'Mengirim…';
+      const email = document.getElementById('forgotEmail').value.trim();
+      try {
+        await sendPasswordResetEmail(auth, email);
+        forgotInfoBox.className = 'info-box success-box show';
+        forgotInfoBox.textContent = `Link reset password sudah dikirim ke ${email}. Cek inbox (atau folder spam) ya, lalu buka linknya buat bikin password baru.`;
+        forgotForm.style.display = 'none';
+      } catch (err) {
+        // Demi keamanan, jangan bocorin apakah emailnya kedaftar atau nggak.
+        forgotInfoBox.className = 'info-box success-box show';
+        forgotInfoBox.textContent = `Kalau ${email} terdaftar di sistem, link reset password sudah dikirim. Cek inbox (atau folder spam) ya.`;
+        forgotForm.style.display = 'none';
+      }
+      forgotBtn.disabled = false;
+      forgotBtn.textContent = 'Kirim Link Reset';
     });
   </script>
 </body>
