@@ -277,8 +277,6 @@
       <div class="modal-handle"></div>
       <h3>Isi Data Live</h3>
       <form id="endForm">
-        <label>Jumlah Produk Terjual</label>
-        <input type="number" id="productsSold" min="0" required placeholder="contoh: 12">
         <label>Penghasilan dari Live (Rp)</label>
         <input type="text" inputmode="numeric" id="revenue" required placeholder="contoh: 1.500.000">
         <label>Jumlah Viewer</label>
@@ -296,7 +294,6 @@
           <img id="proofPreviewImg" style="display:none;">
           <button type="button" class="remove-proof" id="removeProofBtn" style="display:none;">Hapus foto</button>
         </div>
-        <div class="proof-hint">Foto otomatis dikompres jadi kecil, jadi hemat tempat penyimpanan.</div>
 
         <div class="modal-btns">
           <button type="button" class="cancel" id="cancelEnd">Batal</button>
@@ -507,7 +504,6 @@
               <div class="history-duration">${Math.floor(durMin/60)}j ${durMin%60}m</div>
             </div>
             <div class="history-fields">
-              <div><div class="hf-label">Produk</div><div class="hf-value">${s.productsSold ?? 0}</div></div>
               <div><div class="hf-label">Viewer</div><div class="hf-value">${s.viewers ?? 0}</div></div>
               <div><div class="hf-label">Penghasilan</div><div class="hf-value">Rp ${Number(s.revenue ?? 0).toLocaleString('id-ID')}</div></div>
             </div>
@@ -706,20 +702,29 @@
       }
     }
 
+    let isStartingSession = false;
     startBtn.addEventListener('click', async () => {
+      if (activeSessionId || isStartingSession) return;
+      isStartingSession = true;
       startBtn.disabled = true;
       try {
         await addDoc(collection(db, 'sessions'), {
           uid: currentUser.uid, employeeName: currentUserName, platform: 'TikTok',
           status: 'active', startTime: Timestamp.now(), endTime: null, lastPing: Timestamp.now(),
-          productsSold: null, revenue: null, viewers: null, notes: ''
+          revenue: null, viewers: null, notes: ''
         });
         showToast('Live dimulai. Semangat!');
-      } catch (err) { showToast('Gagal memulai live: ' + err.message, true); }
+      } catch (err) {
+        showToast('Gagal memulai live: ' + err.message, true);
+      }
       startBtn.disabled = false;
+      isStartingSession = false;
     });
 
-    stopBtn.addEventListener('click', () => modalOverlay.classList.add('show'));
+    stopBtn.addEventListener('click', () => {
+      if (!activeSessionId) { showToast('Sesi live sudah tidak aktif.', true); return; }
+      modalOverlay.classList.add('show');
+    });
     document.getElementById('cancelEnd').addEventListener('click', () => {
       modalOverlay.classList.remove('show');
       resetProofUpload();
@@ -791,30 +796,44 @@
       resetProofUpload();
     });
 
+    let isEndingSession = false;
     endForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!activeSessionId) return;
+      if (!activeSessionId || isEndingSession) return;
+      isEndingSession = true;
       confirmEndBtn.disabled = true;
       confirmEndBtn.textContent = 'Menyimpan…';
-      const productsSold = Number(document.getElementById('productsSold').value);
       const revenue = Number(document.getElementById('revenue').value.replace(/\./g, ''));
       const viewers = Number(document.getElementById('viewers').value);
       const notes = document.getElementById('notes').value.trim();
       if (!document.getElementById('revenue').value || isNaN(revenue)) {
         showToast('Isi penghasilan dari live dulu ya.', true);
         confirmEndBtn.disabled = false;
+        confirmEndBtn.textContent = 'Simpan & Selesai';
+        isEndingSession = false;
         return;
       }
+      const sessionIdToClose = activeSessionId;
       try {
-        const payload = { status: 'selesai', endTime: Timestamp.now(), productsSold, revenue, viewers, notes };
+        const payload = { status: 'selesai', endTime: Timestamp.now(), revenue, viewers, notes };
         if (selectedProofBase64) payload.proofBase64 = selectedProofBase64;
-        await updateDoc(doc(db, 'sessions', activeSessionId), payload);
+        await updateDoc(doc(db, 'sessions', sessionIdToClose), payload);
+
+        // langsung matikan timer & UI di sini, jangan nunggu onSnapshot
+        // (round-trip listener bisa delay dan bikin timer keliatan masih jalan)
+        activeSessionId = null;
+        stopHeartbeat();
+        setLiveUI(false);
+
         modalOverlay.classList.remove('show'); endForm.reset();
         resetProofUpload();
         showToast('Data live tersimpan');
-      } catch (err) { showToast('Gagal menyimpan: ' + err.message, true); }
+      } catch (err) {
+        showToast('Gagal menyimpan: ' + err.message, true);
+      }
       confirmEndBtn.disabled = false;
       confirmEndBtn.textContent = 'Simpan & Selesai';
+      isEndingSession = false;
     });
 
   </script>
