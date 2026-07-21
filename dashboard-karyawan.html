@@ -48,6 +48,13 @@
   .status-card.is-live{ border-color:#FDBA9C; background:#FFF9F7; }
   html[data-theme="dark"] .status-card.is-live{ background:#2A1710; border-color:#7C2D12; }
   .platform-tag{ display:inline-flex; align-items:center; gap:5px; font-size:.68rem; font-weight:700; color:var(--muted); background:rgba(128,128,128,.1); padding:4px 10px; border-radius:999px; margin-bottom:12px; }
+  .account-select-wrap{ margin-bottom:16px; text-align:left; }
+  .account-select-wrap label{ font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; display:block; margin-bottom:6px; }
+  .account-select{ width:100%; padding:11px 13px; border-radius:10px; border:1px solid var(--border); font-family:var(--di); font-size:.86rem; outline:none; background:var(--card); color:var(--ink); }
+  .account-select:focus{ border-color:var(--ink); }
+  .account-select:disabled{ opacity:.6; }
+  .live-account-tag{ display:inline-flex; align-items:center; gap:5px; font-size:.68rem; font-weight:700; color:var(--coral); background:rgba(255,92,57,.1); padding:4px 10px; border-radius:999px; margin-top:8px; }
+  .hf-value.account-val{ color:var(--coral); }
   @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
   .status-row{ display:flex; align-items:center; justify-content:center; gap:7px; margin-bottom:6px; }
   .status-dot{ width:9px; height:9px; border-radius:50%; }
@@ -214,6 +221,11 @@
           <div class="platform-tag">TikTok Live</div>
           <div class="status-row"><span class="status-dot off" id="statusDot"></span><span class="status-label" id="statusLabel">Belum Live</span></div>
           <div class="timer" id="timer">00:00:00</div>
+          <div class="account-select-wrap" id="accountSelectWrap">
+            <label>Pilih Akun Live</label>
+            <select class="account-select" id="accountSelect"><option value="">Memuat akun…</option></select>
+          </div>
+          <div class="live-account-tag" id="liveAccountTag" style="display:none;"></div>
           <button class="big-btn start" id="startBtn"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg> Mulai Live</button>
           <button class="big-btn stop" id="stopBtn" style="display:none;"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg> Selesai Live</button>
         </div>
@@ -312,6 +324,7 @@
       getFirestore, doc, getDoc, collection, addDoc, updateDoc,
       query, where, orderBy, onSnapshot, Timestamp, limit
     } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+    const ACCOUNTS_COLLECTION = 'liveAccounts';
 
     const firebaseConfig = {
       apiKey: "AIzaSyB2Fczb4wGbF9ah0mQuuZi8WWaim_hQB4M",
@@ -349,6 +362,29 @@
     const startBtn = document.getElementById('startBtn');
     const stopBtn = document.getElementById('stopBtn');
     const historyList = document.getElementById('historyList');
+    const accountSelect = document.getElementById('accountSelect');
+    const accountSelectWrap = document.getElementById('accountSelectWrap');
+    const liveAccountTag = document.getElementById('liveAccountTag');
+    let liveAccounts = [];
+    let activeAccountName = '';
+
+    function listenLiveAccounts() {
+      const q = query(collection(db, ACCOUNTS_COLLECTION), where('active', '==', true), orderBy('name', 'asc'));
+      onSnapshot(q, (snap) => {
+        liveAccounts = [];
+        snap.forEach(d => liveAccounts.push({ id: d.id, ...d.data() }));
+        const prevValue = accountSelect.value;
+        if (liveAccounts.length === 0) {
+          accountSelect.innerHTML = '<option value="">Belum ada akun live tersedia</option>';
+          accountSelect.disabled = true;
+        } else {
+          accountSelect.disabled = false;
+          accountSelect.innerHTML = '<option value="">— Pilih akun —</option>' +
+            liveAccounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+          if (liveAccounts.some(a => a.id === prevValue)) accountSelect.value = prevValue;
+        }
+      }, (err) => { console.error('Gagal memuat akun live:', err); });
+    }
     const modalOverlay = document.getElementById('modalOverlay');
     const endForm = document.getElementById('endForm');
     const revenueInput = document.getElementById('revenue');
@@ -394,12 +430,19 @@
         statusDot.className = 'status-dot on';
         statusLabel.textContent = 'Sedang Live';
         startBtn.style.display = 'none'; stopBtn.style.display = 'flex';
+        accountSelectWrap.style.display = 'none';
+        if (activeAccountName) {
+          liveAccountTag.textContent = 'Akun: ' + activeAccountName;
+          liveAccountTag.style.display = 'inline-flex';
+        }
         startTimer();
       } else {
         statusCard.classList.remove('is-live');
         statusDot.className = 'status-dot off';
         statusLabel.textContent = 'Belum Live';
         startBtn.style.display = 'flex'; stopBtn.style.display = 'none';
+        accountSelectWrap.style.display = 'block';
+        liveAccountTag.style.display = 'none';
         clearInterval(timerInterval); timerEl.textContent = '00:00:00';
         document.getElementById('alertBanner').classList.remove('show');
       }
@@ -426,6 +469,7 @@
       listenHistory();
       listenStatsAndCalendar();
       listenAttendanceSessions();
+      listenLiveAccounts();
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
@@ -448,9 +492,10 @@
         if (!snap.empty) {
           const d = snap.docs[0];
           activeSessionId = d.id; activeSessionStart = d.data().startTime;
+          activeAccountName = d.data().accountName || '';
           setLiveUI(true);
           startHeartbeat(activeSessionId);
-        } else { activeSessionId = null; setLiveUI(false); stopHeartbeat(); }
+        } else { activeSessionId = null; activeAccountName = ''; setLiveUI(false); stopHeartbeat(); }
       }, (err) => { showToast('Gagal memuat status live: ' + err.message, true); console.error(err); });
     }
 
@@ -504,6 +549,7 @@
               <div class="history-duration">${Math.floor(durMin/60)}j ${durMin%60}m</div>
             </div>
             <div class="history-fields">
+              <div><div class="hf-label">Akun</div><div class="hf-value account-val">${s.accountName || '-'}</div></div>
               <div><div class="hf-label">Viewer</div><div class="hf-value">${s.viewers ?? 0}</div></div>
               <div><div class="hf-label">Penghasilan</div><div class="hf-value">Rp ${Number(s.revenue ?? 0).toLocaleString('id-ID')}</div></div>
             </div>
@@ -705,14 +751,23 @@
     let isStartingSession = false;
     startBtn.addEventListener('click', async () => {
       if (activeSessionId || isStartingSession) return;
+      const accountId = accountSelect.value;
+      if (!accountId) {
+        showToast('Pilih akun live dulu ya sebelum mulai.', true);
+        return;
+      }
+      const chosenAccount = liveAccounts.find(a => a.id === accountId);
+      const accountName = chosenAccount ? chosenAccount.name : '';
       isStartingSession = true;
       startBtn.disabled = true;
       try {
         await addDoc(collection(db, 'sessions'), {
           uid: currentUser.uid, employeeName: currentUserName, platform: 'TikTok',
+          accountId, accountName,
           status: 'active', startTime: Timestamp.now(), endTime: null, lastPing: Timestamp.now(),
           revenue: null, viewers: null, notes: ''
         });
+        activeAccountName = accountName;
         showToast('Live dimulai. Semangat!');
       } catch (err) {
         showToast('Gagal memulai live: ' + err.message, true);
