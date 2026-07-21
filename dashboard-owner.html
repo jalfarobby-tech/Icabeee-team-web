@@ -174,6 +174,12 @@
     cursor:pointer; white-space:nowrap; transition:all .15s;
   }
   .delete-perm-btn:hover{ border-color:#DC2626; color:#DC2626; }
+  .purge-btn{
+    border:1px solid #DC2626; background:transparent; color:#DC2626;
+    padding:6px 12px; border-radius:8px; font-family:var(--df); font-weight:600; font-size:.72rem;
+    cursor:pointer; white-space:nowrap; transition:all .15s; margin-left:6px;
+  }
+  .purge-btn:hover{ background:#DC2626; color:#fff; }
   .former-section-title{
     font-family:var(--df); font-weight:700; font-size:.92rem; margin:28px 0 14px;
     padding-bottom:10px; border-bottom:1px solid var(--border);
@@ -957,7 +963,7 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import {
       getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, collection, query, where,
-      onSnapshot, orderBy, Timestamp, arrayUnion
+      onSnapshot, orderBy, Timestamp, arrayUnion, writeBatch, getDocs
     } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -1301,7 +1307,7 @@
           <div class="live-row" data-start="${start ? start.getTime() : ''}" data-id="${s.id}">
             ${avatarHtml(user || { name: s.employeeName })}
             <div class="live-info">
-              <div class="live-name">${s.employeeName || '-'}</div>
+              <div class="live-name">${user?.name || s.employeeName || '-'}</div>
               <div class="live-meta">${s.platform || 'TikTok'} · mulai ${start ? start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'}</div>
               ${isStale ? '<div class="stale-warn">⚠ Kemungkinan terputus — tab tidak aktif</div>' : ''}
             </div>
@@ -1434,7 +1440,7 @@
       });
       const byEmployee = {};
       monthSessions.forEach(s => {
-        if (!byEmployee[s.uid]) byEmployee[s.uid] = { name: s.employeeName, revenue: 0 };
+        if (!byEmployee[s.uid]) byEmployee[s.uid] = { name: allUsers[s.uid]?.name || s.employeeName, revenue: 0 };
         byEmployee[s.uid].revenue += Number(s.revenue) || 0;
       });
       const sorted = Object.entries(byEmployee).map(([uid,v]) => ({uid, ...v})).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
@@ -1528,7 +1534,8 @@
           <td>${totalProduk}</td>
           <td>
             <button class="reactivate-btn" onclick="window.reactivateEmployee('${uid}')" title="Aktifkan kembali karyawan ini">Aktifkan Kembali</button>
-            <button class="delete-perm-btn" onclick="window.deleteEmployeePermanent('${uid}')" title="Hapus permanen, tidak bisa dibatalkan">Hapus Permanen</button>
+            <button class="delete-perm-btn" onclick="window.deleteEmployeePermanent('${uid}')" title="Hapus profil karyawan, riwayat sesi live tetap disimpan">Hapus Profil</button>
+            <button class="purge-btn" onclick="window.purgeEmployeeData('${uid}')" title="Hapus profil DAN semua riwayat sesi live — tidak bisa dibatalkan">Hapus Total</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -1564,6 +1571,34 @@
       } catch (err) { showToast('Gagal menghapus: ' + err.message, true); }
     }
     window.deleteEmployeePermanent = deleteEmployeePermanent;
+
+    async function purgeEmployeeData(uid) {
+      const user = allUsers[uid];
+      const name = user?.name || 'karyawan ini';
+      try {
+        // Hitung dulu berapa banyak sesi yang akan ikut terhapus, biar owner tau dampaknya sebelum konfirmasi
+        const sessQ = query(collection(db, 'sessions'), where('uid', '==', uid));
+        const sessSnap = await getDocs(sessQ);
+        const sessCount = sessSnap.size;
+
+        const warning = sessCount > 0
+          ? `PERINGATAN: Ini akan menghapus profil "${name}" DAN ${sessCount} riwayat sesi live miliknya (termasuk data penghasilan, produk terjual, dan foto bukti penjualan). Data ini TIDAK BISA dikembalikan lagi, termasuk dari rekap Keuangan dan Leaderboard. Cocok dipakai buat data testing/salah input — BUKAN untuk karyawan yang benar-benar pernah kerja (pakai "Hapus Profil" saja kalau begitu, biar histori kerjanya tetap ada).\n\nLanjutkan hapus total?`
+          : `Hapus profil "${name}"? Karyawan ini belum punya riwayat sesi live sama sekali, jadi aman dihapus total.`;
+
+        if (!confirm(warning)) return;
+        if (sessCount > 0 && !confirm(`Konfirmasi terakhir: yakin mau hapus ${sessCount} sesi live milik "${name}" secara permanen?`)) return;
+
+        // Firestore batch dibatasi 500 operasi; pecah jadi beberapa batch kalau datanya banyak
+        const allRefs = [doc(db, 'users', uid), ...sessSnap.docs.map(d => d.ref)];
+        for (let i = 0; i < allRefs.length; i += 450) {
+          const batch = writeBatch(db);
+          allRefs.slice(i, i + 450).forEach(ref => batch.delete(ref));
+          await batch.commit();
+        }
+        showToast(`Berhasil hapus total: profil + ${sessCount} riwayat sesi live "${name}".`);
+      } catch (err) { showToast('Gagal menghapus total: ' + err.message, true); }
+    }
+    window.purgeEmployeeData = purgeEmployeeData;
 
     let riwayatPageSize = 25;
 
@@ -1679,7 +1714,7 @@
         const produk = Number(s.productsSold) || 0;
         totalPendapatan += rev; totalProduk += produk;
 
-        if (!byEmployee[s.uid]) byEmployee[s.uid] = { name: s.employeeName || allUsers[s.uid]?.name || '-', sesi: 0, produk: 0, pendapatan: 0 };
+        if (!byEmployee[s.uid]) byEmployee[s.uid] = { name: allUsers[s.uid]?.name || s.employeeName || '-', sesi: 0, produk: 0, pendapatan: 0 };
         byEmployee[s.uid].sesi += 1;
         byEmployee[s.uid].produk += produk;
         byEmployee[s.uid].pendapatan += rev;
