@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script>
   // Fallback: kalau CDN utama gagal (diblokir/koneksi bermasalah), coba CDN cadangan.
   window.addEventListener('DOMContentLoaded', function () {
@@ -84,6 +85,7 @@
   .stat-grid .stat-card:nth-child(4){ animation-delay:.18s; }
   .stat-grid .stat-card:nth-child(5){ animation-delay:.23s; }
   .stat-icon{ width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(128,128,128,.1); color:var(--muted); margin-bottom:12px; }
+  .stat-icon-rp{ font-family:var(--df); font-weight:800; font-size:.68rem; letter-spacing:-.02em; color:var(--coral); background:rgba(255,92,57,.12); }
   .stat-num{ font-family:var(--df); font-weight:800; font-size:1.4rem; letter-spacing:-.02em; }
   .stat-label{ font-size:.74rem; color:var(--muted); margin-top:3px; }
 
@@ -696,7 +698,7 @@
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="stat-num" data-count="0" id="statTotalEmp">0</div><div class="stat-label">Total Karyawan</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></div><div class="stat-num" data-count="0" id="statLiveNow">0</div><div class="stat-label">Sedang Live</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><div class="stat-num" data-count="0" id="statSessionsToday">0</div><div class="stat-label">Sesi Hari Ini</div></div>
-            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-num" id="statRevenueToday">Rp 0</div><div class="stat-label">Penghasilan Hari Ini</div></div>
+            <div class="stat-card"><div class="stat-icon stat-icon-rp">Rp</div><div class="stat-num" id="statRevenueToday">Rp 0</div><div class="stat-label">Penghasilan Hari Ini</div></div>
           </div>
 
           <div class="live-now-card">
@@ -748,10 +750,11 @@
           <div class="section-title">
             Riwayat Semua Sesi Live
             <div class="btn-row">
-              <button class="btn ghost" id="exportCsvBtn">Export CSV</button>
+              <button class="btn ghost" id="exportCsvBtn">Export Excel</button>
             </div>
           </div>
           <div class="filter-bar">
+            <div><label>Karyawan</label><select id="filterEmployee"><option value="">Semua Karyawan</option></select></div>
             <div><label>Dari Tanggal</label><input type="date" id="filterStart"></div>
             <div><label>Sampai Tanggal</label><input type="date" id="filterEnd"></div>
             <button class="btn" id="filterApply">Terapkan</button>
@@ -812,7 +815,7 @@
           </div>
 
           <div class="stat-grid">
-            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-num" id="keuPendapatan">Rp 0</div><div class="stat-label">Total Pendapatan</div></div>
+            <div class="stat-card"><div class="stat-icon stat-icon-rp">Rp</div><div class="stat-num" id="keuPendapatan">Rp 0</div><div class="stat-label">Total Pendapatan</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><div class="stat-num" data-count="0" id="keuSesi">0</div><div class="stat-label">Sesi Live</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div><div class="stat-num" id="keuPengeluaran" style="color:#DC2626;">Rp 0</div><div class="stat-label">Total Pengeluaran &amp; Gaji</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l6-6 4 4 8-8M21 2h-6M21 2v6"/></svg></div><div class="stat-num" id="keuLabaBersih">Rp 0</div><div class="stat-label">Laba Bersih</div></div>
@@ -1061,7 +1064,7 @@
     let selectedHistoryAccountId = '';
     let currentOwnerUid = null, currentOwnerName = 'Owner';
     let revenueChart = null, compareChart = null, keuanganChart = null;
-    let filterStartDate = null, filterEndDate = null;
+    let filterStartDate = null, filterEndDate = null, filterEmployeeUid = '';
     let liveTimerInterval = null;
     let absensiFilterStart = null, absensiFilterEnd = null;
     let keuFilterStart = null, keuFilterEnd = null;
@@ -1421,6 +1424,7 @@
       safeRender('renderRiwayatEditTable', renderRiwayatEditTable);
       safeRender('renderAccountTable', renderAccountTable);
       safeRender('renderAccountHistoryTable', renderAccountHistoryTable);
+      safeRender('renderFilterEmployeeOptions', renderFilterEmployeeOptions);
     }
     window.render = render;
 
@@ -1524,7 +1528,7 @@
 
     function chartTextColor() { return getComputedStyle(root).getPropertyValue('--ink').trim() || '#111114'; }
     function chartGridColor() { return root.getAttribute('data-theme') === 'dark' ? '#2A2A2E' : '#F4F4F5'; }
-    function chartBarColor() { return root.getAttribute('data-theme') === 'dark' ? '#FF5C39' : '#111114'; }
+    function chartBarColor() { return '#FF5C39'; }
     function formatRupiahShort(v) {
       v = Number(v) || 0;
       if (v === 0) return 'Rp 0';
@@ -1761,9 +1765,21 @@
 
     let riwayatPageSize = 25;
 
+    function renderFilterEmployeeOptions() {
+      const sel = document.getElementById('filterEmployee');
+      if (!sel) return;
+      const prev = sel.value;
+      const uids = Object.keys(allUsers)
+        .sort((a, b) => (allUsers[a].name || '').localeCompare(allUsers[b].name || '', 'id'));
+      sel.innerHTML = '<option value="">Semua Karyawan</option>' +
+        uids.map(uid => `<option value="${uid}">${allUsers[uid].name}${allUsers[uid].active === false ? ' (nonaktif)' : ''}</option>`).join('');
+      if (uids.includes(prev)) sel.value = prev;
+    }
+
     function renderSessionsTable() {
       const tbody = document.getElementById('sessionsTableBody');
       let filtered = allSessions;
+      if (filterEmployeeUid) filtered = filtered.filter(s => s.uid === filterEmployeeUid);
       if (filterStartDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() >= filterStartDate);
       if (filterEndDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() <= filterEndDate);
 
@@ -2043,6 +2059,7 @@
     document.getElementById('filterApply').addEventListener('click', () => {
       const startVal = document.getElementById('filterStart').value;
       const endVal = document.getElementById('filterEnd').value;
+      filterEmployeeUid = document.getElementById('filterEmployee').value;
       filterStartDate = startVal ? new Date(startVal + 'T00:00:00') : null;
       filterEndDate = endVal ? new Date(endVal + 'T23:59:59') : null;
       riwayatPageSize = 25;
@@ -2050,33 +2067,118 @@
     });
     document.getElementById('filterReset').addEventListener('click', () => {
       document.getElementById('filterStart').value = ''; document.getElementById('filterEnd').value = '';
-      filterStartDate = null; filterEndDate = null; riwayatPageSize = 25; renderSessionsTable();
+      document.getElementById('filterEmployee').value = '';
+      filterStartDate = null; filterEndDate = null; filterEmployeeUid = ''; riwayatPageSize = 25; renderSessionsTable();
     });
 
-    // ── CSV export ──
-    document.getElementById('exportCsvBtn').addEventListener('click', () => {
+    // ── Export Excel (.xlsx) ──
+    document.getElementById('exportCsvBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('exportCsvBtn');
       let filtered = allSessions;
+      if (filterEmployeeUid) filtered = filtered.filter(s => s.uid === filterEmployeeUid);
       if (filterStartDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() >= filterStartDate);
       if (filterEndDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() <= filterEndDate);
-      const rows = [['Karyawan','Akun','Tanggal','Mulai','Selesai','Durasi (menit)','Penghasilan','Viewer','Catatan','Status','Bukti']];
-      filtered.forEach(s => {
-        const start = s.startTime?.toDate(), end = s.endTime?.toDate();
-        const durMin = start && end ? Math.round((end - start) / 60000) : '';
-        rows.push([
-          s.employeeName || '', s.accountName || '', start ? start.toLocaleDateString('id-ID') : '',
-          start ? start.toLocaleTimeString('id-ID') : '', end ? end.toLocaleTimeString('id-ID') : '',
-          durMin, s.revenue ?? '',
-          s.viewers ?? '', (s.notes || '').replace(/,/g,';'), s.status === 'selesai' ? 'Selesai' : 'Live',
-          s.proofBase64 ? 'Ada' : 'Tidak ada'
-        ]);
-      });
-      const csv = rows.map(r => r.join(',')).join('\n');
-      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = `riwayat-live-icabeee-${new Date().toISOString().slice(0,10)}.csv`;
-      a.click(); URL.revokeObjectURL(url);
-      showToast('CSV berhasil didownload.');
+
+      if (filtered.length === 0) { showToast('Tidak ada data untuk diexport.', true); return; }
+
+      btn.disabled = true;
+      const originalLabel = btn.textContent;
+      btn.textContent = 'Menyiapkan file…';
+
+      try {
+        const workbook = new ExcelJS.Workbook();
+        workbook.creator = 'ICABEEE Dashboard';
+        workbook.created = new Date();
+
+        const sheet = workbook.addWorksheet('Riwayat Sesi Live', {
+          views: [{ state: 'frozen', ySplit: 1 }]
+        });
+
+        sheet.columns = [
+          { header: 'Karyawan', key: 'karyawan', width: 20 },
+          { header: 'Akun Live', key: 'akun', width: 20 },
+          { header: 'Tanggal', key: 'tanggal', width: 14 },
+          { header: 'Jam Mulai', key: 'mulai', width: 11 },
+          { header: 'Jam Selesai', key: 'selesai', width: 12 },
+          { header: 'Durasi (menit)', key: 'durasi', width: 14 },
+          { header: 'Penghasilan (Rp)', key: 'penghasilan', width: 18 },
+          { header: 'Viewer', key: 'viewer', width: 10 },
+          { header: 'Catatan', key: 'catatan', width: 30 },
+          { header: 'Status', key: 'status', width: 12 },
+          { header: 'Bukti Foto', key: 'bukti', width: 12 },
+        ];
+
+        // urutkan dari yang paling baru
+        const sorted = [...filtered].sort((a, b) => (b.startTime?.toMillis() || 0) - (a.startTime?.toMillis() || 0));
+
+        sorted.forEach(s => {
+          const start = s.startTime?.toDate();
+          const end = s.endTime?.toDate();
+          const durMin = start && end ? Math.round((end - start) / 60000) : null;
+          sheet.addRow({
+            karyawan: s.employeeName || '-',
+            akun: s.accountName || '-',
+            tanggal: start || null,
+            mulai: start ? start.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-',
+            selesai: end ? end.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : (s.status === 'active' ? 'Sedang live' : '-'),
+            durasi: durMin,
+            penghasilan: Number(s.revenue) || 0,
+            viewer: s.viewers ?? null,
+            catatan: s.notes || '-',
+            status: s.status === 'selesai' ? 'Selesai' : 'Live',
+            bukti: s.proofBase64 ? 'Ada' : 'Tidak ada',
+          });
+        });
+
+        // header: bold, background coral, teks putih
+        const headerRow = sheet.getRow(1);
+        headerRow.eachCell(cell => {
+          cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF5C39' } };
+          cell.alignment = { vertical: 'middle', horizontal: 'left' };
+          cell.border = { bottom: { style: 'thin', color: { argb: 'FFDDDDDD' } } };
+        });
+        headerRow.height = 20;
+
+        // format kolom tanggal & penghasilan, border tipis tiap baris data
+        sheet.getColumn('tanggal').numFmt = 'dd/mm/yyyy';
+        sheet.getColumn('penghasilan').numFmt = '"Rp" #,##0';
+        for (let i = 2; i <= sheet.rowCount; i++) {
+          const row = sheet.getRow(i);
+          row.eachCell(cell => {
+            cell.border = { bottom: { style: 'thin', color: { argb: 'FFEEEEEE' } } };
+            cell.alignment = { vertical: 'middle' };
+          });
+          // warnain baris yang masih live biar kelihatan beda
+          if (row.getCell('status').value === 'Live') {
+            row.eachCell(cell => { cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF7ED' } }; });
+          }
+        }
+
+        sheet.autoFilter = { from: 'A1', to: `K${sheet.rowCount}` };
+        const lastDataRow = sheet.rowCount;
+
+        // baris total penghasilan di bawah
+        const totalRow = sheet.addRow({ karyawan: '', akun: '', tanggal: '', mulai: '', selesai: '', durasi: '', penghasilan: null, viewer: '', catatan: '', status: '', bukti: '' });
+        totalRow.getCell('durasi').value = 'TOTAL';
+        totalRow.getCell('durasi').font = { bold: true };
+        totalRow.getCell('penghasilan').value = { formula: `SUM(G2:G${lastDataRow})` };
+        totalRow.getCell('penghasilan').numFmt = '"Rp" #,##0';
+        totalRow.getCell('penghasilan').font = { bold: true };
+        totalRow.eachCell(cell => { cell.border = { top: { style: 'medium', color: { argb: 'FF111114' } } }; });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `riwayat-live-icabeee-${new Date().toISOString().slice(0,10)}.xlsx`;
+        a.click(); URL.revokeObjectURL(url);
+        showToast('File Excel berhasil didownload.');
+      } catch (err) {
+        showToast('Gagal membuat file Excel: ' + err.message, true);
+      }
+      btn.disabled = false;
+      btn.textContent = originalLabel;
     });
 
     // ── add employee with photo ──
