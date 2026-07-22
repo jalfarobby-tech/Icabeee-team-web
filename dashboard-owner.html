@@ -965,6 +965,8 @@
       <h3>Edit Data Sesi Live</h3>
       <div class="hint" id="editSessionInfo"></div>
       <form id="editSessionForm">
+        <label>Akun Live</label>
+        <select id="editAccountId"><option value="">— Tidak ada akun —</option></select>
         <label>Penghasilan (Rp)</label>
         <input type="number" id="editRevenue" min="0" step="1000" placeholder="contoh: 1500000">
         <label>Jumlah Viewer</label>
@@ -1324,7 +1326,7 @@
         const diffs = [];
         if (n.before && n.after) {
           const fields = [
-            ['revenue', 'Penghasilan'], ['viewers', 'Viewer'], ['notes', 'Catatan']
+            ['accountName', 'Akun'], ['revenue', 'Penghasilan'], ['viewers', 'Viewer'], ['notes', 'Catatan']
           ];
           fields.forEach(([key, label]) => {
             const before = n.before[key], after = n.after[key];
@@ -1363,7 +1365,7 @@
         return;
       }
       const fields = [
-        ['revenue', 'Penghasilan'], ['viewers', 'Viewer'], ['notes', 'Catatan']
+        ['accountName', 'Akun'], ['revenue', 'Penghasilan'], ['viewers', 'Viewer'], ['notes', 'Catatan']
       ];
       const visible = allNotifications.slice(0, riwayatEditPageSize);
       tbody.innerHTML = visible.map(n => {
@@ -2164,6 +2166,19 @@
       editingSessionId = sessionId;
       document.getElementById('editSessionInfo').textContent =
         `${s.employeeName || '-'} — ${s.startTime ? s.startTime.toDate().toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-'}`;
+
+      const accSelect = document.getElementById('editAccountId');
+      const currentAccId = s.accountId || '';
+      const currentAccName = s.accountName || '';
+      let options = '<option value="">— Tidak ada akun —</option>';
+      // kalau akun sesi ini sudah dihapus/nonaktif, tetap tampilkan biar kepilih & gak ketuker
+      if (currentAccId && !allAccounts.some(a => a.id === currentAccId)) {
+        options += `<option value="${currentAccId}" data-name="${currentAccName}">${currentAccName || '(akun sudah dihapus)'} (nonaktif/dihapus)</option>`;
+      }
+      options += allAccounts.map(a => `<option value="${a.id}" data-name="${a.name}">${a.name}${a.active === false ? ' (nonaktif)' : ''}</option>`).join('');
+      accSelect.innerHTML = options;
+      accSelect.value = currentAccId;
+
       document.getElementById('editRevenue').value = s.revenue ?? '';
       document.getElementById('editViewers').value = s.viewers ?? '';
       document.getElementById('editNotes').value = s.notes || '';
@@ -2187,14 +2202,17 @@
       e.preventDefault();
       if (!editingSessionId) return;
       const s = allSessions.find(x => x.id === editingSessionId);
-      const before = { revenue: s?.revenue ?? 0, viewers: s?.viewers ?? 0, notes: s?.notes || '' };
+      const before = { accountName: s?.accountName || '', revenue: s?.revenue ?? 0, viewers: s?.viewers ?? 0, notes: s?.notes || '' };
+      const accSelect = document.getElementById('editAccountId');
+      const accountId = accSelect.value || null;
+      const accountName = accountId ? (accSelect.selectedOptions[0]?.dataset.name || '') : '';
       const revenue = Number(document.getElementById('editRevenue').value) || 0;
       const viewers = Number(document.getElementById('editViewers').value) || 0;
       const notes = document.getElementById('editNotes').value.trim();
-      const after = { revenue, viewers, notes };
+      const after = { accountName, revenue, viewers, notes };
       const hasChange = JSON.stringify(before) !== JSON.stringify(after);
       try {
-        await updateDoc(doc(db, 'sessions', editingSessionId), after);
+        await updateDoc(doc(db, 'sessions', editingSessionId), { accountId, accountName, revenue, viewers, notes });
         if (hasChange) {
           await addDoc(collection(db, 'notifications'), {
             type: 'edit_koreksi',
