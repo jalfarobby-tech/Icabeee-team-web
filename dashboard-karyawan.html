@@ -369,10 +369,11 @@
     let activeAccountName = '';
 
     function listenLiveAccounts() {
-      const q = query(collection(db, ACCOUNTS_COLLECTION), where('active', '==', true), orderBy('name', 'asc'));
+      const q = query(collection(db, ACCOUNTS_COLLECTION), where('active', '==', true));
       onSnapshot(q, (snap) => {
         liveAccounts = [];
         snap.forEach(d => liveAccounts.push({ id: d.id, ...d.data() }));
+        liveAccounts.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'id'));
         const prevValue = accountSelect.value;
         if (liveAccounts.length === 0) {
           accountSelect.innerHTML = '<option value="">Belum ada akun live tersedia</option>';
@@ -383,7 +384,11 @@
             liveAccounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
           if (liveAccounts.some(a => a.id === prevValue)) accountSelect.value = prevValue;
         }
-      }, (err) => { console.error('Gagal memuat akun live:', err); });
+      }, (err) => {
+        console.error('Gagal memuat akun live:', err);
+        accountSelect.innerHTML = '<option value="">Gagal memuat akun — coba refresh</option>';
+        showToast('Gagal memuat daftar akun live: ' + err.message, true);
+      });
     }
     const modalOverlay = document.getElementById('modalOverlay');
     const endForm = document.getElementById('endForm');
