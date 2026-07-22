@@ -1077,6 +1077,13 @@
       return `<div class="avatar" style="${size?`width:${size}px;height:${size}px;`:''}">${initials(user ? user.name : '')}</div>`;
     }
     function countUp(el, target, isMoney) {
+      // baru pertama kali elemen ini diisi (halaman baru dimuat/refresh) → langsung tampil,
+      // jangan animasi dari 0, biar gak keliatan "glitch" pas data dari beberapa listener masuk bergantian
+      if (el.dataset.raw === undefined) {
+        el.dataset.raw = target;
+        el.textContent = isMoney ? 'Rp ' + target.toLocaleString('id-ID') : target;
+        return;
+      }
       const start = Number(el.dataset.raw || 0);
       if (start === target) { el.textContent = isMoney ? 'Rp ' + target.toLocaleString('id-ID') : target; return; }
       const duration = 700;
@@ -1087,6 +1094,7 @@
         const eased = 1 - Math.pow(1 - p, 3);
         const val = Math.round(start + (target - start) * eased);
         el.textContent = isMoney ? 'Rp ' + val.toLocaleString('id-ID') : val;
+        el.dataset.raw = val;
         if (p < 1) el._raf = requestAnimationFrame(step);
         else el.dataset.raw = target;
       }
