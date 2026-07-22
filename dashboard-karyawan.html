@@ -589,19 +589,27 @@
     }
 
     function countUp(el, target) {
+      // baru pertama kali diisi (halaman baru dimuat/refresh) → langsung tampil, jangan animasi dari 0
+      if (el.dataset.raw === undefined) {
+        el.dataset.raw = target;
+        el.textContent = 'Rp ' + target.toLocaleString('id-ID');
+        return;
+      }
       const start = Number(el.dataset.raw || 0);
       if (start === target) { el.textContent = 'Rp ' + target.toLocaleString('id-ID'); return; }
       const duration = 500;
       const t0 = performance.now();
+      cancelAnimationFrame(el._raf);
       function step(now) {
         const progress = Math.min((now - t0) / duration, 1);
         const eased = 1 - Math.pow(1 - progress, 3);
         const value = Math.round(start + (target - start) * eased);
         el.textContent = 'Rp ' + value.toLocaleString('id-ID');
-        if (progress < 1) requestAnimationFrame(step);
+        el.dataset.raw = value;
+        if (progress < 1) el._raf = requestAnimationFrame(step);
+        else el.dataset.raw = target;
       }
-      requestAnimationFrame(step);
-      el.dataset.raw = target;
+      el._raf = requestAnimationFrame(step);
     }
 
     function renderAllStats(sessions) {
