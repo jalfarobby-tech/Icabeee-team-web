@@ -358,27 +358,21 @@
 
     .emp-table-wrap td:nth-child(2){ grid-column:2/3; grid-row:1; justify-self:end; align-self:center; }
 
-    .emp-table-wrap td:nth-child(3),
-    .emp-table-wrap td:nth-child(4){
-      padding-top:12px; border-top:1px solid var(--border); grid-row:2;
+    .emp-table-wrap td:nth-child(3){
+      padding-top:12px; border-top:1px solid var(--border); grid-row:2; grid-column:1/3;
     }
-    .emp-table-wrap td:nth-child(3){ grid-column:1/2; }
-    .emp-table-wrap td:nth-child(4){ grid-column:2/3; }
 
     .emp-table-wrap td:nth-child(3)::before{ content:"Jam Kerja"; }
-    .emp-table-wrap td:nth-child(4)::before{ content:"Produk Terjual"; }
-    .emp-table-wrap td:nth-child(3)::before,
-    .emp-table-wrap td:nth-child(4)::before{
+    .emp-table-wrap td:nth-child(3)::before{
       display:block; font-size:.6rem; font-weight:700; color:var(--muted);
       text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px;
     }
-    .emp-table-wrap td:nth-child(3),
-    .emp-table-wrap td:nth-child(4){ font-size:.85rem; font-weight:600; }
+    .emp-table-wrap td:nth-child(3){ font-size:.85rem; font-weight:600; }
 
-    .emp-table-wrap td:nth-child(5){
+    .emp-table-wrap td:nth-child(4){
       grid-column:1/3; grid-row:3; padding-top:12px; border-top:1px solid var(--border);
     }
-    .emp-table-wrap td:nth-child(5) .resign-btn{ width:100%; padding:9px; }
+    .emp-table-wrap td:nth-child(4) .resign-btn{ width:100%; padding:9px; }
 
     .emp-table-wrap tr:has(.empty-state){
       display:block; background:var(--card); border:1px solid var(--border);
@@ -440,20 +434,15 @@
 
     /* baris 1: nama + pendapatan */
     .keuangan-table-wrap td:nth-child(1){ grid-column:1/2; grid-row:1; align-self:center; font-size:.92rem; font-weight:700; }
-    .keuangan-table-wrap td:nth-child(4){ grid-column:2/3; grid-row:1; justify-self:end; align-self:center; font-weight:800; color:var(--coral); }
+    .keuangan-table-wrap td:nth-child(3){ grid-column:2/3; grid-row:1; justify-self:end; align-self:center; font-weight:800; color:var(--coral); }
 
-    /* baris 2: sesi & produk */
-    .keuangan-table-wrap td:nth-child(2),
-    .keuangan-table-wrap td:nth-child(3){
-      padding-top:10px; border-top:1px solid var(--border); font-size:.83rem; font-weight:600; grid-row:2;
+    /* baris 2: sesi */
+    .keuangan-table-wrap td:nth-child(2){
+      padding-top:10px; border-top:1px solid var(--border); font-size:.83rem; font-weight:600; grid-row:2; grid-column:1/2;
     }
-    .keuangan-table-wrap td:nth-child(2){ grid-column:1/2; }
-    .keuangan-table-wrap td:nth-child(3){ grid-column:2/3; }
 
     .keuangan-table-wrap td:nth-child(2)::before{ content:"Sesi"; }
-    .keuangan-table-wrap td:nth-child(3)::before{ content:"Produk"; }
-    .keuangan-table-wrap td:nth-child(2)::before,
-    .keuangan-table-wrap td:nth-child(3)::before{
+    .keuangan-table-wrap td:nth-child(2)::before{
       display:block; font-size:.6rem; font-weight:700; color:var(--muted);
       text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px;
     }
@@ -492,53 +481,55 @@
     }
     .riwayat-table-wrap td:nth-child(10){ grid-column:2/3; grid-row:1; justify-self:end; align-self:center; }
 
-    /* baris 2: tanggal + waktu */
+    /* baris 2: akun live */
     .riwayat-table-wrap td:nth-child(2){
-      grid-column:1/3; grid-row:2; font-size:.78rem; color:var(--muted); font-weight:600;
+      grid-column:1/3; grid-row:2; font-size:.76rem; font-weight:700; color:var(--coral);
+    }
+
+    /* baris 3: tanggal + waktu */
+    .riwayat-table-wrap td:nth-child(3){
+      grid-column:1/3; grid-row:3; font-size:.78rem; color:var(--muted); font-weight:600;
       padding-top:10px; border-top:1px solid var(--border);
     }
-    .riwayat-table-wrap td:nth-child(2)::after{ content:" • " attr(data-time); }
-    .riwayat-table-wrap td:nth-child(3){ display:none; }
+    .riwayat-table-wrap td:nth-child(3)::after{ content:" • " attr(data-time); }
+    .riwayat-table-wrap td:nth-child(4){ display:none; }
 
-    /* baris 3: durasi / produk */
-    .riwayat-table-wrap td:nth-child(4){ grid-column:1/2; grid-row:3; }
-    .riwayat-table-wrap td:nth-child(5){ grid-column:2/3; grid-row:3; }
+    /* baris 4: durasi / penghasilan */
+    .riwayat-table-wrap td:nth-child(5){ grid-column:1/2; grid-row:4; }
+    .riwayat-table-wrap td:nth-child(6){ grid-column:2/3; grid-row:4; font-weight:800; color:var(--coral); }
 
-    /* baris 4: penghasilan / viewer */
-    .riwayat-table-wrap td:nth-child(6){ grid-column:1/2; grid-row:4; font-weight:800; color:var(--coral); }
-    .riwayat-table-wrap td:nth-child(8){ grid-column:2/3; grid-row:4; }
+    /* baris 5: viewer */
+    .riwayat-table-wrap td:nth-child(8){ grid-column:1/2; grid-row:5; }
 
-    .riwayat-table-wrap td:nth-child(4)::before{ content:"Durasi"; }
-    .riwayat-table-wrap td:nth-child(5)::before{ content:"Produk"; }
+    .riwayat-table-wrap td:nth-child(5)::before{ content:"Durasi"; }
     .riwayat-table-wrap td:nth-child(6)::before{ content:"Penghasilan"; }
     .riwayat-table-wrap td:nth-child(8)::before{ content:"Viewer"; }
-    .riwayat-table-wrap td:nth-child(4)::before,
     .riwayat-table-wrap td:nth-child(5)::before,
     .riwayat-table-wrap td:nth-child(6)::before,
     .riwayat-table-wrap td:nth-child(8)::before{
       display:block; font-size:.6rem; font-weight:700; color:var(--muted);
       text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px;
     }
-    .riwayat-table-wrap td:nth-child(4),
     .riwayat-table-wrap td:nth-child(5),
+    .riwayat-table-wrap td:nth-child(6),
     .riwayat-table-wrap td:nth-child(8){ font-size:.85rem; font-weight:600; }
 
-    /* baris 5: catatan (kalau ada) */
+    /* baris 6: catatan (kalau ada) */
     .riwayat-table-wrap td:nth-child(9){
-      grid-column:1/3; grid-row:5; font-size:.78rem; color:var(--muted);
+      grid-column:1/3; grid-row:6; font-size:.78rem; color:var(--muted);
       padding-top:10px; border-top:1px solid var(--border);
     }
     .riwayat-table-wrap td:nth-child(9):empty,
     .riwayat-table-wrap td:nth-child(9)[data-empty="1"]{ display:none; }
 
-    /* baris 6: bukti foto */
-    .riwayat-table-wrap td:nth-child(7){ grid-column:1/3; grid-row:6; }
+    /* baris 7: bukti foto */
+    .riwayat-table-wrap td:nth-child(7){ grid-column:1/3; grid-row:7; }
     .riwayat-table-wrap td:nth-child(7)[data-empty="1"]{ display:none; }
     .riwayat-table-wrap td:nth-child(7) .proof-thumb{ width:48px; height:48px; }
 
-    /* baris 7: tombol edit */
+    /* baris 8: tombol edit */
     .riwayat-table-wrap td:nth-child(11){
-      grid-column:1/3; grid-row:7; padding-top:10px; border-top:1px solid var(--border);
+      grid-column:1/3; grid-row:8; padding-top:10px; border-top:1px solid var(--border);
     }
     .riwayat-table-wrap td:nth-child(11) .edit-session-btn{ width:100%; justify-content:center; padding:9px; }
 
@@ -659,6 +650,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 6v.01M18 18v-.01"/></svg>
           <span>Keuangan</span>
         </button>
+        <button class="nav-item" data-tab="akun-live">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M17 2l-5 5-5-5"/><circle cx="12" cy="14" r="3"/></svg>
+          <span>Akun Live</span>
+        </button>
         <button class="nav-item" data-tab="riwayat-edit">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           <span>Riwayat Edit</span>
@@ -733,8 +728,8 @@
           </div>
           <div class="emp-table-wrap">
             <table>
-              <thead><tr><th>Nama</th><th>Status</th><th>Jam Kerja</th><th>Produk Terjual</th><th>Aksi</th></tr></thead>
-              <tbody id="empTableBody"><tr><td colspan="5" class="empty-state">Belum ada karyawan terdaftar</td></tr></tbody>
+              <thead><tr><th>Nama</th><th>Status</th><th>Jam Kerja</th><th>Aksi</th></tr></thead>
+              <tbody id="empTableBody"><tr><td colspan="4" class="empty-state">Belum ada karyawan terdaftar</td></tr></tbody>
             </table>
           </div>
 
@@ -742,8 +737,8 @@
           <p style="font-size:.78rem; color:var(--muted); margin:-8px 0 16px;">Karyawan yang dinonaktifkan gak ikut kehapus datanya — histori sesi live & penjualan mereka tetap tersimpan di sini buat pantau perputaran tim.</p>
           <div class="table-scroll former-emp-table-wrap">
             <table>
-              <thead><tr><th>Nama</th><th>Tanggal Nonaktif</th><th>Total Jam Kerja</th><th>Total Produk</th><th>Aksi</th></tr></thead>
-              <tbody id="formerEmpTableBody"><tr><td colspan="5" class="empty-state">Belum ada karyawan yang nonaktif</td></tr></tbody>
+              <thead><tr><th>Nama</th><th>Tanggal Nonaktif</th><th>Total Jam Kerja</th><th>Aksi</th></tr></thead>
+              <tbody id="formerEmpTableBody"><tr><td colspan="4" class="empty-state">Belum ada karyawan yang nonaktif</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -766,8 +761,8 @@
             <table>
               <thead>
                 <tr>
-                  <th>Karyawan</th><th>Tanggal</th><th>Waktu</th><th>Durasi</th>
-                  <th>Produk</th><th>Penghasilan</th><th>Bukti</th><th>Viewer</th><th>Catatan</th><th>Status</th><th>Aksi</th>
+                  <th>Karyawan</th><th>Akun</th><th>Tanggal</th><th>Waktu</th><th>Durasi</th>
+                  <th>Penghasilan</th><th>Bukti</th><th>Viewer</th><th>Catatan</th><th>Status</th><th>Aksi</th>
                 </tr>
               </thead>
               <tbody id="sessionsTableBody"><tr><td colspan="11" class="empty-state">Belum ada data</td></tr></tbody>
@@ -819,7 +814,6 @@
           <div class="stat-grid">
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-num" id="keuPendapatan">Rp 0</div><div class="stat-label">Total Pendapatan</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><div class="stat-num" data-count="0" id="keuSesi">0</div><div class="stat-label">Sesi Live</div></div>
-            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg></div><div class="stat-num" data-count="0" id="keuProduk">0</div><div class="stat-label">Produk Terjual</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div><div class="stat-num" id="keuPengeluaran" style="color:#DC2626;">Rp 0</div><div class="stat-label">Total Pengeluaran &amp; Gaji</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l6-6 4 4 8-8M21 2h-6M21 2v6"/></svg></div><div class="stat-num" id="keuLabaBersih">Rp 0</div><div class="stat-label">Laba Bersih</div></div>
           </div>
@@ -833,9 +827,9 @@
           <div class="table-scroll keuangan-table-wrap">
             <table>
               <thead>
-                <tr><th>Nama</th><th>Sesi</th><th>Produk</th><th>Pendapatan</th></tr>
+                <tr><th>Nama</th><th>Sesi</th><th>Pendapatan</th></tr>
               </thead>
-              <tbody id="keuanganTableBody"><tr><td colspan="4" class="empty-state">Belum ada data</td></tr></tbody>
+              <tbody id="keuanganTableBody"><tr><td colspan="3" class="empty-state">Belum ada data</td></tr></tbody>
             </table>
           </div>
 
@@ -846,6 +840,37 @@
                 <tr><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Jumlah</th><th></th></tr>
               </thead>
               <tbody id="expenseTableBody"><tr><td colspan="5" class="empty-state">Belum ada catatan pengeluaran/gaji</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ═══ AKUN LIVE ═══ -->
+        <div class="tab-panel" id="panel-akun-live">
+          <div class="section-title">
+            Kelola Akun Live
+          </div>
+          <p style="font-size:.78rem; color:var(--muted); margin:-8px 0 16px;">Akun-akun ini yang muncul buat dipilih karyawan sebelum mereka mulai live. Nonaktifkan akun kalau lagi gak dipakai — datanya tetap tersimpan.</p>
+          <div class="filter-bar" style="align-items:flex-end;">
+            <div style="flex:1; min-width:180px;"><label>Nama Akun Live</label><input type="text" id="newAccountName" placeholder="contoh: Akun TikTok 1"></div>
+            <button class="btn" id="addAccountBtn">+ Tambah Akun</button>
+          </div>
+          <div class="table-scroll account-table-wrap" style="margin-bottom:26px;">
+            <table>
+              <thead><tr><th>Nama Akun</th><th>Status</th><th>Total Sesi Live</th><th>Aksi</th></tr></thead>
+              <tbody id="accountTableBody"><tr><td colspan="4" class="empty-state">Belum ada akun live terdaftar</td></tr></tbody>
+            </table>
+          </div>
+
+          <div class="section-title">Riwayat Live per Akun</div>
+          <div class="filter-bar">
+            <div style="flex:1; min-width:200px;"><label>Pilih Akun</label>
+              <select id="accountHistorySelect"><option value="">— Pilih akun untuk lihat riwayat —</option></select>
+            </div>
+          </div>
+          <div class="table-scroll account-history-table-wrap">
+            <table>
+              <thead><tr><th>Karyawan</th><th>Tanggal</th><th>Waktu</th><th>Durasi</th><th>Status</th></tr></thead>
+              <tbody id="accountHistoryTableBody"><tr><td colspan="5" class="empty-state">Pilih akun buat lihat riwayat siapa saja yang live di akun tersebut</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -940,8 +965,6 @@
       <h3>Edit Data Sesi Live</h3>
       <div class="hint" id="editSessionInfo"></div>
       <form id="editSessionForm">
-        <label>Produk Terjual</label>
-        <input type="number" id="editProductsSold" min="0" step="1" placeholder="contoh: 12">
         <label>Penghasilan (Rp)</label>
         <input type="number" id="editRevenue" min="0" step="1000" placeholder="contoh: 1500000">
         <label>Jumlah Viewer</label>
@@ -978,6 +1001,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const ACCOUNTS_COLLECTION = 'liveAccounts';
 
     // ── real-time clock ──
     function updateSidebarClock() {
@@ -1031,6 +1055,8 @@
     let allSessions = [];
     let allExpenses = [];
     let allNotifications = [];
+    let allAccounts = [];
+    let selectedHistoryAccountId = '';
     let currentOwnerUid = null, currentOwnerName = 'Owner';
     let revenueChart = null, compareChart = null, keuanganChart = null;
     let filterStartDate = null, filterEndDate = null;
@@ -1069,6 +1095,7 @@
       riwayat: ['Riwayat Sesi', 'Semua sesi live yang pernah dijalankan'],
       absensi: ['Absensi Karyawan', 'Rekap kehadiran otomatis dari sesi live'],
       keuangan: ['Rekap Keuangan', 'Pendapatan dan hasil penjualan tim — dihitung otomatis dari sesi live'],
+      'akun-live': ['Akun Live', 'Kelola akun live tim dan lihat riwayat siapa saja yang live di tiap akun'],
       'riwayat-edit': ['Riwayat Edit', 'Log semua koreksi data penjualan — siapa mengedit, kapan, dan apa yang diubah']
     };
     document.querySelectorAll('.nav-item').forEach(btn => {
@@ -1096,6 +1123,7 @@
       listenSessions();
       listenExpenses();
       listenNotifications();
+      listenLiveAccounts();
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
@@ -1145,6 +1173,137 @@
       }, (err) => console.error(err));
     }
 
+    function listenLiveAccounts() {
+      const q = query(collection(db, ACCOUNTS_COLLECTION), orderBy('name', 'asc'));
+      onSnapshot(q, (snap) => {
+        allAccounts = [];
+        snap.forEach(d => allAccounts.push({ id: d.id, ...d.data() }));
+        renderAccountTable();
+        renderAccountHistorySelect();
+      }, (err) => showToast('Gagal memuat akun live: ' + err.message, true));
+    }
+
+    function renderAccountTable() {
+      const tbody = document.getElementById('accountTableBody');
+      if (!tbody) return;
+      if (allAccounts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Belum ada akun live terdaftar</td></tr>';
+        return;
+      }
+      tbody.innerHTML = allAccounts.map(acc => {
+        const sessCount = allSessions.filter(s => s.accountId === acc.id).length;
+        const isActive = acc.active !== false;
+        return `
+          <tr>
+            <td>${acc.name}</td>
+            <td>${isActive ? '<span class="att-pill hadir"><span class="dot3"></span>Aktif</span>' : '<span class="att-pill" style="background:rgba(128,128,128,.15); color:var(--muted);"><span class="dot3" style="background:var(--muted);"></span>Nonaktif</span>'}</td>
+            <td>${sessCount}</td>
+            <td>
+              <div class="btn-row">
+                <button class="btn ghost toggle-account-btn" data-id="${acc.id}" data-active="${isActive}">${isActive ? 'Nonaktifkan' : 'Aktifkan'}</button>
+                <button class="btn ghost delete-account-btn" data-id="${acc.id}" style="color:#DC2626;">Hapus</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+
+      tbody.querySelectorAll('.toggle-account-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.id;
+          const isActive = btn.dataset.active === 'true';
+          try {
+            await updateDoc(doc(db, ACCOUNTS_COLLECTION, id), { active: !isActive });
+            showToast(!isActive ? 'Akun diaktifkan kembali' : 'Akun dinonaktifkan');
+          } catch (err) { showToast('Gagal mengubah status akun: ' + err.message, true); }
+        });
+      });
+      tbody.querySelectorAll('.delete-account-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.id;
+          const acc = allAccounts.find(a => a.id === id);
+          const usedCount = allSessions.filter(s => s.accountId === id).length;
+          const msg = usedCount > 0
+            ? `Akun "${acc ? acc.name : ''}" sudah punya ${usedCount} riwayat sesi live. Hapus akun ini? (Riwayat sesi lama tetap tersimpan, cuma akunnya yang gak muncul lagi buat dipilih.)`
+            : `Hapus akun "${acc ? acc.name : ''}"?`;
+          if (!confirm(msg)) return;
+          try {
+            await deleteDoc(doc(db, ACCOUNTS_COLLECTION, id));
+            showToast('Akun dihapus');
+          } catch (err) { showToast('Gagal menghapus akun: ' + err.message, true); }
+        });
+      });
+    }
+
+    function renderAccountHistorySelect() {
+      const sel = document.getElementById('accountHistorySelect');
+      if (!sel) return;
+      const prev = sel.value;
+      sel.innerHTML = '<option value="">— Pilih akun untuk lihat riwayat —</option>' +
+        allAccounts.map(a => `<option value="${a.id}">${a.name}${a.active === false ? ' (nonaktif)' : ''}</option>`).join('');
+      if (allAccounts.some(a => a.id === prev)) sel.value = prev;
+      selectedHistoryAccountId = sel.value;
+      renderAccountHistoryTable();
+    }
+
+    function renderAccountHistoryTable() {
+      const tbody = document.getElementById('accountHistoryTableBody');
+      if (!tbody) return;
+      if (!selectedHistoryAccountId) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Pilih akun buat lihat riwayat siapa saja yang live di akun tersebut</td></tr>';
+        return;
+      }
+      const sessions = allSessions.filter(s => s.accountId === selectedHistoryAccountId)
+        .sort((a, b) => (b.startTime?.toMillis() || 0) - (a.startTime?.toMillis() || 0));
+      if (sessions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Belum ada riwayat live di akun ini</td></tr>';
+        return;
+      }
+      tbody.innerHTML = sessions.map(s => {
+        const start = s.startTime?.toDate();
+        const end = s.endTime?.toDate();
+        const dateStr = start ? start.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-';
+        const timeStr = start ? start.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }) + (end ? ' - ' + end.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }) : '') : '-';
+        const durMin = start && end ? Math.round((end - start) / 60000) : null;
+        const durStr = durMin !== null ? `${Math.floor(durMin/60)}j ${durMin%60}m` : '-';
+        const statusBadge = s.status === 'active'
+          ? '<span class="att-pill hadir"><span class="dot3"></span>Sedang Live</span>'
+          : '<span class="att-pill" style="background:rgba(128,128,128,.15); color:var(--muted);"><span class="dot3" style="background:var(--muted);"></span>Selesai</span>';
+        return `<tr>
+          <td>${s.employeeName || '-'}</td>
+          <td>${dateStr}</td>
+          <td>${timeStr}</td>
+          <td>${durStr}</td>
+          <td>${statusBadge}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    const accountHistorySelectEl = document.getElementById('accountHistorySelect');
+    if (accountHistorySelectEl) {
+      accountHistorySelectEl.addEventListener('change', () => {
+        selectedHistoryAccountId = accountHistorySelectEl.value;
+        renderAccountHistoryTable();
+      });
+    }
+
+    const addAccountBtn = document.getElementById('addAccountBtn');
+    if (addAccountBtn) {
+      addAccountBtn.addEventListener('click', async () => {
+        const input = document.getElementById('newAccountName');
+        const name = input.value.trim();
+        if (!name) { showToast('Isi nama akun dulu ya.', true); return; }
+        addAccountBtn.disabled = true;
+        try {
+          await addDoc(collection(db, ACCOUNTS_COLLECTION), { name, active: true, createdAt: Timestamp.now() });
+          input.value = '';
+          showToast('Akun live ditambahkan');
+        } catch (err) {
+          showToast('Gagal menambah akun: ' + err.message, true);
+        }
+        addAccountBtn.disabled = false;
+      });
+    }
+
     function renderNotifications() {
       const unreadCount = allNotifications.filter(n => !(n.readBy || []).includes(currentOwnerUid)).length;
       [document.getElementById('notifBadgeMobile'), document.getElementById('notifBadgeDesktop'), document.getElementById('notifBadgeNav')].forEach(el => {
@@ -1165,7 +1324,7 @@
         const diffs = [];
         if (n.before && n.after) {
           const fields = [
-            ['productsSold', 'Produk'], ['revenue', 'Penghasilan'], ['viewers', 'Viewer'], ['notes', 'Catatan']
+            ['revenue', 'Penghasilan'], ['viewers', 'Viewer'], ['notes', 'Catatan']
           ];
           fields.forEach(([key, label]) => {
             const before = n.before[key], after = n.after[key];
@@ -1204,7 +1363,7 @@
         return;
       }
       const fields = [
-        ['productsSold', 'Produk'], ['revenue', 'Penghasilan'], ['viewers', 'Viewer'], ['notes', 'Catatan']
+        ['revenue', 'Penghasilan'], ['viewers', 'Viewer'], ['notes', 'Catatan']
       ];
       const visible = allNotifications.slice(0, riwayatEditPageSize);
       tbody.innerHTML = visible.map(n => {
@@ -1258,6 +1417,8 @@
       safeRender('renderAbsensi', renderAbsensi);
       safeRender('renderKeuangan', renderKeuangan);
       safeRender('renderRiwayatEditTable', renderRiwayatEditTable);
+      safeRender('renderAccountTable', renderAccountTable);
+      safeRender('renderAccountHistoryTable', renderAccountHistoryTable);
     }
     window.render = render;
 
@@ -1308,7 +1469,7 @@
             ${avatarHtml(user || { name: s.employeeName })}
             <div class="live-info">
               <div class="live-name">${user?.name || s.employeeName || '-'}</div>
-              <div class="live-meta">${s.platform || 'TikTok'} · mulai ${start ? start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'}</div>
+              <div class="live-meta">${s.accountName ? s.accountName + ' · ' : ''}${s.platform || 'TikTok'} · mulai ${start ? start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'}</div>
               ${isStale ? '<div class="stale-warn">⚠ Kemungkinan terputus — tab tidak aktif</div>' : ''}
             </div>
             <div class="live-duration live-elapsed ${isLong ? 'warn' : ''}">${Math.floor(mins/60)}j ${mins%60}m</div>
@@ -1331,11 +1492,11 @@
     }
 
     async function forceEndSession(sessionId) {
-      if (!confirm('Akhiri sesi live ini secara paksa? Gunakan ini kalau karyawan lupa/terputus dan tidak bisa menyelesaikan sendiri. Data produk/penghasilan akan diisi 0, bisa diedit manual nanti kalau kamu tahu datanya.')) return;
+      if (!confirm('Akhiri sesi live ini secara paksa? Gunakan ini kalau karyawan lupa/terputus dan tidak bisa menyelesaikan sendiri. Data penghasilan akan diisi 0, bisa diedit manual nanti kalau kamu tahu datanya.')) return;
       try {
         await updateDoc(doc(db, 'sessions', sessionId), {
           status: 'selesai', endTime: Timestamp.now(),
-          productsSold: 0, revenue: 0, viewers: 0,
+          revenue: 0, viewers: 0,
           notes: '(Diakhiri paksa oleh owner — kemungkinan lupa/terputus)'
         });
         showToast('Sesi berhasil diakhiri.');
@@ -1477,7 +1638,7 @@
     function renderEmployeeTable() {
       const tbody = document.getElementById('empTableBody');
       const uids = Object.keys(allUsers).filter(uid => allUsers[uid].active !== false);
-      if (uids.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Belum ada karyawan terdaftar</td></tr>'; return; }
+      if (uids.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Belum ada karyawan terdaftar</td></tr>'; return; }
       tbody.innerHTML = '';
       uids.forEach((uid) => {
         const user = allUsers[uid];
@@ -1487,7 +1648,6 @@
           if (!s.startTime || !s.endTime) return sum;
           return sum + Math.round((s.endTime.toDate() - s.startTime.toDate()) / 60000);
         }, 0);
-        const totalProduk = completedSessions.reduce((sum, s) => sum + (Number(s.productsSold) || 0), 0);
         const h = Math.floor(totalMinutes / 60), m = totalMinutes % 60;
         const streak = calcStreak(uid);
 
@@ -1496,7 +1656,6 @@
           <td><div class="emp-name-cell">${avatarHtml(user, 30)}<span>${user.name}</span>${streak >= 3 ? `<span class="streak-badge">🔥 ${streak} hari</span>` : ''}</div></td>
           <td><span class="status-pill ${activeSession ? 'on' : 'off'}"><span class="dot2"></span>${activeSession ? 'Sedang Live' : 'Tidak Live'}</span></td>
           <td>${h}j ${m}m</td>
-          <td>${totalProduk}</td>
           <td><button class="resign-btn" onclick="window.resignEmployee('${uid}')" title="Nonaktifkan karyawan ini">Nonaktifkan</button></td>
         `;
         tbody.appendChild(tr);
@@ -1507,7 +1666,7 @@
       const tbody = document.getElementById('formerEmpTableBody');
       if (!tbody) return;
       const uids = Object.keys(allUsers).filter(uid => allUsers[uid].active === false);
-      if (uids.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Belum ada karyawan yang nonaktif</td></tr>'; return; }
+      if (uids.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Belum ada karyawan yang nonaktif</td></tr>'; return; }
       // urutkan yang paling baru nonaktif duluan
       uids.sort((a, b) => {
         const ta = allUsers[a].resignedAt?.toMillis?.() || 0;
@@ -1522,7 +1681,6 @@
           if (!s.startTime || !s.endTime) return sum;
           return sum + Math.round((s.endTime.toDate() - s.startTime.toDate()) / 60000);
         }, 0);
-        const totalProduk = completedSessions.reduce((sum, s) => sum + (Number(s.productsSold) || 0), 0);
         const h = Math.floor(totalMinutes / 60), m = totalMinutes % 60;
         const resignedStr = user.resignedAt ? user.resignedAt.toDate().toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-';
 
@@ -1531,7 +1689,6 @@
           <td><div class="emp-name-cell">${avatarHtml(user, 30)}<span>${user.name}</span></div></td>
           <td>${resignedStr}</td>
           <td>${h}j ${m}m</td>
-          <td>${totalProduk}</td>
           <td>
             <button class="reactivate-btn" onclick="window.reactivateEmployee('${uid}')" title="Aktifkan kembali karyawan ini">Aktifkan Kembali</button>
             <button class="delete-perm-btn" onclick="window.deleteEmployeePermanent('${uid}')" title="Hapus profil karyawan, riwayat sesi live tetap disimpan">Hapus Profil</button>
@@ -1582,7 +1739,7 @@
         const sessCount = sessSnap.size;
 
         const warning = sessCount > 0
-          ? `PERINGATAN: Ini akan menghapus profil "${name}" DAN ${sessCount} riwayat sesi live miliknya (termasuk data penghasilan, produk terjual, dan foto bukti penjualan). Data ini TIDAK BISA dikembalikan lagi, termasuk dari rekap Keuangan dan Leaderboard. Cocok dipakai buat data testing/salah input — BUKAN untuk karyawan yang benar-benar pernah kerja (pakai "Hapus Profil" saja kalau begitu, biar histori kerjanya tetap ada).\n\nLanjutkan hapus total?`
+          ? `PERINGATAN: Ini akan menghapus profil "${name}" DAN ${sessCount} riwayat sesi live miliknya (termasuk data penghasilan dan foto bukti penjualan). Data ini TIDAK BISA dikembalikan lagi, termasuk dari rekap Keuangan dan Leaderboard. Cocok dipakai buat data testing/salah input — BUKAN untuk karyawan yang benar-benar pernah kerja (pakai "Hapus Profil" saja kalau begitu, biar histori kerjanya tetap ada).\n\nLanjutkan hapus total?`
           : `Hapus profil "${name}"? Karyawan ini belum punya riwayat sesi live sama sekali, jadi aman dihapus total.`;
 
         if (!confirm(warning)) return;
@@ -1624,8 +1781,7 @@
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${s.employeeName || '-'}</td><td data-time="${timeStr}">${dateStr}</td><td>${timeStr}</td><td>${durStr}</td>
-          <td>${s.productsSold ?? '-'}</td>
+          <td>${s.employeeName || '-'}</td><td>${s.accountName || '-'}</td><td data-time="${timeStr}">${dateStr}</td><td>${timeStr}</td><td>${durStr}</td>
           <td>${s.revenue != null ? 'Rp ' + Number(s.revenue).toLocaleString('id-ID') : '-'}</td>
           <td${s.proofBase64 ? '' : ' data-empty="1"'}>${buktiStr}</td><td>${s.viewers ?? '-'}</td><td${s.notes ? '' : ' data-empty="1"'}>${s.notes || '-'}</td>
           <td>${statusCell}</td>
@@ -1706,17 +1862,15 @@
       if (keuFilterEnd) sessions = sessions.filter(s => s.startTime.toDate() <= keuFilterEnd);
 
       const byEmployee = {};
-      let totalPendapatan = 0, totalProduk = 0;
+      let totalPendapatan = 0;
       const byDay = {};
 
       sessions.forEach(s => {
         const rev = Number(s.revenue) || 0;
-        const produk = Number(s.productsSold) || 0;
-        totalPendapatan += rev; totalProduk += produk;
+        totalPendapatan += rev;
 
-        if (!byEmployee[s.uid]) byEmployee[s.uid] = { name: allUsers[s.uid]?.name || s.employeeName || '-', sesi: 0, produk: 0, pendapatan: 0 };
+        if (!byEmployee[s.uid]) byEmployee[s.uid] = { name: allUsers[s.uid]?.name || s.employeeName || '-', sesi: 0, pendapatan: 0 };
         byEmployee[s.uid].sesi += 1;
-        byEmployee[s.uid].produk += produk;
         byEmployee[s.uid].pendapatan += rev;
 
         const d = s.startTime.toDate();
@@ -1728,7 +1882,7 @@
       const perEmployee = Object.values(byEmployee).sort((a, b) => b.pendapatan - a.pendapatan);
       const perDay = Object.entries(byDay).map(([label, v]) => ({ label, ...v })).sort((a, b) => a.order - b.order);
 
-      return { totalPendapatan, totalProduk, totalSesi: sessions.length, perEmployee, perDay };
+      return { totalPendapatan, totalSesi: sessions.length, perEmployee, perDay };
     }
 
     function computeExpenses() {
@@ -1748,7 +1902,6 @@
 
       countUp(document.getElementById('keuPendapatan'), Math.round(data.totalPendapatan), true);
       countUp(document.getElementById('keuSesi'), data.totalSesi);
-      countUp(document.getElementById('keuProduk'), data.totalProduk);
       document.getElementById('keuPengeluaran').textContent = 'Rp ' + Math.round(totalPengeluaran).toLocaleString('id-ID');
       const labaEl = document.getElementById('keuLabaBersih');
       labaEl.textContent = 'Rp ' + Math.round(labaBersih).toLocaleString('id-ID');
@@ -1756,11 +1909,11 @@
       renderExpenseTable();
 
       if (data.perEmployee.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Belum ada data keuangan di rentang ini</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Belum ada data keuangan di rentang ini</td></tr>';
       } else {
         tbody.innerHTML = data.perEmployee.map(e => `
           <tr>
-            <td>${e.name}</td><td>${e.sesi}</td><td>${e.produk}</td>
+            <td>${e.name}</td><td>${e.sesi}</td>
             <td>Rp ${Math.round(e.pendapatan).toLocaleString('id-ID')}</td>
           </tr>
         `).join('');
@@ -1903,14 +2056,14 @@
       let filtered = allSessions;
       if (filterStartDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() >= filterStartDate);
       if (filterEndDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() <= filterEndDate);
-      const rows = [['Karyawan','Tanggal','Mulai','Selesai','Durasi (menit)','Produk','Penghasilan','Viewer','Catatan','Status','Bukti']];
+      const rows = [['Karyawan','Akun','Tanggal','Mulai','Selesai','Durasi (menit)','Penghasilan','Viewer','Catatan','Status','Bukti']];
       filtered.forEach(s => {
         const start = s.startTime?.toDate(), end = s.endTime?.toDate();
         const durMin = start && end ? Math.round((end - start) / 60000) : '';
         rows.push([
-          s.employeeName || '', start ? start.toLocaleDateString('id-ID') : '',
+          s.employeeName || '', s.accountName || '', start ? start.toLocaleDateString('id-ID') : '',
           start ? start.toLocaleTimeString('id-ID') : '', end ? end.toLocaleTimeString('id-ID') : '',
-          durMin, s.productsSold ?? '', s.revenue ?? '',
+          durMin, s.revenue ?? '',
           s.viewers ?? '', (s.notes || '').replace(/,/g,';'), s.status === 'selesai' ? 'Selesai' : 'Live',
           s.proofBase64 ? 'Ada' : 'Tidak ada'
         ]);
@@ -2011,7 +2164,6 @@
       editingSessionId = sessionId;
       document.getElementById('editSessionInfo').textContent =
         `${s.employeeName || '-'} — ${s.startTime ? s.startTime.toDate().toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-'}`;
-      document.getElementById('editProductsSold').value = s.productsSold ?? '';
       document.getElementById('editRevenue').value = s.revenue ?? '';
       document.getElementById('editViewers').value = s.viewers ?? '';
       document.getElementById('editNotes').value = s.notes || '';
@@ -2035,12 +2187,11 @@
       e.preventDefault();
       if (!editingSessionId) return;
       const s = allSessions.find(x => x.id === editingSessionId);
-      const before = { productsSold: s?.productsSold ?? 0, revenue: s?.revenue ?? 0, viewers: s?.viewers ?? 0, notes: s?.notes || '' };
-      const productsSold = Number(document.getElementById('editProductsSold').value) || 0;
+      const before = { revenue: s?.revenue ?? 0, viewers: s?.viewers ?? 0, notes: s?.notes || '' };
       const revenue = Number(document.getElementById('editRevenue').value) || 0;
       const viewers = Number(document.getElementById('editViewers').value) || 0;
       const notes = document.getElementById('editNotes').value.trim();
-      const after = { productsSold, revenue, viewers, notes };
+      const after = { revenue, viewers, notes };
       const hasChange = JSON.stringify(before) !== JSON.stringify(after);
       try {
         await updateDoc(doc(db, 'sessions', editingSessionId), after);
