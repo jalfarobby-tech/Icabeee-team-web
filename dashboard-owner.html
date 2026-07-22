@@ -31,7 +31,8 @@
     --ink:#F4F4F5; --muted:#9CA3AF; --border:#2A2A2E; --bg:#0E0E10; --card:#18181B;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  body{ font-family:var(--di); color:var(--ink); min-height:100vh; background:var(--bg); transition:background .2s,color .2s; }
+  html{ overflow-x:hidden; }
+  body{ font-family:var(--di); color:var(--ink); min-height:100vh; background:var(--bg); transition:background .2s,color .2s; overflow-x:hidden; }
   a{ text-decoration:none; color:inherit; }
 
   .app{ display:flex; min-height:100vh; }
@@ -86,7 +87,7 @@
   .stat-grid .stat-card:nth-child(5){ animation-delay:.23s; }
   .stat-icon{ width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(128,128,128,.1); color:var(--muted); margin-bottom:12px; }
   .stat-icon-rp{ font-family:var(--df); font-weight:800; font-size:.68rem; letter-spacing:-.02em; color:var(--coral); background:rgba(255,92,57,.12); }
-  .stat-num{ font-family:var(--df); font-weight:800; font-size:1.4rem; letter-spacing:-.02em; }
+  .stat-num{ font-family:var(--df); font-weight:800; font-size:1.4rem; letter-spacing:-.02em; overflow-wrap:break-word; }
   .stat-label{ font-size:.74rem; color:var(--muted); margin-top:3px; }
 
   .live-now-card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:22px; }
@@ -110,7 +111,7 @@
   }
   .force-end-btn:hover{ border-color:#DC2626; color:#DC2626; }
 
-  .chart-grid{ display:grid; grid-template-columns:1.4fr 1fr; gap:14px; margin-bottom:22px; }
+  .chart-grid{ display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:14px; margin-bottom:22px; }
   @media (max-width:900px){ .chart-grid{ grid-template-columns:1fr; } }
   .chart-card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; }
   .chart-card h4{ font-family:var(--df); font-weight:700; font-size:.88rem; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border); }
@@ -331,7 +332,7 @@
 
     .main-header{ display:none; }
     .content{ padding:18px 16px 60px; }
-    .stat-grid{ grid-template-columns:repeat(2,1fr); }
+    .stat-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
     .chart-grid{ grid-template-columns:1fr; }
   }
 
@@ -343,7 +344,7 @@
     .emp-table-wrap tbody{ display:block; }
 
     .emp-table-wrap tr{
-      display:grid; grid-template-columns:1fr 1fr; row-gap:12px; column-gap:8px;
+      display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); row-gap:12px; column-gap:8px;
       background:var(--card); border:1px solid var(--border); border-radius:16px;
       padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
       animation:fadeUp .3s var(--ease);
@@ -391,7 +392,7 @@
     .absensi-table-wrap tbody{ display:block; }
 
     .absensi-table-wrap tr{
-      display:grid; grid-template-columns:1fr 1fr; row-gap:6px; column-gap:8px;
+      display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); row-gap:6px; column-gap:8px;
       background:var(--card); border:1px solid var(--border); border-radius:16px;
       padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
       animation:fadeUp .3s var(--ease);
@@ -426,7 +427,7 @@
     .keuangan-table-wrap tbody{ display:block; }
 
     .keuangan-table-wrap tr{
-      display:grid; grid-template-columns:1fr 1fr; row-gap:10px; column-gap:8px;
+      display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); row-gap:10px; column-gap:8px;
       background:var(--card); border:1px solid var(--border); border-radius:16px;
       padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
       animation:fadeUp .3s var(--ease);
@@ -469,7 +470,7 @@
     .riwayat-table-wrap tbody{ display:block; }
 
     .riwayat-table-wrap tr{
-      display:grid; grid-template-columns:1fr 1fr; row-gap:10px; column-gap:10px;
+      display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); row-gap:10px; column-gap:10px;
       background:var(--card); border:1px solid var(--border); border-radius:16px;
       padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
       animation:fadeUp .3s var(--ease);
@@ -576,7 +577,7 @@
     .expense-table-wrap tbody{ display:block; }
 
     .expense-table-wrap tr{
-      display:grid; grid-template-columns:1fr 1fr; row-gap:8px; column-gap:10px;
+      display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); row-gap:8px; column-gap:10px;
       background:var(--card); border:1px solid var(--border); border-radius:16px;
       padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
       animation:fadeUp .3s var(--ease);
