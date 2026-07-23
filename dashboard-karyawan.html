@@ -581,7 +581,7 @@
     // Listener terpisah tanpa limit, khusus buat hitung statistik & kalender —
     // supaya angka "Total" tetap akurat walau daftar riwayat di atas dibatasi.
     function listenStatsAndCalendar() {
-      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'));
+      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'), limit(2000));
       onSnapshot(q, (snap) => {
         const sessions = [];
         snap.forEach(d => sessions.push(d.data()));
@@ -699,7 +699,7 @@
 
     // ── absensi otomatis (tercatat langsung dari sesi live) ──
     function listenAttendanceSessions() {
-      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid));
+      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), orderBy('startTime', 'desc'), limit(3000));
       onSnapshot(q, (snap) => {
         myAttendanceSessions = [];
         snap.forEach(d => myAttendanceSessions.push({ id: d.id, ...d.data() }));
