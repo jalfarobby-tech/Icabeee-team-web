@@ -589,9 +589,11 @@
       }, (err) => console.error('Stats listener error:', err));
     }
 
+    let statsSettled = false;
+    setTimeout(() => { statsSettled = true; }, 2500);
+
     function countUp(el, target) {
-      // baru pertama kali diisi (halaman baru dimuat/refresh) → langsung tampil, jangan animasi dari 0
-      if (el.dataset.raw === undefined) {
+      if (!statsSettled) {
         el.dataset.raw = target;
         el.textContent = 'Rp ' + target.toLocaleString('id-ID');
         return;
@@ -774,20 +776,49 @@
       const accountName = chosenAccount ? chosenAccount.name : '';
       isStartingSession = true;
       startBtn.disabled = true;
+      const startBtnOriginalHTML = startBtn.innerHTML;
+      if (!navigator.onLine) {
+        showToast('HP kamu lagi offline. Sambungin internet dulu ya.', true);
+        startBtn.disabled = false;
+        isStartingSession = false;
+        return;
+      }
       try {
-        await addDoc(collection(db, 'sessions'), {
-          uid: currentUser.uid, employeeName: currentUserName, platform: 'TikTok',
-          accountId, accountName,
-          status: 'active', startTime: Timestamp.now(), endTime: null, lastPing: Timestamp.now(),
-          revenue: null, viewers: null, notes: ''
-        });
+        await withTimeout(
+          addDoc(collection(db, 'sessions'), {
+            uid: currentUser.uid, employeeName: currentUserName, platform: 'TikTok',
+            accountId, accountName,
+            status: 'active', startTime: Timestamp.now(), endTime: null, lastPing: Timestamp.now(),
+            revenue: null, viewers: null, notes: ''
+          }),
+          15000,
+          'Koneksi lambat, belum kekonfirmasi kesimpen.'
+        );
         activeAccountName = accountName;
         showToast('Live dimulai. Semangat!');
+        startBtn.disabled = false;
+        isStartingSession = false;
       } catch (err) {
-        showToast('Gagal memulai live: ' + err.message, true);
+        if (err.message.startsWith('Koneksi lambat')) {
+          // JANGAN langsung buka kunci tombolnya — addDoc tadi mungkin masih jalan di background
+          // dan bisa aja tetep kesimpen belakangan. Kalau langsung boleh diklik lagi, resikonya
+          // sesi live-nya kebuat DOBEL. Tunggu dulu bentar, listenActiveSession bakal otomatis
+          // update UI begitu sesi kedetect kebuat — kalau emang beneran gagal, tombol baru dibuka lagi.
+          startBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg> Menunggu konfirmasi…';
+          showToast(err.message + ' Ditunggu bentar, jangan diklik berkali-kali biar gak dobel ya.', true);
+          setTimeout(() => {
+            if (!activeSessionId) { // kalau sampai sini belum ke-detect live, baru aman dicoba ulang
+              startBtn.disabled = false;
+              isStartingSession = false;
+              startBtn.innerHTML = startBtnOriginalHTML;
+            }
+          }, 15000);
+        } else {
+          showToast('Gagal memulai live: ' + err.message, true);
+          startBtn.disabled = false;
+          isStartingSession = false;
+        }
       }
-      startBtn.disabled = false;
-      isStartingSession = false;
     });
 
     stopBtn.addEventListener('click', () => {
@@ -865,6 +896,15 @@
       resetProofUpload();
     });
 
+    // biar promise Firestore gak nyangkut selamanya kalau koneksi jelek —
+    // dikasih batas waktu, kalau lewat langsung dikasih tau ke user (bukan diem aja)
+    function withTimeout(promise, ms, timeoutMsg) {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error(timeoutMsg)), ms))
+      ]);
+    }
+
     let isEndingSession = false;
     endForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -886,7 +926,16 @@
       try {
         const payload = { status: 'selesai', endTime: Timestamp.now(), revenue, viewers, notes };
         if (selectedProofBase64) payload.proofBase64 = selectedProofBase64;
-        await updateDoc(doc(db, 'sessions', sessionIdToClose), payload);
+
+        if (!navigator.onLine) {
+          throw new Error('HP kamu lagi offline. Sambungin internet dulu, terus coba simpan lagi.');
+        }
+
+        await withTimeout(
+          updateDoc(doc(db, 'sessions', sessionIdToClose), payload),
+          15000,
+          'Koneksi lambat, belum kesimpen. Coba tekan Simpan & Selesai sekali lagi ya (data yang udah kamu isi masih ada, gak hilang).'
+        );
 
         // langsung matikan timer & UI di sini, jangan nunggu onSnapshot
         // (round-trip listener bisa delay dan bikin timer keliatan masih jalan)
@@ -898,7 +947,11 @@
         resetProofUpload();
         showToast('Data live tersimpan');
       } catch (err) {
-        showToast('Gagal menyimpan: ' + err.message, true);
+        // sengaja gak nutup modal / reset form di sini — biar data yang udah diisi
+        // (penghasilan, viewer, catatan, foto) gak ilang, tinggal coba Simpan lagi
+        showToast(err.message.startsWith('Koneksi lambat') || err.message.startsWith('HP kamu')
+          ? err.message
+          : 'Gagal menyimpan: ' + err.message, true);
       }
       confirmEndBtn.disabled = false;
       confirmEndBtn.textContent = 'Simpan & Selesai';
