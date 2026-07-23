@@ -86,7 +86,7 @@
   .stat-grid .stat-card:nth-child(4){ animation-delay:.18s; }
   .stat-grid .stat-card:nth-child(5){ animation-delay:.23s; }
   .stat-icon{ width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(128,128,128,.1); color:var(--muted); margin-bottom:12px; }
-  .stat-icon-rp{ font-family:var(--df); font-weight:800; font-size:.68rem; letter-spacing:-.02em; color:var(--coral); background:rgba(255,92,57,.12); }
+  .stat-icon-rp{ font-family:var(--df); font-weight:800; font-size:.68rem; letter-spacing:-.02em; }
   .stat-num{ font-family:var(--df); font-weight:800; font-size:1.4rem; letter-spacing:-.02em; overflow-wrap:break-word; }
   .stat-label{ font-size:.74rem; color:var(--muted); margin-top:3px; }
 
@@ -329,6 +329,10 @@
       letter-spacing:-.01em; font-variant-numeric:tabular-nums; line-height:1.15;
     }
     .mobile-date{ font-size:.64rem; color:var(--muted); font-weight:600; margin-top:1px; text-transform:capitalize; }
+
+    #notifBellBtnMobile{
+      width:38px; height:38px; padding:0; justify-content:center; flex-shrink:0;
+    }
 
     .main-header{ display:none; }
     .content{ padding:18px 16px 60px; }
@@ -761,6 +765,7 @@
             <button class="btn" id="filterApply">Terapkan</button>
             <button class="btn ghost" id="filterReset">Reset</button>
           </div>
+          <p style="font-size:.72rem; color:var(--muted); margin:-8px 0 14px;">Tanpa filter, tabel nampilin 1000 sesi live terbaru. Buat cari riwayat yang lebih lama, pakai filter tanggal di atas — otomatis dicariin langsung ke database.</p>
           <div class="table-scroll riwayat-table-wrap">
             <table>
               <thead>
@@ -992,7 +997,7 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import {
       getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, collection, query, where,
-      onSnapshot, orderBy, Timestamp, arrayUnion, writeBatch, getDocs
+      onSnapshot, orderBy, Timestamp, arrayUnion, writeBatch, getDocs, limit
     } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -1066,6 +1071,7 @@
     let currentOwnerUid = null, currentOwnerName = 'Owner';
     let revenueChart = null, compareChart = null, keuanganChart = null;
     let filterStartDate = null, filterEndDate = null, filterEmployeeUid = '';
+    let archivedRangeSessions = null; // hasil query on-demand pas filter tanggal minta data di luar cache realtime
     let liveTimerInterval = null;
     let absensiFilterStart = null, absensiFilterEnd = null;
     let keuFilterStart = null, keuFilterEnd = null;
@@ -1154,7 +1160,10 @@
     }
 
     function listenSessions() {
-      const q = query(collection(db, 'sessions'), orderBy('startTime', 'desc'));
+      // dibatasi ke 1000 sesi terbaru biar sinkronisasi realtime tetap ringan walau
+      // datanya numpuk bertahun-tahun. Buat cari data yang lebih lama, dipakai fetchSessionsInRange()
+      // lewat filter tanggal di tab Riwayat / Export Excel — itu query langsung ke Firestore, gak kena batas ini.
+      const q = query(collection(db, 'sessions'), orderBy('startTime', 'desc'), limit(1000));
       onSnapshot(q, (snap) => {
         allSessions = [];
         snap.forEach((d) => allSessions.push({ id: d.id, ...d.data() }));
@@ -1774,6 +1783,28 @@
 
     let riwayatPageSize = 25;
 
+    // Query langsung ke Firestore buat rentang tanggal tertentu — dipakai kalau owner
+    // butuh riwayat yang lebih lama dari 1000 sesi terbaru yang disinkronkan realtime.
+    async function fetchSessionsInRange(startDate, endDate) {
+      let q = collection(db, 'sessions');
+      const clauses = [orderBy('startTime', 'desc')];
+      if (startDate) clauses.push(where('startTime', '>=', Timestamp.fromDate(startDate)));
+      if (endDate) clauses.push(where('startTime', '<=', Timestamp.fromDate(endDate)));
+      q = query(q, ...clauses);
+      const snap = await getDocs(q);
+      const results = [];
+      snap.forEach(d => results.push({ id: d.id, ...d.data() }));
+      return results;
+    }
+
+    // sesi terlawas yang lagi disinkron realtime — kalau filter tanggal minta data
+    // sebelum ini, berarti perlu fetchSessionsInRange, bukan cuma nyaring allSessions
+    function oldestSyncedSessionDate() {
+      if (allSessions.length < 1000) return null; // belum kepotong limit, semua data ada di cache
+      const oldest = allSessions[allSessions.length - 1];
+      return oldest?.startTime ? oldest.startTime.toDate() : null;
+    }
+
     function renderFilterEmployeeOptions() {
       const sel = document.getElementById('filterEmployee');
       if (!sel) return;
@@ -1787,7 +1818,7 @@
 
     function renderSessionsTable() {
       const tbody = document.getElementById('sessionsTableBody');
-      let filtered = allSessions;
+      let filtered = archivedRangeSessions || allSessions;
       if (filterEmployeeUid) filtered = filtered.filter(s => s.uid === filterEmployeeUid);
       if (filterStartDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() >= filterStartDate);
       if (filterEndDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() <= filterEndDate);
@@ -2065,25 +2096,43 @@
       absensiFilterEnd = new Date(end.toISOString().slice(0,10) + 'T23:59:59');
     })();
 
-    document.getElementById('filterApply').addEventListener('click', () => {
+    document.getElementById('filterApply').addEventListener('click', async () => {
       const startVal = document.getElementById('filterStart').value;
       const endVal = document.getElementById('filterEnd').value;
       filterEmployeeUid = document.getElementById('filterEmployee').value;
       filterStartDate = startVal ? new Date(startVal + 'T00:00:00') : null;
       filterEndDate = endVal ? new Date(endVal + 'T23:59:59') : null;
       riwayatPageSize = 25;
+
+      const oldestSynced = oldestSyncedSessionDate();
+      const needsArchiveFetch = oldestSynced && filterStartDate && filterStartDate < oldestSynced;
+
+      if (needsArchiveFetch) {
+        const btn = document.getElementById('filterApply');
+        btn.disabled = true; const original = btn.textContent; btn.textContent = 'Mencari…';
+        try {
+          archivedRangeSessions = await fetchSessionsInRange(filterStartDate, filterEndDate);
+        } catch (err) {
+          showToast('Gagal mengambil riwayat lama: ' + err.message, true);
+          archivedRangeSessions = null;
+        }
+        btn.disabled = false; btn.textContent = original;
+      } else {
+        archivedRangeSessions = null; // cukup dari cache realtime, gak perlu query tambahan
+      }
       renderSessionsTable();
     });
     document.getElementById('filterReset').addEventListener('click', () => {
       document.getElementById('filterStart').value = ''; document.getElementById('filterEnd').value = '';
       document.getElementById('filterEmployee').value = '';
-      filterStartDate = null; filterEndDate = null; filterEmployeeUid = ''; riwayatPageSize = 25; renderSessionsTable();
+      filterStartDate = null; filterEndDate = null; filterEmployeeUid = ''; archivedRangeSessions = null;
+      riwayatPageSize = 25; renderSessionsTable();
     });
 
     // ── Export Excel (.xlsx) ──
     document.getElementById('exportCsvBtn').addEventListener('click', async () => {
       const btn = document.getElementById('exportCsvBtn');
-      let filtered = allSessions;
+      let filtered = archivedRangeSessions || allSessions;
       if (filterEmployeeUid) filtered = filtered.filter(s => s.uid === filterEmployeeUid);
       if (filterStartDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() >= filterStartDate);
       if (filterEndDate) filtered = filtered.filter(s => s.startTime && s.startTime.toDate() <= filterEndDate);
