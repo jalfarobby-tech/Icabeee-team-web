@@ -154,8 +154,6 @@
   .status-pill.hadir{ background:#DCFCE7; color:#16A34A; }
   html[data-theme="dark"] .status-pill.hadir{ background:#14532D; color:#4ADE80; }
   .status-pill.hadir .dot2{ background:#16A34A; }
-  .streak-badge{ display:inline-flex; align-items:center; gap:4px; font-size:.68rem; font-weight:700; color:#D97706; background:#FEF3C7; padding:3px 8px; border-radius:999px; margin-left:6px; }
-  html[data-theme="dark"] .streak-badge{ background:#451A03; color:#FBBF24; }
   .status-pill.resigned{ background:rgba(220,38,38,.1); color:#DC2626; }
   .status-pill.resigned .dot2{ background:#DC2626; }
 
@@ -1083,10 +1081,15 @@
       if (user && user.photoBase64) return `<div class="avatar" style="${size?`width:${size}px;height:${size}px;`:''}"><img src="${user.photoBase64}"></div>`;
       return `<div class="avatar" style="${size?`width:${size}px;height:${size}px;`:''}">${initials(user ? user.name : '')}</div>`;
     }
+    // Selama beberapa detik pertama halaman dibuka, beberapa listener Firestore (karyawan, sesi,
+    // pengeluaran, dll) masih gantian masuk datanya — kalau dianimasiin tiap kali, angka keliatan
+    // "glitch" ngitung dari 0 berkali-kali. Jadi selama window ini, semua angka statistik langsung
+    // ditampilin final tanpa animasi; animasi cuma jalan buat perubahan data setelah halaman settle.
+    let statsSettled = false;
+    setTimeout(() => { statsSettled = true; }, 2500);
+
     function countUp(el, target, isMoney) {
-      // baru pertama kali elemen ini diisi (halaman baru dimuat/refresh) → langsung tampil,
-      // jangan animasi dari 0, biar gak keliatan "glitch" pas data dari beberapa listener masuk bergantian
-      if (el.dataset.raw === undefined) {
+      if (!statsSettled) {
         el.dataset.raw = target;
         el.textContent = isMoney ? 'Rp ' + target.toLocaleString('id-ID') : target;
         return;
@@ -1644,21 +1647,6 @@
       });
     }
 
-    function calcStreak(uid) {
-      const daysWithSession = new Set();
-      allSessions.filter(s => s.uid === uid && s.status === 'selesai').forEach(s => {
-        const d = s.startTime?.toDate();
-        if (d) daysWithSession.add(d.toDateString());
-      });
-      let streak = 0;
-      let cursor = new Date();
-      while (daysWithSession.has(cursor.toDateString())) {
-        streak++;
-        cursor.setDate(cursor.getDate() - 1);
-      }
-      return streak;
-    }
-
     function renderEmployeeTable() {
       const tbody = document.getElementById('empTableBody');
       const uids = Object.keys(allUsers).filter(uid => allUsers[uid].active !== false);
@@ -1673,11 +1661,10 @@
           return sum + Math.round((s.endTime.toDate() - s.startTime.toDate()) / 60000);
         }, 0);
         const h = Math.floor(totalMinutes / 60), m = totalMinutes % 60;
-        const streak = calcStreak(uid);
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><div class="emp-name-cell">${avatarHtml(user, 30)}<span>${user.name}</span>${streak >= 3 ? `<span class="streak-badge">🔥 ${streak} hari</span>` : ''}</div></td>
+          <td><div class="emp-name-cell">${avatarHtml(user, 30)}<span>${user.name}</span></div></td>
           <td><span class="status-pill ${activeSession ? 'on' : 'off'}"><span class="dot2"></span>${activeSession ? 'Sedang Live' : 'Tidak Live'}</span></td>
           <td>${h}j ${m}m</td>
           <td><button class="resign-btn" onclick="window.resignEmployee('${uid}')" title="Nonaktifkan karyawan ini">Nonaktifkan</button></td>
