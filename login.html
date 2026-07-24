@@ -8,45 +8,38 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0D0D12; --muted:#8B8B96; --coral:#FF5C39; --gold:#F5A020;
-    --studio-1:#12182B; --studio-2:#0A0E1A; --studio-3:#05070D;
+    --ink:#0D0D12; --muted:#8B8B96; --coral:#FF5C39; --coral-dark:#E8481F;
+    --bg-1:#111116; --bg-2:#0A0A0E;
     --green:#22C55E; --green-dark:#16A34A;
     --df:'Sora',sans-serif; --di:'Inter',sans-serif;
     --ease:cubic-bezier(.16,1,.3,1);
   }
   *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
 
-  /* ═══ Konsep: backstage sebelum live — studio TikTok live selling ═══ */
   body{
     font-family:var(--di);
-    background:linear-gradient(180deg, var(--studio-1) 0%, var(--studio-2) 55%, var(--studio-3) 100%);
+    background:linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
     min-height:100vh; display:flex; align-items:center; justify-content:center;
     padding:24px; overflow-x:hidden; position:relative;
   }
 
-  /* lantai studio: garis horizontal halus memudar, kayak set live selling */
+  /* garis lantai halus, dijaga tetap tenang/subtle */
   .studio-floor{
-    position:fixed; left:0; right:0; bottom:0; height:46%; pointer-events:none; z-index:0;
-    background-image:linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px);
+    position:fixed; left:0; right:0; bottom:0; height:40%; pointer-events:none; z-index:0;
+    background-image:linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px);
     background-size:100% 34px;
-    -webkit-mask-image:linear-gradient(to top, rgba(0,0,0,.65), transparent);
-            mask-image:linear-gradient(to top, rgba(0,0,0,.65), transparent);
+    -webkit-mask-image:linear-gradient(to top, rgba(0,0,0,.5), transparent);
+            mask-image:linear-gradient(to top, rgba(0,0,0,.5), transparent);
   }
 
-  /* softbox / key light dari atas, kayak cahaya studio live */
+  /* cahaya lembut satu warna aja di belakang kartu, gak terlalu mencolok */
   .stage-light{
     position:fixed; top:-30%; left:50%; transform:translateX(-50%);
-    width:900px; height:900px; pointer-events:none; z-index:0;
-    background:radial-gradient(circle, rgba(255,150,80,.16), transparent 62%);
+    width:800px; height:800px; pointer-events:none; z-index:0;
+    background:radial-gradient(circle, rgba(255,92,57,.09), transparent 62%);
     transition:background 1.2s;
   }
-  body.state-success .stage-light{ background:radial-gradient(circle, rgba(74,222,128,.18), transparent 62%); }
-
-  /* halus grain, biar background gak flat / kelihatan generik */
-  body::before{
-    content:''; position:fixed; inset:0; pointer-events:none; opacity:.045; z-index:1;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
+  body.state-success .stage-light{ background:radial-gradient(circle, rgba(34,197,94,.1), transparent 62%); }
 
   .card{
     position:relative; z-index:2; width:100%; max-width:388px;
@@ -60,7 +53,7 @@
 
   .card-topbar{
     position:absolute; top:0; left:24px; right:24px; height:3px; border-radius:0 0 3px 3px;
-    background:linear-gradient(90deg, var(--coral), var(--gold));
+    background:var(--coral);
   }
 
   /* ═══ Robot mascot ═══ */
@@ -70,12 +63,12 @@
   .mascot-glow{
     position:absolute; left:50%; top:50%; width:150px; height:150px;
     margin-left:-75px; margin-top:-75px; border-radius:50%; pointer-events:none;
-    background:radial-gradient(circle, rgba(255,150,80,.28), transparent 68%);
+    background:radial-gradient(circle, rgba(255,92,57,.22), transparent 68%);
     filter:blur(4px);
     animation:mascotGlowPulse 4.6s ease-in-out infinite;
   }
   @keyframes mascotGlowPulse{ 0%,100%{ opacity:.75; } 50%{ opacity:1; } }
-  body.state-success .mascot-glow{ background:radial-gradient(circle, rgba(74,222,128,.3), transparent 68%); }
+  body.state-success .mascot-glow{ background:radial-gradient(circle, rgba(34,197,94,.25), transparent 68%); }
 
   .robot-badge{
     width:118px; height:118px; position:relative;
@@ -119,19 +112,6 @@
   }
   .robot-badge.state-success .eye{ animation:none; }
 
-  .sweat-drop{
-    position:absolute; top:20px; right:6px; width:12px; height:16px; opacity:0;
-    background:linear-gradient(180deg,#93C5FD,#3B82F6); border-radius:0 60% 60% 60%;
-    transform:rotate(45deg) scale(0);
-  }
-  .robot-badge.state-error .sweat-drop{ animation:sweatDrop 2s ease-out; }
-  @keyframes sweatDrop{
-    0%{ opacity:0; transform:rotate(45deg) scale(0) translateY(0); }
-    20%{ opacity:1; transform:rotate(45deg) scale(1) translateY(0); }
-    80%{ opacity:1; transform:rotate(45deg) scale(1) translateY(14px); }
-    100%{ opacity:0; transform:rotate(45deg) scale(.8) translateY(20px); }
-  }
-
   .title{ font-family:var(--df); font-weight:800; font-size:1.32rem; letter-spacing:.01em; text-align:center; color:var(--ink); }
   .sub{ text-align:center; color:var(--muted); font-size:.83rem; margin-top:5px; margin-bottom:28px; transition:color .3s; }
   .sub.success{ color:var(--green-dark); font-weight:700; }
@@ -159,7 +139,7 @@
 
   button.submit{
     width:100%; padding:14px; border:none; border-radius:14px; cursor:pointer;
-    background:linear-gradient(135deg,var(--coral),var(--gold)); color:#fff;
+    background:var(--coral); color:#fff;
     font-family:var(--df); font-weight:700; font-size:.93rem; letter-spacing:.01em; margin-top:4px;
     box-shadow:0 10px 26px rgba(255,92,57,.3);
     display:flex; align-items:center; justify-content:center; gap:9px;
@@ -209,7 +189,7 @@
   @keyframes shakeBox{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
 
   .info-box{
-    background:#EFF6FF; color:#1D4ED8; font-size:.78rem; padding:11px 13px;
+    background:#F4F4F6; color:var(--muted); font-size:.78rem; padding:11px 13px;
     border-radius:11px; margin-bottom:16px; display:none; line-height:1.5;
   }
   .info-box.show{ display:block; animation:cardIn .3s var(--ease); }
@@ -278,7 +258,7 @@
           <defs>
             <linearGradient id="robotGrad" x1="0" y1="0" x2="1" y2="1">
               <stop id="robotGradStart" offset="0%" stop-color="#FF5C39"/>
-              <stop id="robotGradEnd" offset="100%" stop-color="#f5a020"/>
+              <stop id="robotGradEnd" offset="100%" stop-color="#E8481F"/>
             </linearGradient>
           </defs>
           <line x1="50" y1="6" x2="50" y2="17" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
@@ -288,7 +268,6 @@
           <circle class="eye right" id="eyeRight" cx="63" cy="46" r="6.5" fill="#fff"/>
           <path id="robotMouth" d="M37 60 Q50 67 63 60" fill="none" stroke-width="4" stroke-linecap="round"/>
         </svg>
-        <div class="sweat-drop"></div>
       </div>
     </div>
 
@@ -370,6 +349,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app-check.js";
     import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
@@ -383,6 +363,12 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    // App Check — mastiin cuma halaman web asli kalian yang boleh manggil Firestore/Auth,
+    // bukan bot/script dari luar. reCAPTCHA v3 jalan di background, gak ganggu user sama sekali.
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider('6Lfgx2ItAAAAAAC-tcS5Kp0wSN4Daw53pltMqvx1'),
+      isTokenAutoRefreshEnabled: true
+    });
     const auth = getAuth(app);
     const db = getFirestore(app);
 
@@ -429,7 +415,7 @@
     function showError(msg) {
       errBox.textContent = msg;
       errBox.classList.remove('show'); void errBox.offsetWidth; errBox.classList.add('show');
-      subText.textContent = 'Waduh, ada yang salah nih.';
+      subText.textContent = 'Ada yang salah, coba lagi.';
       subText.className = 'sub error';
       robotError();
     }
@@ -447,7 +433,7 @@
       setTimeout(() => {
         robot.classList.remove('state-error', 'shake');
         gradStart.setAttribute('stop-color', '#FF5C39');
-        gradEnd.setAttribute('stop-color', '#f5a020');
+        gradEnd.setAttribute('stop-color', '#E8481F');
         eyeLeft.setAttribute('r', '6.5'); eyeLeft.setAttribute('cy', '46');
         eyeRight.setAttribute('r', '6.5'); eyeRight.setAttribute('cy', '46');
         mouth.setAttribute('d', 'M37 60 Q50 67 63 60');
