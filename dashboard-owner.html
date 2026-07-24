@@ -241,6 +241,8 @@
   p.hint{ font-size:.82rem; color:var(--muted); line-height:1.5; }
   .modal label{ font-size:.8rem; font-weight:600; display:block; margin-bottom:6px; }
   .modal input, .modal select{ width:100%; padding:11px 13px; border-radius:8px; border:1px solid var(--border); font-family:var(--di); font-size:.86rem; margin-bottom:14px; outline:none; background:var(--card); color:var(--ink); }
+  .proof-upload-box{ border:2px dashed var(--border); border-radius:12px; padding:16px; text-align:center; cursor:pointer; margin-bottom:14px; transition:border-color .15s ease; }
+  .proof-upload-box:hover{ border-color:var(--coral); }
   .photo-upload{ border:2px dashed var(--border); border-radius:12px; padding:16px; text-align:center; margin-bottom:14px; cursor:pointer; position:relative; }
   .photo-upload input[type=file]{ position:absolute; inset:0; opacity:0; cursor:pointer; }
   .photo-upload img{ width:60px; height:60px; border-radius:50%; object-fit:cover; margin:0 auto; display:block; }
@@ -753,6 +755,7 @@
           <div class="section-title">
             Riwayat Semua Sesi Live
             <div class="btn-row">
+              <button class="btn ghost" id="openManualSessionBtn">+ Tambah Sesi Manual</button>
               <button class="btn ghost" id="exportCsvBtn">Export Excel</button>
             </div>
           </div>
@@ -988,10 +991,47 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="manualSessionModalOverlay">
+    <div class="modal">
+      <h3>Tambah Sesi Live Manual</h3>
+      <div class="hint">Buat karyawan yang lupa nge-input sesi live-nya sendiri — isi data ini kalau kamu (HRD/owner) yang mastiin datanya.</div>
+      <form id="manualSessionForm">
+        <label>Karyawan</label>
+        <select id="manualEmployee" required><option value="">— Pilih karyawan —</option></select>
+        <label>Akun Live</label>
+        <select id="manualAccountId"><option value="">— Tidak ada akun —</option></select>
+        <label>Tanggal</label>
+        <input type="date" id="manualDate" required>
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1;"><label>Jam Mulai</label><input type="time" id="manualStartTime" required></div>
+          <div style="flex:1;"><label>Jam Selesai</label><input type="time" id="manualEndTime" required></div>
+        </div>
+        <label>Penghasilan (Rp)</label>
+        <input type="number" id="manualRevenue" min="0" step="1000" placeholder="contoh: 1500000">
+        <label>Jumlah Viewer</label>
+        <input type="number" id="manualViewers" min="0" step="1" placeholder="contoh: 250">
+        <label>Catatan</label>
+        <input type="text" id="manualNotes" placeholder="opsional, misal: diisiin manual krn lupa input">
+        <label>Bukti Foto (opsional)</label>
+        <div class="proof-upload-box" id="manualProofBox">
+          <input type="file" id="manualProofInput" accept="image/*" style="display:none;">
+          <p id="manualProofPlaceholder" style="font-size:.78rem; color:var(--muted); text-align:center; margin:0; cursor:pointer;">Tap buat pilih foto</p>
+          <img id="manualProofPreview" style="display:none; max-width:100%; border-radius:10px; margin-top:8px;">
+          <button type="button" id="manualRemoveProof" style="display:none; margin-top:6px; background:none; border:none; color:#DC2626; font-size:.76rem; font-weight:700; cursor:pointer;">Hapus foto</button>
+        </div>
+        <div class="modal-btns">
+          <button type="button" class="cancel" id="cancelManualSession">Batal</button>
+          <button type="submit" class="confirm" id="submitManualSession">Simpan Sesi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app-check.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import {
       getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, collection, query, where,
@@ -1008,6 +1048,10 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider('6Lfgx2ItAAAAAAC-tcS5Kp0wSN4Daw53pltMqvx1'),
+      isTokenAutoRefreshEnabled: true
+    });
     const auth = getAuth(app);
     const db = getFirestore(app);
     const ACCOUNTS_COLLECTION = 'liveAccounts';
@@ -1362,7 +1406,7 @@
         }
         return `
           <div class="notif-item ${isUnread ? 'unread' : ''}">
-            <div class="notif-item-title">✎ Koreksi data — ${n.employeeName || '-'}</div>
+            <div class="notif-item-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right:3px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Koreksi data — ${n.employeeName || '-'}</div>
             <div class="notif-item-body">Diedit oleh <b>${n.editedByName || 'Owner'}</b> karena data penjualan yang diisi karyawan salah.</div>
             ${diffs.length ? `<div class="notif-diff">${diffs.join('')}</div>` : ''}
             <div class="notif-item-time">${time}</div>
@@ -1497,7 +1541,7 @@
             <div class="live-info">
               <div class="live-name">${user?.name || s.employeeName || '-'}</div>
               <div class="live-meta">${s.accountName ? s.accountName + ' · ' : ''}${s.platform || 'TikTok'} · mulai ${start ? start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'}</div>
-              ${isStale ? '<div class="stale-warn">⚠ Kemungkinan terputus — tab tidak aktif</div>' : ''}
+              ${isStale ? '<div class="stale-warn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right:3px;"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Kemungkinan terputus — tab tidak aktif</div>' : ''}
             </div>
             <div class="live-duration live-elapsed ${isLong ? 'warn' : ''}">${Math.floor(mins/60)}j ${mins%60}m</div>
             <button class="force-end-btn" onclick="window.forceEndSession('${s.id}')">Akhiri Paksa</button>
@@ -1826,11 +1870,11 @@
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${s.employeeName || '-'}</td><td>${s.accountName || '-'}</td><td data-time="${timeStr}">${dateStr}</td><td>${timeStr}</td><td>${durStr}</td>
+          <td>${s.employeeName || '-'}${s.enteredByOwner ? ' <span style="display:inline-flex; align-items:center; gap:3px; font-size:.62rem; font-weight:700; color:var(--muted); background:rgba(128,128,128,.15); padding:2px 6px; border-radius:999px; white-space:nowrap;" title="Diisi manual oleh ' + (s.enteredByName || 'owner') + '"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>manual</span>' : ''}</td><td>${s.accountName || '-'}</td><td data-time="${timeStr}">${dateStr}</td><td>${timeStr}</td><td>${durStr}</td>
           <td>${s.revenue != null ? 'Rp ' + Number(s.revenue).toLocaleString('id-ID') : '-'}</td>
           <td${s.proofBase64 ? '' : ' data-empty="1"'}>${buktiStr}</td><td>${s.viewers ?? '-'}</td><td${s.notes ? '' : ' data-empty="1"'}>${s.notes || '-'}</td>
           <td>${statusCell}</td>
-          <td><button class="edit-session-btn" onclick="window.openEditSession('${s.id}')" title="Edit data">✎ Edit</button></td>
+          <td><button class="edit-session-btn" onclick="window.openEditSession('${s.id}')" title="Edit data"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right:2px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Edit</button></td>
         `;
         tbody.appendChild(tr);
       });
@@ -2004,7 +2048,7 @@
             <td><span class="expense-type-pill ${type}">${typeLabel[type] || 'Lainnya'}</span></td>
             <td>${e.title || '-'}</td>
             <td>Rp ${Math.round(Number(e.amount) || 0).toLocaleString('id-ID')}</td>
-            <td><button class="delete-expense-btn" onclick="window.deleteExpenseRow('${e.id}')" title="Hapus">🗑</button></td>
+            <td><button class="delete-expense-btn" onclick="window.deleteExpenseRow('${e.id}')" title="Hapus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></td>
           </tr>
         `;
       }).join('');
@@ -2376,6 +2420,143 @@
         editSessionModalOverlay.classList.remove('show');
         editingSessionId = null;
       } catch (err) { showToast('Gagal memperbarui: ' + err.message, true); }
+    });
+
+    // ── Tambah Sesi Live Manual (buat karyawan yang lupa input sendiri) ──
+    const manualSessionModalOverlay = document.getElementById('manualSessionModalOverlay');
+    const manualSessionForm = document.getElementById('manualSessionForm');
+    const manualProofInput = document.getElementById('manualProofInput');
+    const manualProofBox = document.getElementById('manualProofBox');
+    const manualProofPlaceholder = document.getElementById('manualProofPlaceholder');
+    const manualProofPreview = document.getElementById('manualProofPreview');
+    const manualRemoveProof = document.getElementById('manualRemoveProof');
+    let manualProofBase64 = null;
+
+    function compressImageOwner(file, maxDim, quality) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            let { width, height } = img;
+            if (width > height && width > maxDim) { height = Math.round(height * (maxDim / width)); width = maxDim; }
+            else if (height > maxDim) { width = Math.round(width * (maxDim / height)); height = maxDim; }
+            const canvas = document.createElement('canvas');
+            canvas.width = width; canvas.height = height;
+            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    manualProofBox.addEventListener('click', (e) => {
+      if (e.target === manualRemoveProof) return;
+      manualProofInput.click();
+    });
+    manualProofInput.addEventListener('change', async () => {
+      const file = manualProofInput.files[0];
+      if (!file) return;
+      try {
+        let dataUrl = await compressImageOwner(file, 900, 0.6);
+        if (dataUrl.length > 500000) dataUrl = await compressImageOwner(file, 700, 0.4);
+        manualProofBase64 = dataUrl;
+        manualProofPreview.src = dataUrl;
+        manualProofPreview.style.display = 'block';
+        manualProofPlaceholder.style.display = 'none';
+        manualRemoveProof.style.display = 'block';
+      } catch (err) { showToast('Gagal memproses foto: ' + err.message, true); }
+    });
+    manualRemoveProof.addEventListener('click', (e) => {
+      e.stopPropagation();
+      manualProofBase64 = null;
+      manualProofInput.value = '';
+      manualProofPreview.style.display = 'none';
+      manualProofPlaceholder.style.display = 'block';
+      manualRemoveProof.style.display = 'none';
+    });
+
+    function resetManualSessionForm() {
+      manualSessionForm.reset();
+      manualProofBase64 = null;
+      manualProofPreview.style.display = 'none';
+      manualProofPlaceholder.style.display = 'block';
+      manualRemoveProof.style.display = 'none';
+      const today = new Date();
+      document.getElementById('manualDate').value = today.toISOString().slice(0, 10);
+    }
+
+    function populateManualEmployeeSelect() {
+      const sel = document.getElementById('manualEmployee');
+      const prev = sel.value;
+      const uids = Object.keys(allUsers).filter(uid => allUsers[uid].active !== false)
+        .sort((a, b) => (allUsers[a].name || '').localeCompare(allUsers[b].name || '', 'id'));
+      sel.innerHTML = '<option value="">— Pilih karyawan —</option>' +
+        uids.map(uid => `<option value="${uid}">${allUsers[uid].name}</option>`).join('');
+      if (uids.includes(prev)) sel.value = prev;
+    }
+    function populateManualAccountSelect() {
+      const sel = document.getElementById('manualAccountId');
+      const prev = sel.value;
+      sel.innerHTML = '<option value="">— Tidak ada akun —</option>' +
+        allAccounts.map(a => `<option value="${a.id}" data-name="${a.name}">${a.name}${a.active === false ? ' (nonaktif)' : ''}</option>`).join('');
+      if (allAccounts.some(a => a.id === prev)) sel.value = prev;
+    }
+
+    document.getElementById('openManualSessionBtn').addEventListener('click', () => {
+      populateManualEmployeeSelect();
+      populateManualAccountSelect();
+      resetManualSessionForm();
+      manualSessionModalOverlay.classList.add('show');
+    });
+    document.getElementById('cancelManualSession').addEventListener('click', () => {
+      manualSessionModalOverlay.classList.remove('show');
+    });
+
+    manualSessionForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const uid = document.getElementById('manualEmployee').value;
+      if (!uid) { showToast('Pilih karyawan dulu ya.', true); return; }
+      const employeeName = allUsers[uid]?.name || '-';
+      const accSelect = document.getElementById('manualAccountId');
+      const accountId = accSelect.value || null;
+      const accountName = accountId ? (accSelect.selectedOptions[0]?.dataset.name || '') : '';
+      const dateVal = document.getElementById('manualDate').value;
+      const startTimeVal = document.getElementById('manualStartTime').value;
+      const endTimeVal = document.getElementById('manualEndTime').value;
+      if (!dateVal || !startTimeVal || !endTimeVal) { showToast('Tanggal, jam mulai, dan jam selesai wajib diisi.', true); return; }
+
+      const startDate = new Date(`${dateVal}T${startTimeVal}:00`);
+      let endDate = new Date(`${dateVal}T${endTimeVal}:00`);
+      if (endDate <= startDate) endDate.setDate(endDate.getDate() + 1); // jaga-jaga kalau live-nya lewat tengah malam
+
+      const revenue = Number(document.getElementById('manualRevenue').value) || 0;
+      const viewers = Number(document.getElementById('manualViewers').value) || 0;
+      const notes = document.getElementById('manualNotes').value.trim();
+
+      const btn = document.getElementById('submitManualSession');
+      btn.disabled = true; const originalLabel = btn.textContent; btn.textContent = 'Menyimpan…';
+      try {
+        const payload = {
+          uid, employeeName, platform: 'TikTok',
+          accountId, accountName,
+          status: 'selesai',
+          startTime: Timestamp.fromDate(startDate), endTime: Timestamp.fromDate(endDate),
+          revenue, viewers, notes,
+          enteredByOwner: true, enteredByName: currentOwnerName, enteredByUid: currentOwnerUid
+        };
+        if (manualProofBase64) payload.proofBase64 = manualProofBase64;
+        await addDoc(collection(db, 'sessions'), payload);
+        showToast('Sesi live manual berhasil disimpan.');
+        manualSessionModalOverlay.classList.remove('show');
+      } catch (err) {
+        showToast('Gagal menyimpan sesi: ' + err.message, true);
+      }
+      btn.disabled = false; btn.textContent = originalLabel;
     });
 
   </script>
