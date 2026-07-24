@@ -734,7 +734,10 @@
 
     // ── absensi otomatis (tercatat langsung dari sesi live) ──
     function listenAttendanceSessions() {
-      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), orderBy('startTime', 'desc'), limit(3000));
+      // limit dikecilin dari 3000 -> 100. Data yang ditampilin di UI cuma
+      // maksimal 50 record (lihat computeMyAbsensi), jadi 3000 itu boros baca
+      // tanpa manfaat dan bikin kuota Firestore cepat abis.
+      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), orderBy('startTime', 'desc'), limit(100));
       onSnapshot(q, (snap) => {
         myAttendanceSessions = [];
         snap.forEach(d => myAttendanceSessions.push({ id: d.id, ...d.data() }));
