@@ -323,7 +323,8 @@
     import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app-check.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import {
-      getFirestore, doc, getDoc, collection, addDoc, updateDoc,
+      initializeFirestore, persistentLocalCache, persistentSingleTabManager,
+      doc, getDoc, collection, addDoc, updateDoc,
       query, where, orderBy, onSnapshot, Timestamp, limit
     } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
     const ACCOUNTS_COLLECTION = 'liveAccounts';
@@ -343,7 +344,14 @@
       isTokenAutoRefreshEnabled: true
     });
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    // Offline persistence: kalau koneksi lambat lalu user refresh/tutup tab,
+    // write yang belum kekirim (misal Simpan & Selesai) TETAP tersimpan di
+    // IndexedDB browser dan otomatis lanjut kekirim ke server begitu
+    // halaman dibuka lagi / online lagi. Jadi data gak hilang & gak perlu
+    // isi ulang form dari nol.
+    const db = initializeFirestore(app, {
+      localCache: persistentLocalCache({ tabManager: persistentSingleTabManager() })
+    });
 
     // ── dark mode ──
     const root = document.documentElement;
@@ -911,6 +919,11 @@
     removeProofBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       resetProofUpload();
+    });
+
+    // Cegah user gak sadar nutup/refresh tab pas lagi proses "Menyimpan…"
+    window.addEventListener('beforeunload', (e) => {
+      if (isEndingSession) { e.preventDefault(); e.returnValue = ''; }
     });
 
     let isEndingSession = false;
