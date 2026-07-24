@@ -506,7 +506,27 @@
           activeAccountName = d.data().accountName || '';
           setLiveUI(true);
           startHeartbeat(activeSessionId);
-        } else { activeSessionId = null; activeAccountName = ''; setLiveUI(false); stopHeartbeat(); }
+          // jaring pengaman: kalau tombol Mulai Live masih nyangkut disabled
+          // (nunggu konfirmasi server yang lambat) padahal sesinya udah kebuat,
+          // langsung reset tombolnya biar UI gak keliatan stuck.
+          if (isStartingSession) {
+            isStartingSession = false;
+            startBtn.disabled = false;
+          }
+        } else {
+          activeSessionId = null; activeAccountName = ''; setLiveUI(false); stopHeartbeat();
+          // jaring pengaman: kalau sesi udah kedetect selesai/kehapus di server
+          // tapi modal "Isi Data Live" masih kebuka nyangkut di 'Menyimpan…'
+          // (misal koneksi lambat pas nunggu konfirmasi updateDoc), tutup paksa modalnya
+          // biar user gak ngerasa stuck padahal datanya udah kesimpen.
+          if (modalOverlay.classList.contains('show') && confirmEndBtn.textContent.trim() === 'Menyimpan…') {
+            modalOverlay.classList.remove('show'); endForm.reset(); resetProofUpload();
+            confirmEndBtn.disabled = false;
+            confirmEndBtn.textContent = 'Simpan & Selesai';
+            isEndingSession = false;
+            showToast('Data live tersimpan');
+          }
+        }
       }, (err) => { showToast('Gagal memuat status live: ' + err.message, true); console.error(err); });
     }
 
@@ -883,9 +903,9 @@
       const file = proofFileInput.files[0];
       if (!file) return;
       try {
-        let dataUrl = await compressImage(file, 900, 0.6);
+        let dataUrl = await compressImage(file, 700, 0.5);
         // kalau masih cukup besar, kompres ulang lebih agresif
-        if (dataUrl.length > 500000) dataUrl = await compressImage(file, 700, 0.4);
+        if (dataUrl.length > 300000) dataUrl = await compressImage(file, 550, 0.35);
         selectedProofBase64 = dataUrl;
         proofPreviewImg.src = dataUrl;
         proofPreviewImg.style.display = 'block';
