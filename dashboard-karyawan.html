@@ -94,41 +94,7 @@
 
 
 
-  /* attendance calendar */
-  .heatmap-card{ padding:20px; margin-bottom:20px; }
-  .cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-  .cal-nav{ display:flex; align-items:center; gap:10px; font-size:.82rem; font-weight:700; color:var(--muted); }
-  .cal-nav span{ min-width:92px; text-align:center; color:var(--ink); }
-  .cal-nav button{
-    width:26px; height:26px; border-radius:8px; border:1px solid var(--border); background:var(--card);
-    color:var(--ink); font-size:1rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
-  }
-  .cal-nav button:hover{ border-color:var(--muted); }
-  .cal-dow{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; margin-bottom:6px; }
-  .cal-dow span{ text-align:center; font-size:.68rem; font-weight:700; color:var(--muted); text-transform:uppercase; }
-  .cal-grid{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; }
-  .cal-cell{
-    aspect-ratio:1; border-radius:9px; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    font-size:.78rem; font-weight:600; color:var(--muted); background:rgba(128,128,128,.06); position:relative; gap:1px;
-  }
-  .cal-cell .cal-count{ font-size:.6rem; font-weight:800; line-height:1; }
-  .cal-cell.empty{ background:none; }
-  .cal-cell.today{ box-shadow:inset 0 0 0 1.5px var(--coral); color:var(--ink); }
-  .cal-cell.l1{ background:#FED7C3; color:#7C2D12; }
-  .cal-cell.l2{ background:#FCA57D; color:#7C2D12; }
-  .cal-cell.l3{ background:#FF5C39; color:#fff; }
-  html[data-theme="dark"] .cal-cell.l1{ background:#7C2D12; color:#FED7C3; }
-  html[data-theme="dark"] .cal-cell.l2{ background:#C2410C; color:#fff; }
-  html[data-theme="dark"] .cal-cell.l3{ background:#FF5C39; color:#fff; }
-  .heatmap-cell{ width:12px; height:12px; border-radius:3px; background:rgba(128,128,128,.12); display:inline-block; }
-  .heatmap-cell.l1{ background:#FED7C3; }
-  .heatmap-cell.l2{ background:#FCA57D; }
-  .heatmap-cell.l3{ background:#FF5C39; }
-  html[data-theme="dark"] .heatmap-cell.l1{ background:#7C2D12; }
-  html[data-theme="dark"] .heatmap-cell.l2{ background:#C2410C; }
-  html[data-theme="dark"] .heatmap-cell.l3{ background:#FF5C39; }
-  .heatmap-legend{ display:flex; align-items:center; gap:6px; font-size:.68rem; color:var(--muted); margin-top:10px; }
-  .heatmap-legend .heatmap-cell{ width:10px; height:10px; }
+
 
   .date-heading{ font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin:16px 0 8px; }
   .date-heading:first-child{ margin-top:0; }
@@ -257,26 +223,6 @@
           </div>
         </div>
 
-        <div class="card heatmap-card">
-          <div class="cal-head">
-            <div class="section-title" style="margin-bottom:0;">Kalender Kehadiran Live</div>
-            <div class="cal-nav">
-              <button type="button" id="calPrevBtn" aria-label="Bulan sebelumnya">‹</button>
-              <span id="calLabel">-</span>
-              <button type="button" id="calNextBtn" aria-label="Bulan berikutnya">›</button>
-            </div>
-          </div>
-          <div class="cal-dow">
-            <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span>Min</span>
-          </div>
-          <div class="cal-grid" id="heatmapGrid"></div>
-          <div class="heatmap-legend">
-            <span>Sedikit</span>
-            <div class="heatmap-cell"></div><div class="heatmap-cell l1"></div><div class="heatmap-cell l2"></div><div class="heatmap-cell l3"></div>
-            <span>Banyak</span>
-          </div>
-        </div>
-
         <div class="section-block">
           <div class="section-title">Riwayat Live</div>
           <div id="historyList"><div class="empty-state">Memuat riwayat…</div></div>
@@ -324,7 +270,7 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import {
       initializeFirestore, persistentLocalCache, persistentSingleTabManager,
-      doc, getDoc, collection, addDoc, updateDoc,
+      doc, getDoc, getDocs, collection, addDoc, updateDoc, waitForPendingWrites,
       query, where, orderBy, onSnapshot, Timestamp, limit
     } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
     const ACCOUNTS_COLLECTION = 'liveAccounts';
@@ -382,9 +328,14 @@
     let liveAccounts = [];
     let activeAccountName = '';
 
-    function listenLiveAccounts() {
-      const q = query(collection(db, ACCOUNTS_COLLECTION), where('active', '==', true));
-      onSnapshot(q, (snap) => {
+    // Dulu pakai onSnapshot (dengerin real-time terus-terusan). Diganti getDocs
+    // (ambil sekali doang pas dashboard dibuka) karena daftar akun live ini
+    // jarang banget berubah — gak perlu nguping perubahan tiap detik, boros kuota.
+    // Kalau owner nambah akun baru, karyawan tinggal refresh halaman buat lihatnya.
+    async function listenLiveAccounts() {
+      try {
+        const q = query(collection(db, ACCOUNTS_COLLECTION), where('active', '==', true));
+        const snap = await getDocs(q);
         liveAccounts = [];
         snap.forEach(d => liveAccounts.push({ id: d.id, ...d.data() }));
         liveAccounts.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'id'));
@@ -398,11 +349,11 @@
             liveAccounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
           if (liveAccounts.some(a => a.id === prevValue)) accountSelect.value = prevValue;
         }
-      }, (err) => {
+      } catch (err) {
         console.error('Gagal memuat akun live:', err);
         accountSelect.innerHTML = '<option value="">Gagal memuat akun — coba refresh</option>';
         showToast('Gagal memuat daftar akun live: ' + err.message, true);
-      });
+      }
     }
     const modalOverlay = document.getElementById('modalOverlay');
     const endForm = document.getElementById('endForm');
@@ -486,7 +437,7 @@
 
       listenActiveSession();
       listenHistory();
-      listenStatsAndCalendar();
+      listenStats();
       listenAttendanceSessions();
       listenLiveAccounts();
     });
@@ -548,11 +499,13 @@
     }
 
     let historyLimit = 20;
-    let historyUnsub = null;
-    function listenHistory() {
-      if (historyUnsub) historyUnsub();
-      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'), limit(historyLimit));
-      historyUnsub = onSnapshot(q, (snap) => {
+    // Dulu onSnapshot (real-time terus). Riwayat sesi yang udah selesai gak
+    // butuh update instan — diganti getDocs sekali fetch. Tombol "Muat Lebih
+    // Banyak" & ganti akun tetap jalan normal, tinggal fetch ulang manual.
+    async function listenHistory() {
+      try {
+        const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'), limit(historyLimit));
+        const snap = await getDocs(q);
         if (snap.empty) {
           historyList.innerHTML = `<div class="empty-state">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg>
@@ -605,21 +558,23 @@
           moreBtn.onclick = () => { historyLimit += 20; listenHistory(); };
           historyList.appendChild(moreBtn);
         }
-      }, (err) => {
+      } catch (err) {
         historyList.innerHTML = '<div class="empty-state">Gagal memuat riwayat. Lihat pesan di bawah.</div>';
         showToast('Gagal memuat riwayat: ' + err.message, true);
-      });
+      }
     }
 
-    // Listener terpisah tanpa limit, khusus buat hitung statistik & kalender —
-    // supaya angka "Total" tetap akurat walau daftar riwayat di atas dibatasi.
-    function listenStatsAndCalendar() {
-      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'), limit(2000));
-      onSnapshot(q, (snap) => {
+    // Dulu onSnapshot tanpa batas waktu — sekarang getDocs sekali fetch pas
+    // dashboard dibuka. Statistik total gak perlu update real-time detik itu
+    // juga, jadi gak perlu terus-terusan nguping perubahan ke server.
+    async function listenStats() {
+      try {
+        const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'), limit(2000));
+        const snap = await getDocs(q);
         const sessions = [];
         snap.forEach(d => sessions.push(d.data()));
         renderAllStats(sessions);
-      }, (err) => console.error('Stats listener error:', err));
+      } catch (err) { console.error('Stats fetch error:', err); }
     }
 
     let statsSettled = false;
@@ -673,76 +628,19 @@
       countUp(document.getElementById('periodAllRevenue'), allRevenue);
       document.getElementById('periodAllSessions').textContent = sessions.length + ' sesi';
 
-      renderHeatmap(sessions);
-
     }
-
-    let calDate = new Date();
-    let allSessionsForCalendar = [];
-
-    function renderHeatmap(sessions) {
-      allSessionsForCalendar = sessions;
-      renderCalendar();
-    }
-
-    function renderCalendar() {
-      const countByDay = {};
-      allSessionsForCalendar.forEach(s => {
-        const d = s.startTime?.toDate(); if (!d) return;
-        const key = d.toDateString();
-        countByDay[key] = (countByDay[key] || 0) + 1;
-      });
-
-      const year = calDate.getFullYear(), month = calDate.getMonth();
-      document.getElementById('calLabel').textContent =
-        calDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-
-      const grid = document.getElementById('heatmapGrid');
-      grid.innerHTML = '';
-
-      const firstDay = new Date(year, month, 1);
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const leadingBlanks = (firstDay.getDay() + 6) % 7; // Senin = 0
-
-      const today = new Date();
-      const isSameMonth = today.getFullYear() === year && today.getMonth() === month;
-
-      for (let i = 0; i < leadingBlanks; i++) {
-        const blank = document.createElement('div');
-        blank.className = 'cal-cell empty';
-        grid.appendChild(blank);
-      }
-      for (let day = 1; day <= daysInMonth; day++) {
-        const d = new Date(year, month, day);
-        const count = countByDay[d.toDateString()] || 0;
-        const cell = document.createElement('div');
-        cell.className = 'cal-cell' + (count >= 3 ? ' l3' : count === 2 ? ' l2' : count === 1 ? ' l1' : '') + (isSameMonth && day === today.getDate() ? ' today' : '');
-        cell.innerHTML = `<span>${day}</span>${count > 0 ? `<span class="cal-count">${count}x</span>` : ''}`;
-        cell.title = `${d.toLocaleDateString('id-ID')}: ${count} sesi`;
-        grid.appendChild(cell);
-      }
-    }
-
-    document.getElementById('calPrevBtn').addEventListener('click', () => {
-      calDate = new Date(calDate.getFullYear(), calDate.getMonth() - 1, 1);
-      renderCalendar();
-    });
-    document.getElementById('calNextBtn').addEventListener('click', () => {
-      calDate = new Date(calDate.getFullYear(), calDate.getMonth() + 1, 1);
-      renderCalendar();
-    });
 
     // ── absensi otomatis (tercatat langsung dari sesi live) ──
-    function listenAttendanceSessions() {
-      // limit dikecilin dari 3000 -> 100. Data yang ditampilin di UI cuma
-      // maksimal 50 record (lihat computeMyAbsensi), jadi 3000 itu boros baca
-      // tanpa manfaat dan bikin kuota Firestore cepat abis.
-      const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), orderBy('startTime', 'desc'), limit(100));
-      onSnapshot(q, (snap) => {
+    // Dulu onSnapshot, sekarang getDocs sekali fetch — sama alasannya kayak
+    // listener lain, ini cuma daftar riwayat pribadi, gak perlu real-time.
+    async function listenAttendanceSessions() {
+      try {
+        const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), orderBy('startTime', 'desc'), limit(100));
+        const snap = await getDocs(q);
         myAttendanceSessions = [];
         snap.forEach(d => myAttendanceSessions.push({ id: d.id, ...d.data() }));
         renderMyAttendance();
-      }, (err) => console.error('Attendance session listener error:', err));
+      } catch (err) { console.error('Attendance fetch error:', err); }
     }
 
     function computeMyAbsensi() {
@@ -963,7 +861,20 @@
       // background walau jaringan lemot. Jadi begitu beneran berhasil (walau telat),
       // data langsung kesimpen otomatis tanpa user harus klik ulang & tanpa resiko
       // kesimpen dobel. Tombol baru balik normal pas proses ini beneran kelar (.finally).
+      //
+      // PENTING: updateDoc() di sini resolve begitu data ketulis ke CACHE LOKAL HP,
+      // BUKAN begitu beneran nyampe ke server (karena persistentLocalCache aktif).
+      // Kalau langsung dianggap selesai di titik ini, user bisa nutup tab dengan
+      // pede padahal data masih ngantri terkirim dan belum tentu nyampe kalau dia
+      // gak pernah buka tab ini lagi. Makanya sesudah updateDoc() sukses, kita masih
+      // nunggu waitForPendingWrites(db) — itu baru bener-bener resolve setelah
+      // server Firestore mengonfirmasi nerima data. Modal & tombol baru dilepas
+      // sesudah itu, dan beforeunload masih ngeblok refresh/nutup tab selama nunggu.
       updateDoc(doc(db, 'sessions', sessionIdToClose), payload)
+        .then(() => {
+          confirmEndBtn.textContent = 'Menyinkronkan…';
+          return waitForPendingWrites(db);
+        })
         .then(() => {
           if (activeSessionId === sessionIdToClose) {
             activeSessionId = null;
@@ -974,6 +885,11 @@
             resetProofUpload();
           }
           showToast('Data live tersimpan');
+          // Riwayat/statistik/absensi udah bukan listener real-time lagi (hemat kuota),
+          // jadi begitu sesi kelar, tarik ulang manual biar UI langsung kelihatan update.
+          listenHistory();
+          listenStats();
+          listenAttendanceSessions();
         })
         .catch(err => {
           // di sini baru beneran gagal (bukan cuma lambat) — form dibiarin kebuka
