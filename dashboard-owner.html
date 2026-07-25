@@ -1191,19 +1191,37 @@
       listenExpenses();
       listenNotifications();
       listenLiveAccounts();
+      startPeriodicRefresh();
     });
+
+    // listenSessions tetap real-time (butuh reaksi instan buat "Sedang Live").
+    // 4 data lain (karyawan, pengeluaran, notifikasi, akun live) sekarang cuma
+    // di-fetch ulang tiap 3 menit — cukup sigap buat kebutuhan owner, tapi jauh
+    // lebih hemat kuota dibanding dengerin real-time terus-menerus seharian.
+    function startPeriodicRefresh() {
+      setInterval(() => {
+        listenUsers();
+        listenExpenses();
+        listenNotifications();
+        listenLiveAccounts();
+      }, 3 * 60 * 1000);
+    }
 
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
-    function listenUsers() {
-      const q = query(collection(db, 'users'), where('role', '==', 'karyawan'));
-      onSnapshot(q, (snap) => {
+    // Dulu onSnapshot (real-time terus-menerus). Daftar karyawan jarang berubah,
+    // jadi diganti getDocs (fetch sekali) + di-refresh berkala lewat
+    // startPeriodicRefresh() di bawah, biar gak boros kuota baca tiap detik.
+    async function listenUsers() {
+      try {
+        const q = query(collection(db, 'users'), where('role', '==', 'karyawan'));
+        const snap = await getDocs(q);
         allUsers = {};
         snap.forEach((d) => { allUsers[d.id] = d.data(); });
         const activeCount = Object.values(allUsers).filter(u => u.active !== false).length;
         countUp(document.getElementById('statTotalEmp'), activeCount);
         render();
-      }, (err) => showToast('Gagal memuat data karyawan: ' + err.message, true));
+      } catch (err) { showToast('Gagal memuat data karyawan: ' + err.message, true); }
     }
 
     function listenSessions() {
@@ -1221,36 +1239,44 @@
       });
     }
 
-    function listenExpenses() {
-      const q = query(collection(db, 'expenses'), orderBy('date', 'desc'));
-      onSnapshot(q, (snap) => {
+    // Sama kayak listenUsers — pengeluaran gak butuh update real-time detik itu
+    // juga, fetch sekali + refresh berkala aja.
+    async function listenExpenses() {
+      try {
+        const q = query(collection(db, 'expenses'), orderBy('date', 'desc'));
+        const snap = await getDocs(q);
         allExpenses = [];
         snap.forEach((d) => allExpenses.push({ id: d.id, ...d.data() }));
         render();
-      }, (err) => {
+      } catch (err) {
         showToast('Gagal memuat data pengeluaran: ' + err.message, true);
         console.error(err);
-      });
+      }
     }
 
-    function listenNotifications() {
-      const q = query(collection(db, 'notifications'), orderBy('createdAt', 'desc'));
-      onSnapshot(q, (snap) => {
+    // Notifikasi juga diganti fetch sekali + refresh berkala — masih cukup
+    // sigap (lihat startPeriodicRefresh) tanpa perlu koneksi real-time terus.
+    async function listenNotifications() {
+      try {
+        const q = query(collection(db, 'notifications'), orderBy('createdAt', 'desc'));
+        const snap = await getDocs(q);
         allNotifications = [];
         snap.forEach((d) => allNotifications.push({ id: d.id, ...d.data() }));
         renderNotifications();
         renderRiwayatEditTable();
-      }, (err) => console.error(err));
+      } catch (err) { console.error(err); }
     }
 
-    function listenLiveAccounts() {
-      const q = query(collection(db, ACCOUNTS_COLLECTION), orderBy('name', 'asc'));
-      onSnapshot(q, (snap) => {
+    // Daftar akun live jarang berubah — fetch sekali + refresh berkala.
+    async function listenLiveAccounts() {
+      try {
+        const q = query(collection(db, ACCOUNTS_COLLECTION), orderBy('name', 'asc'));
+        const snap = await getDocs(q);
         allAccounts = [];
         snap.forEach(d => allAccounts.push({ id: d.id, ...d.data() }));
         renderAccountTable();
         renderAccountHistorySelect();
-      }, (err) => showToast('Gagal memuat akun live: ' + err.message, true));
+      } catch (err) { showToast('Gagal memuat akun live: ' + err.message, true); }
     }
 
     function renderAccountTable() {
@@ -1284,6 +1310,7 @@
           try {
             await updateDoc(doc(db, ACCOUNTS_COLLECTION, id), { active: !isActive });
             showToast(!isActive ? 'Akun diaktifkan kembali' : 'Akun dinonaktifkan');
+            listenLiveAccounts();
           } catch (err) { showToast('Gagal mengubah status akun: ' + err.message, true); }
         });
       });
@@ -1299,6 +1326,7 @@
           try {
             await deleteDoc(doc(db, ACCOUNTS_COLLECTION, id));
             showToast('Akun dihapus');
+            listenLiveAccounts();
           } catch (err) { showToast('Gagal menghapus akun: ' + err.message, true); }
         });
       });
@@ -1367,6 +1395,7 @@
           await addDoc(collection(db, ACCOUNTS_COLLECTION), { name, active: true, createdAt: Timestamp.now() });
           input.value = '';
           showToast('Akun live ditambahkan');
+          listenLiveAccounts();
         } catch (err) {
           showToast('Gagal menambah akun: ' + err.message, true);
         }
@@ -2059,6 +2088,7 @@
       try {
         await deleteDoc(doc(db, 'expenses', id));
         showToast('Catatan berhasil dihapus.');
+        listenExpenses();
       } catch (err) { showToast('Gagal menghapus: ' + err.message, true); }
     };
 
@@ -2344,6 +2374,7 @@
         showToast('Catatan berhasil disimpan.');
         expenseModalOverlay.classList.remove('show');
         document.getElementById('expenseForm').reset();
+        listenExpenses();
       } catch (err) { showToast('Gagal menyimpan: ' + err.message, true); }
     });
 
