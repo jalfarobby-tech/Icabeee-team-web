@@ -29,6 +29,8 @@
   }
   @media (min-width:640px){ .sync-tag{ display:inline-flex; } }
   .sync-dot{ width:6px; height:6px; border-radius:50%; background:#22C55E; animation:pulse 2s ease infinite; }
+  .sync-dot.offline{ background:#EF4444; animation:none; }
+  .sync-tag.offline{ background:rgba(239,68,68,.12); color:#EF4444; }
   .topbar-actions{ display:flex; gap:8px; }
   .icon-btn{ width:36px; height:36px; border-radius:10px; border:1px solid var(--border); cursor:pointer; background:var(--card); display:flex; align-items:center; justify-content:center; transition:all .15s; }
   .icon-btn:hover{ border-color:var(--muted); }
@@ -164,7 +166,7 @@
         <div class="hi">Halo</div>
         <div class="name" id="userName">Karyawan</div>
       </div>
-      <span class="sync-tag"><span class="sync-dot"></span>Tersinkron</span>
+      <span class="sync-tag" id="syncTag"><span class="sync-dot" id="syncDot"></span><span id="syncText">Tersinkron</span></span>
     </div>
     <div class="topbar-actions">
       <button class="icon-btn" id="themeToggle" title="Ganti tema">
@@ -444,21 +446,33 @@
 
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
-    let heartbeatInterval = null;
-    function startHeartbeat(sessionId) {
-      clearInterval(heartbeatInterval);
-      const ping = () => updateDoc(doc(db, 'sessions', sessionId), { lastPing: Timestamp.now() }).catch(() => {});
-      ping();
-      // Interval diperlambat dari 60 detik -> 120 detik. Ini nulis ke Firestore
-      // tiap kali jalan, jadi 60 detik itu boros write kalau sesi live berjam-jam
-      // (apalagi kalau lupa disudahi berjam-jam). 120 detik masih cukup sigap buat
-      // deteksi terputus (lihat threshold 5 menit di dashboard owner).
-      heartbeatInterval = setInterval(ping, 120000);
+    // Indikator online/offline — murni pakai API browser (navigator.onLine +
+    // event online/offline), SAMA SEKALI GAK NYENTUH FIRESTORE, jadi nol
+    // tambahan baca/tulis kuota. Badge yang tadinya statis "Tersinkron" ini
+    // sekarang beneran mencerminkan kondisi koneksi HP karyawan.
+    const syncTag = document.getElementById('syncTag');
+    const syncDot = document.getElementById('syncDot');
+    const syncText = document.getElementById('syncText');
+    function updateConnStatus() {
+      const online = navigator.onLine;
+      syncDot.classList.toggle('offline', !online);
+      syncTag.classList.toggle('offline', !online);
+      syncText.textContent = online ? 'Tersinkron' : 'Offline';
+      if (!online) {
+        showToast('Kamu lagi offline. Data yang kamu isi bakal otomatis kekirim begitu internet nyambung lagi — jangan tutup tab ini.', true);
+      }
     }
-    function stopHeartbeat() {
-      clearInterval(heartbeatInterval);
-      heartbeatInterval = null;
-    }
+    window.addEventListener('online', updateConnStatus);
+    window.addEventListener('offline', updateConnStatus);
+    updateConnStatus();
+
+    // Heartbeat (nulis lastPing tiap 2 menit) DIHAPUS. Alasannya: (1) timer durasi
+    // live dihitung dari startTime, gak butuh heartbeat sama sekali; (2) pas live
+    // TikTok berjam-jam, HP karyawan biasanya buka app TikTok, bukan tab dashboard
+    // ini — browser bakal ngerem tab yang di-background, jadi heartbeat-nya gak
+    // reliable dari awal; (3) fitur "kemungkinan lupa disudahi" udah di-cover di
+    // dashboard owner lewat alert live >6 jam yang dihitung dari startTime juga,
+    // gak butuh heartbeat. Jadi ini murni boros write tanpa manfaat nyata.
 
     function listenActiveSession() {
       const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'active'));
@@ -468,7 +482,6 @@
           activeSessionId = d.id; activeSessionStart = d.data().startTime;
           activeAccountName = d.data().accountName || '';
           setLiveUI(true);
-          startHeartbeat(activeSessionId);
           // jaring pengaman: kalau tombol Mulai Live masih nyangkut disabled
           // (nunggu konfirmasi server yang lambat) padahal sesinya udah kebuat,
           // langsung reset tombolnya biar UI gak keliatan stuck.
@@ -477,7 +490,7 @@
             startBtn.disabled = false;
           }
         } else {
-          activeSessionId = null; activeAccountName = ''; setLiveUI(false); stopHeartbeat();
+          activeSessionId = null; activeAccountName = ''; setLiveUI(false);
           // jaring pengaman: kalau sesi udah kedetect selesai/kehapus di server
           // tapi modal "Isi Data Live" masih kebuka nyangkut di 'Menyimpan…'
           // (misal koneksi lambat pas nunggu konfirmasi updateDoc), tutup paksa modalnya
@@ -724,12 +737,15 @@
       // Sama kayak Simpan & Selesai: dibiarin jalan di background, gak dipaksa gagal
       // cuma gara-gara lambat. listenActiveSession bakal otomatis unlock UI begitu
       // sesinya kedetect kebuat (lewat onSnapshot), jadi gak perlu klik ulang.
+      // Juga nunggu waitForPendingWrites biar toast "Live dimulai" cuma muncul
+      // setelah beneran kekonfirmasi server — sama alasannya kayak fix di endForm.
       addDoc(collection(db, 'sessions'), {
         uid: currentUser.uid, employeeName: currentUserName, platform: 'TikTok',
         accountId, accountName,
-        status: 'active', startTime: Timestamp.now(), endTime: null, lastPing: Timestamp.now(),
+        status: 'active', startTime: Timestamp.now(), endTime: null,
         revenue: null, viewers: null, notes: ''
       })
+        .then(() => waitForPendingWrites(db))
         .then(() => {
           activeAccountName = accountName;
           showToast('Live dimulai. Semangat!');
@@ -828,7 +844,7 @@
 
     // Cegah user gak sadar nutup/refresh tab pas lagi proses "Menyimpan…"
     window.addEventListener('beforeunload', (e) => {
-      if (isEndingSession) { e.preventDefault(); e.returnValue = ''; }
+      if (isEndingSession || isStartingSession) { e.preventDefault(); e.returnValue = ''; }
     });
 
     let isEndingSession = false;
@@ -882,7 +898,6 @@
         .then(() => {
           if (activeSessionId === sessionIdToClose) {
             activeSessionId = null;
-            stopHeartbeat();
             setLiveUI(false);
             modalOverlay.classList.remove('show');
             endForm.reset();
