@@ -449,7 +449,11 @@
       clearInterval(heartbeatInterval);
       const ping = () => updateDoc(doc(db, 'sessions', sessionId), { lastPing: Timestamp.now() }).catch(() => {});
       ping();
-      heartbeatInterval = setInterval(ping, 60000);
+      // Interval diperlambat dari 60 detik -> 120 detik. Ini nulis ke Firestore
+      // tiap kali jalan, jadi 60 detik itu boros write kalau sesi live berjam-jam
+      // (apalagi kalau lupa disudahi berjam-jam). 120 detik masih cukup sigap buat
+      // deteksi terputus (lihat threshold 5 menit di dashboard owner).
+      heartbeatInterval = setInterval(ping, 120000);
     }
     function stopHeartbeat() {
       clearInterval(heartbeatInterval);
