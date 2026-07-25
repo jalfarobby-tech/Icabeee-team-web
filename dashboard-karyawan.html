@@ -272,7 +272,7 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import {
       initializeFirestore, persistentLocalCache, persistentSingleTabManager,
-      doc, getDoc, getDocs, collection, addDoc, updateDoc, waitForPendingWrites,
+      doc, getDoc, getDocs, getDocsFromServer, collection, addDoc, updateDoc, waitForPendingWrites,
       query, where, orderBy, onSnapshot, Timestamp, limit
     } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
     const ACCOUNTS_COLLECTION = 'liveAccounts';
@@ -337,7 +337,7 @@
     async function listenLiveAccounts() {
       try {
         const q = query(collection(db, ACCOUNTS_COLLECTION), where('active', '==', true), limit(150));
-        const snap = await getDocs(q);
+        const snap = await getDocsFromServer(q).catch(() => getDocs(q)); // paksa ambil dari server asli dulu (bukan cache lokal); kalau lagi offline beneran, baru fallback ke cache
         liveAccounts = [];
         snap.forEach(d => liveAccounts.push({ id: d.id, ...d.data() }));
         liveAccounts.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'id'));
@@ -522,7 +522,7 @@
     async function listenHistory() {
       try {
         const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'), limit(historyLimit));
-        const snap = await getDocs(q);
+        const snap = await getDocsFromServer(q).catch(() => getDocs(q)); // paksa ambil dari server asli dulu (bukan cache lokal); kalau lagi offline beneran, baru fallback ke cache
         if (snap.empty) {
           historyList.innerHTML = `<div class="empty-state">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg>
@@ -587,7 +587,7 @@
     async function listenStats() {
       try {
         const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'), limit(1000));
-        const snap = await getDocs(q);
+        const snap = await getDocsFromServer(q).catch(() => getDocs(q)); // paksa ambil dari server asli dulu (bukan cache lokal); kalau lagi offline beneran, baru fallback ke cache
         const sessions = [];
         snap.forEach(d => sessions.push(d.data()));
         renderAllStats(sessions);
@@ -653,7 +653,7 @@
     async function listenAttendanceSessions() {
       try {
         const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), orderBy('startTime', 'desc'), limit(100));
-        const snap = await getDocs(q);
+        const snap = await getDocsFromServer(q).catch(() => getDocs(q)); // paksa ambil dari server asli dulu (bukan cache lokal); kalau lagi offline beneran, baru fallback ke cache
         myAttendanceSessions = [];
         snap.forEach(d => myAttendanceSessions.push({ id: d.id, ...d.data() }));
         renderMyAttendance();
