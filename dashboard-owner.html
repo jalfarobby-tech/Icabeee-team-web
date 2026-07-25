@@ -978,6 +978,13 @@
       <form id="editSessionForm">
         <label>Akun Live</label>
         <select id="editAccountId"><option value="">— Tidak ada akun —</option></select>
+        <label>Tanggal</label>
+        <input type="date" id="editDate" required>
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1;"><label>Jam Mulai</label><input type="time" id="editStartTime" required></div>
+          <div style="flex:1;"><label>Jam Selesai</label><input type="time" id="editEndTime" required></div>
+        </div>
+        <div class="hint" id="editTimeLockedHint" style="display:none; color:#D97706;">⚠️ Sesi ini masih LIVE, jadi tanggal/jam gak bisa diedit dari sini. Kalau mau ditutup, pakai tombol "Akhiri Paksa" di halaman Ringkasan.</div>
         <label>Penghasilan (Rp)</label>
         <input type="number" id="editRevenue" min="0" step="1000" placeholder="contoh: 1500000">
         <label>Jumlah Viewer</label>
@@ -988,6 +995,7 @@
           <button type="button" class="cancel" id="cancelEditSession">Batal</button>
           <button type="submit" class="confirm">Simpan Perubahan</button>
         </div>
+        <button type="button" id="deleteSessionBtn" style="width:100%; margin-top:10px; padding:11px; border-radius:10px; border:1px solid #DC2626; background:none; color:#DC2626; font-weight:700; cursor:pointer;">🗑 Hapus Data Sesi Ini</button>
       </form>
     </div>
   </div>
@@ -1205,7 +1213,7 @@
         listenExpenses();
         listenNotifications();
         listenLiveAccounts();
-      }, 3 * 60 * 1000);
+      }, 15 * 60 * 1000);
     }
 
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
@@ -1215,7 +1223,7 @@
     // startPeriodicRefresh() di bawah, biar gak boros kuota baca tiap detik.
     async function listenUsers() {
       try {
-        const q = query(collection(db, 'users'), where('role', '==', 'karyawan'));
+        const q = query(collection(db, 'users'), where('role', '==', 'karyawan'), limit(200));
         const snap = await getDocs(q);
         allUsers = {};
         snap.forEach((d) => { allUsers[d.id] = d.data(); });
@@ -1226,10 +1234,14 @@
     }
 
     function listenSessions() {
-      // dibatasi ke 1000 sesi terbaru biar sinkronisasi realtime tetap ringan walau
-      // datanya numpuk bertahun-tahun. Buat cari data yang lebih lama, dipakai fetchSessionsInRange()
-      // lewat filter tanggal di tab Riwayat / Export Excel — itu query langsung ke Firestore, gak kena batas ini.
-      const q = query(collection(db, 'sessions'), orderBy('startTime', 'desc'), limit(1000));
+      // dibatasi ke 400 sesi terbaru (bukan 1000) biar tiap kali tab dibuka/refresh
+      // gak sekaligus baca kebanyakan data — apalagi sekarang dipakai beberapa orang
+      // (2 owner + HRD) yang bisa aja buka tab masing-masing seharian. 400 itu udah
+      // lebih dari cukup buat "Sedang Live", statistik hari ini/minggu ini, tren 14
+      // hari, dan leaderboard. Data yang lebih lama tetap bisa diakses lewat filter
+      // tanggal di tab Riwayat / Export Excel — itu query terpisah (fetchSessionsInRange),
+      // gak kena batas ini.
+      const q = query(collection(db, 'sessions'), orderBy('startTime', 'desc'), limit(400));
       onSnapshot(q, (snap) => {
         allSessions = [];
         snap.forEach((d) => allSessions.push({ id: d.id, ...d.data() }));
@@ -1274,7 +1286,7 @@
     // juga, fetch sekali + refresh berkala aja.
     async function listenExpenses() {
       try {
-        const q = query(collection(db, 'expenses'), orderBy('date', 'desc'), limit(500));
+        const q = query(collection(db, 'expenses'), orderBy('date', 'desc'), limit(300));
         const snap = await getDocs(q);
         allExpenses = [];
         snap.forEach((d) => allExpenses.push({ id: d.id, ...d.data() }));
@@ -1289,7 +1301,7 @@
     // sigap (lihat startPeriodicRefresh) tanpa perlu koneksi real-time terus.
     async function listenNotifications() {
       try {
-        const q = query(collection(db, 'notifications'), orderBy('createdAt', 'desc'), limit(300));
+        const q = query(collection(db, 'notifications'), orderBy('createdAt', 'desc'), limit(150));
         const snap = await getDocs(q);
         allNotifications = [];
         snap.forEach((d) => allNotifications.push({ id: d.id, ...d.data() }));
@@ -1301,7 +1313,7 @@
     // Daftar akun live jarang berubah — fetch sekali + refresh berkala.
     async function listenLiveAccounts() {
       try {
-        const q = query(collection(db, ACCOUNTS_COLLECTION), orderBy('name', 'asc'));
+        const q = query(collection(db, ACCOUNTS_COLLECTION), orderBy('name', 'asc'), limit(150));
         const snap = await getDocs(q);
         allAccounts = [];
         snap.forEach(d => allAccounts.push({ id: d.id, ...d.data() }));
@@ -1887,7 +1899,7 @@
     // sesi terlawas yang lagi disinkron realtime — kalau filter tanggal minta data
     // sebelum ini, berarti perlu fetchSessionsInRange, bukan cuma nyaring allSessions
     function oldestSyncedSessionDate() {
-      if (allSessions.length < 1000) return null; // belum kepotong limit, semua data ada di cache
+      if (allSessions.length < 400) return null; // belum kepotong limit, semua data ada di cache
       const oldest = allSessions[allSessions.length - 1];
       return oldest?.startTime ? oldest.startTime.toDate() : null;
     }
@@ -2477,6 +2489,36 @@
       document.getElementById('editRevenue').value = s.revenue ?? '';
       document.getElementById('editViewers').value = s.viewers ?? '';
       document.getElementById('editNotes').value = s.notes || '';
+
+      // isi field tanggal/jam dari data asli — format buat input type=date/time (lokal, bukan UTC)
+      const toLocalDateStr = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      const toLocalTimeStr = (d) => `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      const startD = s.startTime?.toDate();
+      const endD = s.endTime?.toDate();
+      const dateInput = document.getElementById('editDate');
+      const startInput = document.getElementById('editStartTime');
+      const endInput = document.getElementById('editEndTime');
+      const timeLockedHint = document.getElementById('editTimeLockedHint');
+
+      // PENTING: sesi yang masih LIVE (status 'active', belum ada endTime) itu field
+      // waktunya DIKUNCI — kalau dipaksa isi jam selesai di sini, sesi yang lagi
+      // jalan bisa keanggep kelar padahal statusnya masih active, bikin data
+      // nyangkut/gak konsisten (bentrok sama "Sedang Live" & auto-tutup 24 jam).
+      // Buat nutup sesi yang masih live, tetap wajib lewat tombol "Akhiri Paksa".
+      const isStillLive = s.status === 'active';
+      dateInput.disabled = isStillLive;
+      startInput.disabled = isStillLive;
+      endInput.disabled = isStillLive;
+      dateInput.required = !isStillLive;
+      startInput.required = !isStillLive;
+      endInput.required = !isStillLive;
+      timeLockedHint.style.display = isStillLive ? 'block' : 'none';
+      document.getElementById('deleteSessionBtn').style.display = isStillLive ? 'none' : 'block';
+
+      document.getElementById('editDate').value = startD ? toLocalDateStr(startD) : '';
+      document.getElementById('editStartTime').value = startD ? toLocalTimeStr(startD) : '';
+      document.getElementById('editEndTime').value = endD ? toLocalTimeStr(endD) : (startD ? toLocalTimeStr(startD) : '');
+
       editSessionModalOverlay.classList.add('show');
     };
     document.getElementById('cancelEditSession').addEventListener('click', () => editSessionModalOverlay.classList.remove('show'));
@@ -2497,17 +2539,43 @@
       e.preventDefault();
       if (!editingSessionId) return;
       const s = allSessions.find(x => x.id === editingSessionId);
-      const before = { accountName: s?.accountName || '', revenue: s?.revenue ?? 0, viewers: s?.viewers ?? 0, notes: s?.notes || '' };
+      const isStillLive = s?.status === 'active';
+      const oldStart = s?.startTime?.toDate();
+      const oldEnd = s?.endTime?.toDate();
+      const before = {
+        accountName: s?.accountName || '', revenue: s?.revenue ?? 0, viewers: s?.viewers ?? 0, notes: s?.notes || '',
+        waktu: oldStart && oldEnd ? `${oldStart.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}-${oldEnd.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}` : '-'
+      };
       const accSelect = document.getElementById('editAccountId');
       const accountId = accSelect.value || null;
       const accountName = accountId ? (accSelect.selectedOptions[0]?.dataset.name || '') : '';
       const revenue = Number(document.getElementById('editRevenue').value) || 0;
       const viewers = Number(document.getElementById('editViewers').value) || 0;
       const notes = document.getElementById('editNotes').value.trim();
-      const after = { accountName, revenue, viewers, notes };
+
+      const payload = { accountId, accountName, revenue, viewers, notes };
+      let after = { accountName, revenue, viewers, notes, waktu: before.waktu };
+
+      // Field waktu CUMA divalidasi & disimpan kalau sesinya udah selesai. Kalau
+      // masih live, payload waktu sengaja gak disentuh sama sekali (bukan cuma
+      // dikunci di UI) — jaga-jaga kalau ada yang bypass disabled attribute.
+      if (!isStillLive) {
+        const dateVal = document.getElementById('editDate').value;
+        const startVal = document.getElementById('editStartTime').value;
+        const endVal = document.getElementById('editEndTime').value;
+        if (!dateVal || !startVal || !endVal) { showToast('Tanggal & jam wajib diisi.', true); return; }
+        const newStart = new Date(`${dateVal}T${startVal}:00`);
+        let newEnd = new Date(`${dateVal}T${endVal}:00`);
+        if (newEnd <= newStart) newEnd = new Date(newEnd.getTime() + 24*60*60*1000); // jaga-jaga kalau live nyebrang tengah malam
+        if (isNaN(newStart) || isNaN(newEnd)) { showToast('Format tanggal/jam gak valid.', true); return; }
+        payload.startTime = Timestamp.fromDate(newStart);
+        payload.endTime = Timestamp.fromDate(newEnd);
+        after.waktu = `${newStart.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}-${newEnd.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`;
+      }
+
       const hasChange = JSON.stringify(before) !== JSON.stringify(after);
       try {
-        await updateDoc(doc(db, 'sessions', editingSessionId), { accountId, accountName, revenue, viewers, notes });
+        await updateDoc(doc(db, 'sessions', editingSessionId), payload);
         if (hasChange) {
           await addDoc(collection(db, 'notifications'), {
             type: 'edit_koreksi',
@@ -2524,6 +2592,23 @@
         editSessionModalOverlay.classList.remove('show');
         editingSessionId = null;
       } catch (err) { showToast('Gagal memperbarui: ' + err.message, true); }
+    });
+
+    // Hapus data sesi — permanen, cuma buat owner. Ini juga sengaja gak generate
+    // notifikasi baru per hapus (beda dari edit) biar koleksi notifikasi gak numpuk
+    // sia-sia — cukup log ringkas ke console kalau butuh audit teknis.
+    document.getElementById('deleteSessionBtn').addEventListener('click', async () => {
+      if (!editingSessionId) return;
+      const s = allSessions.find(x => x.id === editingSessionId);
+      if (s?.status === 'active') { showToast('Sesi ini masih live, gak bisa dihapus. Akhiri dulu sesinya.', true); return; }
+      const label = `${s?.employeeName || '-'} — ${s?.startTime ? s.startTime.toDate().toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) : '-'}`;
+      if (!confirm(`Hapus PERMANEN data sesi ini?\n\n${label}\n\nData yang udah dihapus gak bisa dikembaliin lagi (kecuali kamu punya file backup).`)) return;
+      try {
+        await deleteDoc(doc(db, 'sessions', editingSessionId));
+        showToast('Data sesi berhasil dihapus.');
+        editSessionModalOverlay.classList.remove('show');
+        editingSessionId = null;
+      } catch (err) { showToast('Gagal menghapus: ' + err.message, true); }
     });
 
     // ── Tambah Sesi Live Manual (buat karyawan yang lupa input sendiri) ──
