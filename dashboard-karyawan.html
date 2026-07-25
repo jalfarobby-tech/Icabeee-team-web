@@ -336,7 +336,7 @@
     // Kalau owner nambah akun baru, karyawan tinggal refresh halaman buat lihatnya.
     async function listenLiveAccounts() {
       try {
-        const q = query(collection(db, ACCOUNTS_COLLECTION), where('active', '==', true));
+        const q = query(collection(db, ACCOUNTS_COLLECTION), where('active', '==', true), limit(150));
         const snap = await getDocs(q);
         liveAccounts = [];
         snap.forEach(d => liveAccounts.push({ id: d.id, ...d.data() }));
@@ -586,7 +586,7 @@
     // juga, jadi gak perlu terus-terusan nguping perubahan ke server.
     async function listenStats() {
       try {
-        const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'), limit(2000));
+        const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'selesai'), orderBy('startTime', 'desc'), limit(1000));
         const snap = await getDocs(q);
         const sessions = [];
         snap.forEach(d => sessions.push(d.data()));
