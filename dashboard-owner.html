@@ -1243,7 +1243,7 @@
     // juga, fetch sekali + refresh berkala aja.
     async function listenExpenses() {
       try {
-        const q = query(collection(db, 'expenses'), orderBy('date', 'desc'));
+        const q = query(collection(db, 'expenses'), orderBy('date', 'desc'), limit(500));
         const snap = await getDocs(q);
         allExpenses = [];
         snap.forEach((d) => allExpenses.push({ id: d.id, ...d.data() }));
@@ -1258,7 +1258,7 @@
     // sigap (lihat startPeriodicRefresh) tanpa perlu koneksi real-time terus.
     async function listenNotifications() {
       try {
-        const q = query(collection(db, 'notifications'), orderBy('createdAt', 'desc'));
+        const q = query(collection(db, 'notifications'), orderBy('createdAt', 'desc'), limit(300));
         const snap = await getDocs(q);
         allNotifications = [];
         snap.forEach((d) => allNotifications.push({ id: d.id, ...d.data() }));
@@ -1563,7 +1563,10 @@
         const isLong = mins >= 360;
         const lastPing = s.lastPing?.toDate();
         const pingAgeMin = lastPing ? Math.floor((Date.now() - lastPing.getTime()) / 60000) : null;
-        const isStale = pingAgeMin === null || pingAgeMin >= 3;
+        // Threshold dinaikin dari 3 -> 5 menit, nyesuain interval heartbeat karyawan
+        // yang sekarang tiap 2 menit (dulu 1 menit) — biar gak salah alarm "terputus"
+        // padahal cuma lagi nunggu ping berikutnya.
+        const isStale = pingAgeMin === null || pingAgeMin >= 5;
         return `
           <div class="live-row" data-start="${start ? start.getTime() : ''}" data-id="${s.id}">
             ${avatarHtml(user || { name: s.employeeName })}
