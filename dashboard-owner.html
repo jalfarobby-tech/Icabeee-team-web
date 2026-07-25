@@ -103,7 +103,7 @@
   .live-meta{ font-size:.72rem; color:var(--muted); }
   .live-duration{ font-family:var(--df); font-weight:700; font-size:.8rem; color:var(--coral); }
   .live-duration.warn{ color:#DC2626; }
-  .stale-warn{ font-size:.68rem; color:#D97706; font-weight:600; margin-top:2px; }
+
   .force-end-btn{
     border:1px solid var(--border); background:var(--card); color:var(--muted);
     padding:6px 11px; border-radius:8px; font-family:var(--df); font-weight:600; font-size:.68rem;
@@ -757,6 +757,7 @@
             <div class="btn-row">
               <button class="btn ghost" id="openManualSessionBtn">+ Tambah Sesi Manual</button>
               <button class="btn ghost" id="exportCsvBtn">Export Excel</button>
+              <button class="btn ghost" id="backupAllBtn">💾 Backup Semua Data</button>
             </div>
           </div>
           <div class="filter-bar">
@@ -1233,10 +1234,40 @@
         allSessions = [];
         snap.forEach((d) => allSessions.push({ id: d.id, ...d.data() }));
         render();
+        autoCloseForgottenSessions();
       }, (err) => {
         showToast('Gagal memuat data sesi live: ' + err.message, true);
         console.error(err);
       });
+    }
+
+    // Auto-tutup sesi yang lupa disudahi setelah 24 jam nonstop. PENTING buat jujur:
+    // ini BUKAN cron job server yang jalan 24/7 — ini cuma jalan kalau ada yang
+    // buka dashboard owner (karena gak ada Cloud Functions di paket gratis). Tapi
+    // karena datanya numpang di listener realtime yang emang udah nyala (listenSessions),
+    // ini NOL tambahan baca, dan cuma nulis 1x per sesi yang beneran kelamaan —
+    // jadi gak nambah beban kuota.
+    const autoClosingIds = new Set();
+    async function autoCloseForgottenSessions() {
+      const stale = allSessions.filter(s => {
+        if (s.status !== 'active' || autoClosingIds.has(s.id)) return false;
+        const start = s.startTime?.toDate();
+        if (!start) return false;
+        return (Date.now() - start.getTime()) >= 24 * 60 * 60 * 1000;
+      });
+      for (const s of stale) {
+        autoClosingIds.add(s.id);
+        try {
+          await updateDoc(doc(db, 'sessions', s.id), {
+            status: 'selesai', endTime: Timestamp.now(),
+            revenue: 0, viewers: 0,
+            notes: '(Ditutup otomatis oleh sistem — live nonstop lebih dari 24 jam, kemungkinan lupa disudahi. Data penghasilan bisa diedit manual kalau tahu datanya.)'
+          });
+        } catch (err) {
+          console.error('Gagal auto-close sesi', s.id, err);
+          autoClosingIds.delete(s.id);
+        }
+      }
     }
 
     // Sama kayak listenUsers — pengeluaran gak butuh update real-time detik itu
@@ -1561,19 +1592,12 @@
         const mins = start ? Math.floor((Date.now() - start.getTime()) / 60000) : 0;
         const user = allUsers[s.uid];
         const isLong = mins >= 360;
-        const lastPing = s.lastPing?.toDate();
-        const pingAgeMin = lastPing ? Math.floor((Date.now() - lastPing.getTime()) / 60000) : null;
-        // Threshold dinaikin dari 3 -> 5 menit, nyesuain interval heartbeat karyawan
-        // yang sekarang tiap 2 menit (dulu 1 menit) — biar gak salah alarm "terputus"
-        // padahal cuma lagi nunggu ping berikutnya.
-        const isStale = pingAgeMin === null || pingAgeMin >= 5;
         return `
           <div class="live-row" data-start="${start ? start.getTime() : ''}" data-id="${s.id}">
             ${avatarHtml(user || { name: s.employeeName })}
             <div class="live-info">
               <div class="live-name">${user?.name || s.employeeName || '-'}</div>
               <div class="live-meta">${s.accountName ? s.accountName + ' · ' : ''}${s.platform || 'TikTok'} · mulai ${start ? start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'}</div>
-              ${isStale ? '<div class="stale-warn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right:3px;"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Kemungkinan terputus — tab tidak aktif</div>' : ''}
             </div>
             <div class="live-duration live-elapsed ${isLong ? 'warn' : ''}">${Math.floor(mins/60)}j ${mins%60}m</div>
             <button class="force-end-btn" onclick="window.forceEndSession('${s.id}')">Akhiri Paksa</button>
@@ -2303,7 +2327,53 @@
       btn.textContent = originalLabel;
     });
 
-    // ── add employee with photo ──
+    // ── Backup Semua Data (JSON) ──
+    // Ini backup MANUAL, cuma jalan pas tombolnya diklik owner sendiri — bukan
+    // otomatis/terjadwal (Firestore gratis gak punya Cloud Functions buat backup
+    // otomatis beneran, itu butuh paket Blaze). Jadi ini "cukup" buat jaga-jaga,
+    // tinggal diklik berkala (misal tiap minggu) dan disimpen filenya di HP/Drive.
+    // Karena cuma jalan pas diklik, ini SAMA SEKALI GAK NAMBAH beban kuota harian.
+    document.getElementById('backupAllBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('backupAllBtn');
+      btn.disabled = true;
+      const originalLabel = btn.textContent;
+      btn.textContent = 'Menyiapkan backup…';
+      try {
+        const [usersSnap, sessionsSnap, expensesSnap, accountsSnap, notifSnap] = await Promise.all([
+          getDocs(collection(db, 'users')),
+          getDocs(collection(db, 'sessions')),
+          getDocs(collection(db, 'expenses')),
+          getDocs(collection(db, ACCOUNTS_COLLECTION)),
+          getDocs(collection(db, 'notifications')),
+        ]);
+        const toPlain = (snap) => snap.docs.map(d => {
+          const data = d.data();
+          // Timestamp Firestore diubah ke ISO string biar bisa dibuka/dibaca normal di file JSON
+          Object.keys(data).forEach(k => { if (data[k]?.toDate) data[k] = data[k].toDate().toISOString(); });
+          return { id: d.id, ...data };
+        });
+        const backup = {
+          backedUpAt: new Date().toISOString(),
+          note: 'Backup manual dashboard ICABEEE. Simpan file ini di tempat aman (Drive/HP). Kalau perlu restore, hubungi developer buat import ulang ke Firestore.',
+          users: toPlain(usersSnap),
+          sessions: toPlain(sessionsSnap),
+          expenses: toPlain(expensesSnap),
+          liveAccounts: toPlain(accountsSnap),
+          notifications: toPlain(notifSnap),
+        };
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `backup-icabeee-${new Date().toISOString().slice(0,10)}.json`;
+        a.click(); URL.revokeObjectURL(url);
+        showToast('Backup berhasil didownload. Simpan file ini di tempat aman ya.');
+      } catch (err) {
+        showToast('Gagal membuat backup: ' + err.message, true);
+      }
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    });
+
     const modalOverlay = document.getElementById('modalOverlay');
     const photoUploadBox = document.getElementById('photoUploadBox');
     const photoInput = document.getElementById('photoInput');
