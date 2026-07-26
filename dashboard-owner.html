@@ -758,6 +758,7 @@
               <button class="btn ghost" id="openManualSessionBtn">+ Tambah Sesi Manual</button>
               <button class="btn ghost" id="exportCsvBtn">Export Excel</button>
               <button class="btn ghost" id="backupAllBtn">💾 Backup Semua Data</button>
+              <button class="btn ghost" id="cleanupProofsBtn">🗑 Bersihkan Foto Lama</button>
             </div>
           </div>
           <div class="filter-bar">
@@ -907,6 +908,7 @@
   <!-- Lightbox bukti penjualan -->
   <div class="proof-lightbox" id="proofLightbox">
     <button class="close-lightbox" id="closeProofLightbox">✕</button>
+    <div id="proofLightboxLoading" style="display:none; color:#fff; font-weight:700;">Memuat foto…</div>
     <img id="proofLightboxImg" src="" alt="Bukti hasil penjualan">
   </div>
 
@@ -1645,11 +1647,38 @@
     }
     window.forceEndSession = forceEndSession;
 
-    function viewProof(sessionId) {
+    async function viewProof(sessionId) {
       const session = allSessions.find(s => s.id === sessionId);
-      if (!session || !session.proofBase64) return;
-      document.getElementById('proofLightboxImg').src = session.proofBase64;
+      if (!session || !(session.hasProof || session.proofBase64)) return;
+      const lightboxImg = document.getElementById('proofLightboxImg');
+      lightboxImg.src = '';
       document.getElementById('proofLightbox').classList.add('show');
+
+      // Data lama (sebelum fitur pemisahan foto ada) masih nyimpen fotonya
+      // langsung di field proofBase64 — kalau ada, tampilin langsung tanpa perlu
+      // fetch ke koleksi sessionProofs (soalnya emang gak ada di situ).
+      if (session.proofBase64 && !session.hasProof) {
+        lightboxImg.src = session.proofBase64;
+        document.getElementById('proofLightboxLoading').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('proofLightboxLoading').style.display = 'block';
+      try {
+        // Foto baru diambil DI SINI, pas beneran mau diliat — bukan sebelumnya
+        // pas nampilin tabel. Ini yang bikin loading tabel Riwayat jadi ringan.
+        const snap = await getDoc(doc(db, 'sessionProofs', sessionId));
+        if (snap.exists()) {
+          lightboxImg.src = snap.data().photo;
+        } else {
+          showToast('Foto gak ditemukan (mungkin datanya lama, sebelum fitur ini ada).', true);
+          document.getElementById('proofLightbox').classList.remove('show');
+        }
+      } catch (err) {
+        showToast('Gagal memuat foto: ' + err.message, true);
+        document.getElementById('proofLightbox').classList.remove('show');
+      }
+      document.getElementById('proofLightboxLoading').style.display = 'none';
     }
     window.viewProof = viewProof;
     document.getElementById('closeProofLightbox').addEventListener('click', () => {
@@ -1868,8 +1897,15 @@
         if (!confirm(warning)) return;
         if (sessCount > 0 && !confirm(`Konfirmasi terakhir: yakin mau hapus ${sessCount} sesi live milik "${name}" secara permanen?`)) return;
 
+        // FIX: dulu foto bukti (di koleksi terpisah 'sessionProofs') gak ikut kehapus
+        // pas sesi/karyawan dihapus — jadinya nyangkut selamanya jadi sampah storage.
+        // Sekarang di-cek mana yang punya foto (hasProof true), baru diikutkan ke batch delete.
+        const proofRefs = sessSnap.docs
+          .filter(d => d.data().hasProof)
+          .map(d => doc(db, 'sessionProofs', d.id));
+
         // Firestore batch dibatasi 500 operasi; pecah jadi beberapa batch kalau datanya banyak
-        const allRefs = [doc(db, 'users', uid), ...sessSnap.docs.map(d => d.ref)];
+        const allRefs = [doc(db, 'users', uid), ...sessSnap.docs.map(d => d.ref), ...proofRefs];
         for (let i = 0; i < allRefs.length; i += 450) {
           const batch = writeBatch(db);
           allRefs.slice(i, i + 450).forEach(ref => batch.delete(ref));
@@ -1932,7 +1968,13 @@
         const timeStr = start ? start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) + (end ? ' - ' + end.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : ' - sekarang') : '-';
         const durMin = start && end ? Math.round((end - start) / 60000) : null;
         const durStr = s.status === 'active' ? '<span class="badge-live">LIVE</span>' : (durMin !== null ? `${Math.floor(durMin/60)}j ${durMin%60}m` : '-');
-        const buktiStr = s.proofBase64 ? `<img src="${s.proofBase64}" class="proof-thumb" onclick="window.viewProof('${s.id}')">` : '-';
+        // buktiStr sengaja BUKAN <img> lagi — dulu ini nampilin thumbnail yang
+        // otomatis download SEMUA foto tiap baris pas tabel dirender, biang lag-nya.
+        // Sekarang cuma ikon ringan (teks doang, ~0 KB); fotonya baru di-fetch pas
+        // diklik (lihat fungsi viewProof). Tetep support data lama yang masih
+        // punya s.proofBase64 nempel langsung (sebelum fitur pemisahan ini ada).
+        const hasPhoto = s.hasProof || s.proofBase64;
+        const buktiStr = hasPhoto ? `<button type="button" class="proof-view-btn" onclick="window.viewProof('${s.id}')" title="Lihat bukti">📷 Lihat</button>` : '-';
         let statusCell = '-';
         if (s.status === 'selesai') statusCell = '<span class="status-approved">✓ Selesai</span>';
 
@@ -1940,7 +1982,7 @@
         tr.innerHTML = `
           <td>${s.employeeName || '-'}${s.enteredByOwner ? ' <span style="display:inline-flex; align-items:center; gap:3px; font-size:.62rem; font-weight:700; color:var(--muted); background:rgba(128,128,128,.15); padding:2px 6px; border-radius:999px; white-space:nowrap;" title="Diisi manual oleh ' + (s.enteredByName || 'owner') + '"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>manual</span>' : ''}</td><td>${s.accountName || '-'}</td><td data-time="${timeStr}">${dateStr}</td><td>${timeStr}</td><td>${durStr}</td>
           <td>${s.revenue != null ? 'Rp ' + Number(s.revenue).toLocaleString('id-ID') : '-'}</td>
-          <td${s.proofBase64 ? '' : ' data-empty="1"'}>${buktiStr}</td><td>${s.viewers ?? '-'}</td><td${s.notes ? '' : ' data-empty="1"'}>${s.notes || '-'}</td>
+          <td${hasPhoto ? '' : ' data-empty="1"'}>${buktiStr}</td><td>${s.viewers ?? '-'}</td><td${s.notes ? '' : ' data-empty="1"'}>${s.notes || '-'}</td>
           <td>${statusCell}</td>
           <td><button class="edit-session-btn" onclick="window.openEditSession('${s.id}')" title="Edit data"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right:2px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Edit</button></td>
         `;
@@ -2284,7 +2326,7 @@
             viewer: s.viewers ?? null,
             catatan: s.notes || '-',
             status: s.status === 'selesai' ? 'Selesai' : 'Live',
-            bukti: s.proofBase64 ? 'Ada' : 'Tidak ada',
+            bukti: (s.hasProof || s.proofBase64) ? 'Ada' : 'Tidak ada',
           });
         });
 
@@ -2386,13 +2428,64 @@
       btn.textContent = originalLabel;
     });
 
-    const modalOverlay = document.getElementById('modalOverlay');
-    const photoUploadBox = document.getElementById('photoUploadBox');
+    // ── Bersihkan Foto Lama (>3 bulan) ──
+    // MANUAL, cuma jalan pas diklik owner — bukan otomatis/terjadwal, biar gak
+    // nambah beban kuota rutin. Yang dihapus CUMA fotonya (dokumen di
+    // 'sessionProofs'), data sesi (tanggal, penghasilan, dll) TETAP ADA —
+    // cuma tombol "Lihat Bukti"-nya bakal nunjukin foto udah gak ada.
+    document.getElementById('cleanupProofsBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('cleanupProofsBtn');
+      btn.disabled = true;
+      const originalLabel = btn.textContent;
+      btn.textContent = 'Mengecek…';
+      try {
+        const cutoff = Timestamp.fromDate(new Date(Date.now() - 90 * 24 * 60 * 60 * 1000));
+        const q = query(collection(db, 'sessionProofs'), where('createdAt', '<', cutoff));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          showToast('Gak ada foto yang lebih dari 3 bulan. Storage kamu masih bersih.');
+          btn.disabled = false; btn.textContent = originalLabel;
+          return;
+        }
+        if (!confirm(`Ditemukan ${snap.size} foto bukti live yang lebih dari 3 bulan.\n\nData sesinya (tanggal, penghasilan, dll) TETAP ADA, cuma fotonya doang yang dihapus permanen buat ngirit storage.\n\nLanjutkan?`)) {
+          btn.disabled = false; btn.textContent = originalLabel;
+          return;
+        }
+        btn.textContent = 'Membersihkan…';
+        // Firestore batch dibatasi 500 operasi; pecah jadi beberapa batch kalau datanya banyak
+        const ids = snap.docs.map(d => d.id);
+        for (let i = 0; i < ids.length; i += 250) {
+          const batch = writeBatch(db);
+          ids.slice(i, i + 250).forEach(id => {
+            batch.delete(doc(db, 'sessionProofs', id));
+            // hasProof diset false juga di dokumen sesinya, biar tombol "Lihat Bukti"
+            // gak lagi nampilin buat foto yang udah dihapus ini
+            batch.update(doc(db, 'sessions', id), { hasProof: false });
+          });
+          await batch.commit();
+        }
+        showToast(`Berhasil bersihin ${ids.length} foto lama. Data sesinya tetap utuh.`);
+      } catch (err) {
+        showToast('Gagal membersihkan: ' + err.message, true);
+      }
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    });
+
+
     const photoInput = document.getElementById('photoInput');
     let selectedPhotoBase64 = null;
 
     document.getElementById('addEmpBtn').addEventListener('click', () => modalOverlay.classList.add('show'));
-    document.getElementById('cancelAdd').addEventListener('click', () => modalOverlay.classList.remove('show'));
+    document.getElementById('cancelAdd').addEventListener('click', () => {
+      modalOverlay.classList.remove('show');
+      // FIX: dulu foto yang udah kepilih tapi dibatalin gak ke-reset — bisa
+      // nyangkut ketempel pas nambah karyawan LAIN berikutnya tanpa pilih foto baru.
+      document.getElementById('addForm').reset();
+      selectedPhotoBase64 = null;
+      photoUploadBox.innerHTML = '<input type="file" id="photoInput" accept="image/*"><p>Tap untuk pilih foto</p>';
+      document.getElementById('photoInput').addEventListener('change', handlePhotoSelect);
+    });
 
     function handlePhotoSelect(e) {
       const file = e.target.files[0];
@@ -2432,6 +2525,10 @@
         document.getElementById('addForm').reset();
         selectedPhotoBase64 = null;
         photoUploadBox.innerHTML = '<input type="file" id="photoInput" accept="image/*"><p>Tap untuk pilih foto</p>';
+        // FIX: dulu abis reset ini, listener 'change' buat pilih foto gak
+        // ke-sambung ulang — akibatnya nambah karyawan KEDUA dst, tombol pilih
+        // foto keliatan normal tapi diklik gak ngapa-ngapain sampai di-refresh.
+        document.getElementById('photoInput').addEventListener('change', handlePhotoSelect);
       } catch (err) { showToast('Gagal menambahkan: ' + err.message, true); }
     });
 
@@ -2605,6 +2702,10 @@
       if (!confirm(`Hapus PERMANEN data sesi ini?\n\n${label}\n\nData yang udah dihapus gak bisa dikembaliin lagi (kecuali kamu punya file backup).`)) return;
       try {
         await deleteDoc(doc(db, 'sessions', editingSessionId));
+        // FIX: foto buktinya (kalau ada) ikut dihapus juga, biar gak nyangkut jadi sampah storage
+        if (s?.hasProof) {
+          await deleteDoc(doc(db, 'sessionProofs', editingSessionId)).catch(() => {});
+        }
         showToast('Data sesi berhasil dihapus.');
         editSessionModalOverlay.classList.remove('show');
         editingSessionId = null;
@@ -2738,8 +2839,20 @@
           revenue, viewers, notes,
           enteredByOwner: true, enteredByName: currentOwnerName, enteredByUid: currentOwnerUid
         };
-        if (manualProofBase64) payload.proofBase64 = manualProofBase64;
-        await addDoc(collection(db, 'sessions'), payload);
+        // FIX: dulu foto ditaruh nempel di payload.proofBase64 (beda sendiri dari
+        // alur karyawan yang udah dipisah ke koleksi 'sessionProofs') — akibatnya
+        // foto yang diupload manual di sini gak akan pernah muncul pas diklik
+        // "Lihat Bukti" (soalnya viewProof nyarinya di 'sessionProofs', bukan di
+        // field ini). Sekarang disamain: sesi dibuat dulu biar dapet ID, baru
+        // fotonya (kalau ada) ditulis ke sessionProofs dengan ID yang sama.
+        const hasProof = !!manualProofBase64;
+        payload.hasProof = hasProof;
+        const newDocRef = await addDoc(collection(db, 'sessions'), payload);
+        if (hasProof) {
+          await setDoc(doc(db, 'sessionProofs', newDocRef.id), {
+            uid, photo: manualProofBase64, createdAt: Timestamp.now()
+          });
+        }
         showToast('Sesi live manual berhasil disimpan.');
         manualSessionModalOverlay.classList.remove('show');
       } catch (err) {
