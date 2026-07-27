@@ -23,7 +23,7 @@
 </script>
 <style>
   :root{
-    --ink:#111114; --muted:#6B7280; --border:#E5E7EB; --coral:#FF5C39;
+    --ink:#111114; --muted:#6B7280; --border:#E5E7EB; --coral:#3D6A97;
     --bg:#FAFAFA; --card:#fff; --df:'Sora',sans-serif; --di:'Inter',sans-serif;
     --ease:cubic-bezier(.16,1,.3,1);
   }
@@ -41,7 +41,7 @@
   .sidebar-logo{ padding:22px 22px 16px; font-family:var(--df); font-weight:800; font-size:.98rem; border-bottom:1px solid var(--border); }
   .sidebar-role{
     display:inline-block; font-family:var(--di); font-weight:700; font-size:.62rem;
-    color:var(--coral); background:rgba(255,92,57,.12); padding:2px 8px; border-radius:999px;
+    color:var(--coral); background:rgba(61,106,151,.12); padding:2px 8px; border-radius:999px;
     margin-left:8px; text-transform:uppercase; letter-spacing:.03em; vertical-align:middle;
   }
   .sidebar-clock{ font-family:var(--df); font-weight:800; font-size:1.3rem; letter-spacing:-.02em; margin-top:8px; font-variant-numeric:tabular-nums; }
@@ -222,7 +222,7 @@
   .proof-lightbox{ position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; }
   .proof-lightbox.show{ display:flex; }
   .proof-lightbox img{ max-width:90vw; max-height:85vh; border-radius:10px; }
-  .proof-lightbox .close-lightbox{ position:absolute; top:20px; right:24px; background:rgba(255,255,255,.15); border:none; color:#fff; width:38px; height:38px; border-radius:50%; font-size:1.2rem; cursor:pointer; }
+  .proof-lightbox .close-lightbox{ position:absolute; top:20px; right:24px; background:rgba(255,255,255,.15); border:none; color:#fff; width:38px; height:38px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 
 
   .slip-controls{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; align-items:end; }
@@ -267,10 +267,10 @@
   .notif-panel{ background:var(--card); border:1px solid var(--border); border-radius:16px; width:100%; max-width:380px; max-height:80vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.3); }
   .notif-panel-head{ display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--card); }
   .notif-panel-head h3{ font-family:var(--df); font-weight:700; font-size:1rem; }
-  .notif-panel-head .close-lightbox{ position:static; background:rgba(128,128,128,.12); color:var(--ink); width:30px; height:30px; }
+  .notif-panel-head .close-lightbox{ position:static; background:rgba(128,128,128,.12); color:var(--ink); width:30px; height:30px; display:flex; align-items:center; justify-content:center; }
   .notif-list{ padding:10px; }
   .notif-item{ padding:12px; border-radius:10px; margin-bottom:6px; background:rgba(128,128,128,.05); border:1px solid var(--border); }
-  .notif-item.unread{ background:rgba(255,92,57,.08); border-color:rgba(255,92,57,.3); }
+  .notif-item.unread{ background:rgba(61,106,151,.08); border-color:rgba(61,106,151,.3); }
   .notif-item-title{ font-size:.82rem; font-weight:700; margin-bottom:3px; }
   .notif-item-body{ font-size:.76rem; color:var(--muted); line-height:1.5; }
   .notif-item-time{ font-size:.68rem; color:var(--muted); margin-top:6px; }
@@ -757,8 +757,8 @@
             <div class="btn-row">
               <button class="btn ghost" id="openManualSessionBtn">+ Tambah Sesi Manual</button>
               <button class="btn ghost" id="exportCsvBtn">Export Excel</button>
-              <button class="btn ghost" id="backupAllBtn">💾 Backup Semua Data</button>
-              <button class="btn ghost" id="cleanupProofsBtn">🗑 Bersihkan Foto Lama</button>
+              <button class="btn ghost" id="backupAllBtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px; margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Backup Semua Data</button>
+              <button class="btn ghost" id="cleanupProofsBtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px; margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Bersihkan Foto Lama</button>
             </div>
           </div>
           <div class="filter-bar">
@@ -907,7 +907,7 @@
 
   <!-- Lightbox bukti penjualan -->
   <div class="proof-lightbox" id="proofLightbox">
-    <button class="close-lightbox" id="closeProofLightbox">✕</button>
+    <button class="close-lightbox" id="closeProofLightbox"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     <div id="proofLightboxLoading" style="display:none; color:#fff; font-weight:700;">Memuat foto…</div>
     <img id="proofLightboxImg" src="" alt="Bukti hasil penjualan">
   </div>
@@ -917,7 +917,7 @@
     <div class="notif-panel">
       <div class="notif-panel-head">
         <h3>Notifikasi</h3>
-        <button class="close-lightbox" id="closeNotifPanel">✕</button>
+        <button class="close-lightbox" id="closeNotifPanel"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <div class="notif-list" id="notifList"><div class="empty-state">Belum ada notifikasi</div></div>
     </div>
@@ -986,7 +986,7 @@
           <div style="flex:1;"><label>Jam Mulai</label><input type="time" id="editStartTime" required></div>
           <div style="flex:1;"><label>Jam Selesai</label><input type="time" id="editEndTime" required></div>
         </div>
-        <div class="hint" id="editTimeLockedHint" style="display:none; color:#D97706;">⚠️ Sesi ini masih LIVE, jadi tanggal/jam gak bisa diedit dari sini. Kalau mau ditutup, pakai tombol "Akhiri Paksa" di halaman Ringkasan.</div>
+        <div class="hint" id="editTimeLockedHint" style="display:none; color:#D97706;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right:3px;"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Sesi ini masih LIVE, jadi tanggal/jam gak bisa diedit dari sini. Kalau mau ditutup, pakai tombol "Akhiri Paksa" di halaman Ringkasan.</div>
         <label>Penghasilan (Rp)</label>
         <input type="number" id="editRevenue" min="0" step="1000" placeholder="contoh: 1500000">
         <label>Jumlah Viewer</label>
@@ -997,7 +997,7 @@
           <button type="button" class="cancel" id="cancelEditSession">Batal</button>
           <button type="submit" class="confirm">Simpan Perubahan</button>
         </div>
-        <button type="button" id="deleteSessionBtn" style="width:100%; margin-top:10px; padding:11px; border-radius:10px; border:1px solid #DC2626; background:none; color:#DC2626; font-weight:700; cursor:pointer;">🗑 Hapus Data Sesi Ini</button>
+        <button type="button" id="deleteSessionBtn" style="width:100%; margin-top:10px; padding:11px; border-radius:10px; border:1px solid #DC2626; background:none; color:#DC2626; font-weight:700; cursor:pointer;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px; margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Hapus Data Sesi Ini</button>
       </form>
     </div>
   </div>
@@ -1690,7 +1690,7 @@
 
     function chartTextColor() { return getComputedStyle(root).getPropertyValue('--ink').trim() || '#111114'; }
     function chartGridColor() { return root.getAttribute('data-theme') === 'dark' ? '#2A2A2E' : '#F4F4F5'; }
-    function chartBarColor() { return '#FF5C39'; }
+    function chartBarColor() { return '#3D6A97'; }
     function formatRupiahShort(v) {
       v = Number(v) || 0;
       if (v === 0) return 'Rp 0';
@@ -1718,7 +1718,7 @@
       if (revenueChart) revenueChart.destroy();
       revenueChart = new Chart(ctx, {
         type: 'line',
-        data: { labels: days, datasets: [{ label: 'Penghasilan', data, borderColor: '#FF5C39', backgroundColor: 'rgba(255,92,57,.08)', fill: true, tension: .35, pointRadius: 2 }] },
+        data: { labels: days, datasets: [{ label: 'Penghasilan', data, borderColor: '#3D6A97', backgroundColor: 'rgba(61,106,151,.08)', fill: true, tension: .35, pointRadius: 2 }] },
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
@@ -1974,9 +1974,9 @@
         // diklik (lihat fungsi viewProof). Tetep support data lama yang masih
         // punya s.proofBase64 nempel langsung (sebelum fitur pemisahan ini ada).
         const hasPhoto = s.hasProof || s.proofBase64;
-        const buktiStr = hasPhoto ? `<button type="button" class="proof-view-btn" onclick="window.viewProof('${s.id}')" title="Lihat bukti">📷 Lihat</button>` : '-';
+        const buktiStr = hasPhoto ? `<button type="button" class="proof-view-btn" onclick="window.viewProof('${s.id}')" title="Lihat bukti"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px; margin-right:3px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>Lihat</button>` : '-';
         let statusCell = '-';
-        if (s.status === 'selesai') statusCell = '<span class="status-approved">✓ Selesai</span>';
+        if (s.status === 'selesai') statusCell = '<span class="status-approved"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px; margin-right:3px;"><path d="M4 12l6 6L20 6"/></svg>Selesai</span>';
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -2126,7 +2126,7 @@
         data: {
           labels: data.perDay.map(d => d.label),
           datasets: [
-            { label: 'Pendapatan', data: data.perDay.map(d => d.pendapatan), backgroundColor: '#FF5C39', borderRadius: 5, maxBarThickness: 28 }
+            { label: 'Pendapatan', data: data.perDay.map(d => d.pendapatan), backgroundColor: '#3D6A97', borderRadius: 5, maxBarThickness: 28 }
           ]
         },
         options: {
