@@ -2,242 +2,156 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Login — ICABEEE TEAM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Masuk — ICABEEE TEAM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0D0D12; --muted:#8B8B96; --coral:#FF5C39; --coral-dark:#E8481F;
-    --bg-1:#111116; --bg-2:#0A0A0E;
-    --green:#22C55E; --green-dark:#16A34A;
+    --paper:#F6F5F2; --ink:#17171A; --ink-soft:#6E6E76; --ink-faint:#A9A8A2;
+    --line:#E4E2DC; --line-strong:#D3D0C8;
+    --accent:#D2491F; --accent-soft:#FBEAE0;
+    --good:#2F8F5B; --good-soft:#E7F3EC;
+    --bad:#C23B2E; --bad-soft:#FBEAE8;
     --df:'Sora',sans-serif; --di:'Inter',sans-serif;
     --ease:cubic-bezier(.16,1,.3,1);
   }
-  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
-
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
   body{
-    font-family:var(--di);
-    background:linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
-    min-height:100vh; display:flex; align-items:center; justify-content:center;
-    padding:24px; overflow-x:hidden; position:relative;
+    margin:0; font-family:var(--di); color:var(--ink); background:var(--paper);
+    display:flex; align-items:center; justify-content:center; padding:24px;
+    -webkit-font-smoothing:antialiased;
   }
 
-  /* garis lantai halus, dijaga tetap tenang/subtle */
-  .studio-floor{
-    position:fixed; left:0; right:0; bottom:0; height:40%; pointer-events:none; z-index:0;
-    background-image:linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px);
-    background-size:100% 34px;
-    -webkit-mask-image:linear-gradient(to top, rgba(0,0,0,.5), transparent);
-            mask-image:linear-gradient(to top, rgba(0,0,0,.5), transparent);
+  .wrap{ width:100%; max-width:368px; opacity:0; transform:translateY(6px); animation:riseIn .6s var(--ease) forwards; }
+  @keyframes riseIn{ to{ opacity:1; transform:translateY(0); } }
+
+  /* ═══ wordmark + indikator live (signature element) ═══ */
+  .brand{ display:flex; align-items:center; justify-content:center; gap:9px; margin-bottom:6px; }
+  .live-dot{
+    width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0;
+    box-shadow:0 0 0 0 rgba(210,73,31,.4); animation:livePulse 2.4s ease-out infinite;
+    transition:background .35s var(--ease), box-shadow .35s var(--ease);
+  }
+  @keyframes livePulse{
+    0%{ box-shadow:0 0 0 0 rgba(210,73,31,.35); }
+    70%{ box-shadow:0 0 0 7px rgba(210,73,31,0); }
+    100%{ box-shadow:0 0 0 0 rgba(210,73,31,0); }
+  }
+  body.state-success .live-dot{ background:var(--good); animation:none; box-shadow:0 0 0 7px rgba(47,143,91,.12); }
+  body.state-error .live-dot{ background:var(--bad); animation:dotShake .5s var(--ease); box-shadow:none; }
+  @keyframes dotShake{
+    0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-3px); }
+    50%{ transform:translateX(3px); } 75%{ transform:translateX(-2px); }
+  }
+  .wordmark{ font-family:var(--df); font-weight:800; font-size:1.2rem; letter-spacing:.02em; }
+  .team-label{
+    text-align:center; font-size:.68rem; font-weight:600; letter-spacing:.22em;
+    color:var(--ink-faint); text-transform:uppercase; margin-bottom:40px;
   }
 
-  /* cahaya lembut satu warna aja di belakang kartu, gak terlalu mencolok */
-  .stage-light{
-    position:fixed; top:-30%; left:50%; transform:translateX(-50%);
-    width:800px; height:800px; pointer-events:none; z-index:0;
-    background:radial-gradient(circle, rgba(255,92,57,.09), transparent 62%);
-    transition:background 1.2s;
+  .heading{ font-family:var(--df); font-weight:700; font-size:1.3rem; text-align:center; margin-bottom:6px; }
+  .sub{ text-align:center; color:var(--ink-soft); font-size:.86rem; margin-bottom:30px; transition:color .3s; }
+  .sub.error{ color:var(--bad); }
+  .sub.success{ color:var(--good); }
+
+  /* ═══ panel switching ═══ */
+  .panel{ display:none; }
+  .panel.show{ display:block; animation:panelIn .32s var(--ease); }
+  .panel.leaving{ animation:panelOut .18s var(--ease) forwards; }
+  @keyframes panelIn{ from{ opacity:0; transform:translateY(4px); } to{ opacity:1; transform:translateY(0); } }
+  @keyframes panelOut{ to{ opacity:0; transform:translateY(-4px); } }
+
+  /* ═══ form, gaya garis-bawah polos (bukan kotak bervolume) ═══ */
+  .field{ margin-bottom:20px; }
+  .field label{
+    display:block; font-size:.74rem; font-weight:600; color:var(--ink-soft);
+    margin-bottom:7px; letter-spacing:.01em;
   }
-  body.state-success .stage-light{ background:radial-gradient(circle, rgba(34,197,94,.1), transparent 62%); }
-
-  .card{
-    position:relative; z-index:2; width:100%; max-width:388px;
-    background:rgba(255,255,255,.985);
-    border-radius:28px; border:1px solid rgba(255,255,255,.5);
-    padding:38px 30px 32px;
-    box-shadow:0 40px 90px -20px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.03);
-    animation:cardIn .65s var(--ease);
+  .field input{
+    width:100%; border:none; border-bottom:1.5px solid var(--line-strong); background:transparent;
+    padding:8px 2px; font-family:var(--di); font-size:.95rem; color:var(--ink);
+    outline:none; transition:border-color .25s var(--ease);
   }
-  @keyframes cardIn{ from{opacity:0; transform:translateY(26px) scale(.96);} to{opacity:1; transform:none;} }
+  .field input::placeholder{ color:var(--ink-faint); }
+  .field input:focus{ border-bottom-color:var(--accent); }
 
-  .card-topbar{
-    position:absolute; top:0; left:24px; right:24px; height:3px; border-radius:0 0 3px 3px;
-    background:var(--coral);
-  }
-
-  /* ═══ Robot mascot ═══ */
-  .robot-wrap{ display:flex; justify-content:center; margin-bottom:14px; position:relative; height:126px; align-items:flex-end; }
-
-  /* soft glow halus di belakang mascot, gak neko-neko */
-  .mascot-glow{
-    position:absolute; left:50%; top:50%; width:150px; height:150px;
-    margin-left:-75px; margin-top:-75px; border-radius:50%; pointer-events:none;
-    background:radial-gradient(circle, rgba(255,92,57,.22), transparent 68%);
-    filter:blur(4px);
-    animation:mascotGlowPulse 4.6s ease-in-out infinite;
-  }
-  @keyframes mascotGlowPulse{ 0%,100%{ opacity:.75; } 50%{ opacity:1; } }
-  body.state-success .mascot-glow{ background:radial-gradient(circle, rgba(34,197,94,.25), transparent 68%); }
-
-  .robot-badge{
-    width:118px; height:118px; position:relative;
-    filter:drop-shadow(0 14px 30px rgba(255,92,57,.35));
-    transition:filter .4s;
-  }
-  .robot-badge svg{ width:100%; height:100%; overflow:visible; }
-  .robot-head{ fill:url(#robotGrad); transition:fill .4s; }
-  #robotGradStart, #robotGradEnd{ transition:stop-color .55s var(--ease); }
-  .robot-antenna-light{ fill:#fff; animation:blinkLight 2.8s ease-in-out infinite; }
-  @keyframes blinkLight{ 0%,100%{ opacity:1; } 50%{ opacity:.35; } }
-  .eye{ fill:#fff; transform-origin:center; animation:blinkEye 5.5s ease-in-out infinite; transition:r .45s var(--ease), cy .45s var(--ease); }
-  .eye.right{ animation-delay:.08s; }
-  @keyframes blinkEye{ 0%,92%,100%{ transform:scaleY(1); } 95%{ transform:scaleY(.15); } }
-  #robotMouth{ stroke:#fff; transition:d .45s var(--ease); }
-
-  .robot-badge{ animation:robotBob 4.6s ease-in-out infinite; }
-  @keyframes robotBob{ 0%,100%{ transform:translateY(0) rotate(0); } 50%{ transform:translateY(-6px) rotate(-1.5deg); } }
-
-  .robot-badge.shake{ animation:robotShake .9s var(--ease); }
-  @keyframes robotShake{
-    0%,100%{ transform:translateX(0) rotate(0); }
-    15%{ transform:translateX(-12px) rotate(-7deg); }
-    30%{ transform:translateX(11px) rotate(6deg); }
-    45%{ transform:translateX(-9px) rotate(-5deg); }
-    60%{ transform:translateX(8px) rotate(4deg); }
-    75%{ transform:translateX(-5px) rotate(-2deg); }
-    90%{ transform:translateX(3px) rotate(1deg); }
-  }
-  .robot-badge.state-error{ filter:drop-shadow(0 14px 30px rgba(220,38,38,.4)); }
-  .robot-badge.state-error .eye{ animation:none; }
-
-  .robot-badge.state-success{
-    filter:drop-shadow(0 16px 36px rgba(34,197,94,.5));
-    animation:robotCelebrate .55s var(--ease);
-  }
-  @keyframes robotCelebrate{
-    0%{ transform:scale(1); }
-    55%{ transform:scale(1.1); }
-    100%{ transform:scale(1.05); }
-  }
-  .robot-badge.state-success .eye{ animation:none; }
-
-  .title{ font-family:var(--df); font-weight:800; font-size:1.32rem; letter-spacing:.01em; text-align:center; color:var(--ink); }
-  .sub{ text-align:center; color:var(--muted); font-size:.83rem; margin-top:5px; margin-bottom:28px; transition:color .3s; }
-  .sub.success{ color:var(--green-dark); font-weight:700; }
-  .sub.error{ color:#DC2626; font-weight:700; }
-
-  .field{ position:relative; margin-bottom:17px; }
-  .field label{ font-size:.76rem; font-weight:700; color:var(--ink); display:block; margin-bottom:6px; letter-spacing:.01em; }
-  .field .input-wrap{ position:relative; }
-  .field svg{ position:absolute; left:14px; top:50%; transform:translateY(-50%); width:17px; height:17px; color:var(--muted); pointer-events:none; transition:color .2s; }
-  .field .input-wrap:focus-within svg{ color:var(--coral); }
-  input{
-    width:100%; padding:13px 14px 13px 40px; border-radius:13px; border:1.5px solid #ECECEF;
-    font-family:var(--di); font-size:.92rem; outline:none; background:#FAFAFB; color:var(--ink);
-    transition:border-color .2s, background .2s, box-shadow .2s;
-  }
-  input::placeholder{ color:#B9B9C2; }
-  input:focus{ border-color:var(--coral); background:#fff; box-shadow:0 0 0 4px rgba(255,92,57,.1); }
-
-  .field-foot{ display:flex; justify-content:flex-end; margin-top:8px; margin-bottom:16px; }
+  .field-foot{ display:flex; justify-content:flex-end; margin:-8px 0 22px; }
   .link-btn{
-    background:none; border:none; padding:0; cursor:pointer; font-family:var(--di);
-    font-size:.76rem; font-weight:700; color:var(--coral); text-decoration:none;
+    background:none; border:none; padding:0; font-family:var(--di); font-size:.78rem;
+    color:var(--ink-soft); cursor:pointer; transition:color .2s;
   }
-  .link-btn:hover{ text-decoration:underline; }
+  .link-btn:hover{ color:var(--accent); }
 
   button.submit{
-    width:100%; padding:14px; border:none; border-radius:14px; cursor:pointer;
-    background:var(--coral); color:#fff;
-    font-family:var(--df); font-weight:700; font-size:.93rem; letter-spacing:.01em; margin-top:4px;
-    box-shadow:0 10px 26px rgba(255,92,57,.3);
-    display:flex; align-items:center; justify-content:center; gap:9px;
-    transition:transform .15s, opacity .2s, background .4s var(--ease), box-shadow .3s;
+    width:100%; border:none; border-radius:10px; padding:13px; cursor:pointer;
+    font-family:var(--di); font-weight:600; font-size:.92rem; color:#fff;
+    background:var(--ink); position:relative; overflow:hidden;
+    transition:background .25s var(--ease), transform .15s var(--ease);
   }
-  button.submit:hover{ box-shadow:0 12px 30px rgba(255,92,57,.4); }
-  button.submit:active{ transform:scale(.98); }
-  button.submit:disabled{ opacity:1; cursor:not-allowed; }
-  button.submit.success{ background:linear-gradient(135deg,var(--green),var(--green-dark)); box-shadow:0 10px 26px rgba(34,197,94,.35); }
+  button.submit:hover{ background:#000; }
+  button.submit:active{ transform:scale(.985); }
+  button.submit:disabled{ cursor:default; }
+  button.submit.success{ background:var(--good); }
 
-  .btn-label{ display:inline-block; transition:opacity .2s var(--ease), transform .2s var(--ease); }
-  .btn-label.swap{ opacity:0; transform:translateY(3px); }
-
+  .btn-label{ display:inline-block; transition:opacity .16s; }
+  .btn-label.swap{ opacity:0; }
   .btn-spinner{
-    width:15px; height:15px; border-radius:50%; flex-shrink:0;
-    border:2px solid rgba(255,255,255,.35); border-top-color:#fff;
-    opacity:0; transform:scale(.6); width:0;
-    transition:opacity .2s var(--ease), transform .2s var(--ease), width .2s var(--ease), margin .2s var(--ease);
+    position:absolute; left:50%; top:50%; margin:-9px 0 0 -9px; width:18px; height:18px;
+    opacity:0; transition:opacity .18s;
+    border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%;
   }
-  button.submit.loading .btn-spinner{
-    opacity:1; transform:scale(1); width:15px; animation:spin .65s linear infinite;
-  }
-
-  .btn-check{
-    width:15px; height:15px; flex-shrink:0; opacity:0; transform:scale(.5);
-    transition:opacity .2s var(--ease) .05s, transform .25s var(--ease) .05s;
-  }
-  button.submit.success .btn-check{ opacity:1; transform:scale(1); }
-  .btn-check svg{ width:100%; height:100%; }
-
-  button.ghost-btn{
-    width:100%; padding:12px; border-radius:13px; cursor:pointer; margin-top:10px;
-    background:#F4F4F6; border:1.5px solid #ECECEF; color:var(--ink);
-    font-family:var(--di); font-weight:700; font-size:.84rem; transition:background .15s, border-color .15s;
-  }
-  button.ghost-btn:hover{ background:#ECECEF; border-color:#DFDFE4; }
-
-  input:focus-visible, button:focus-visible, .link-btn:focus-visible, .back-row:focus-visible{
-    outline:2px solid var(--coral); outline-offset:2px;
-  }
+  button.submit.loading .btn-label{ opacity:0; }
+  button.submit.loading .btn-spinner{ opacity:1; animation:spin .7s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
 
   .err{
-    background:#FEF2F2; color:#DC2626; font-size:.78rem; padding:11px 13px;
-    border-radius:11px; margin-bottom:16px; display:none; line-height:1.45;
+    display:none; background:var(--bad-soft); color:var(--bad); font-size:.8rem;
+    border-radius:8px; padding:10px 12px; margin-bottom:18px;
   }
-  .err.show{ display:block; animation:shakeBox .4s; }
-  @keyframes shakeBox{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+  .err.show{ display:block; animation:errIn .3s var(--ease); }
+  @keyframes errIn{ from{ opacity:0; transform:translateY(-4px); } to{ opacity:1; transform:translateY(0); } }
 
   .info-box{
-    background:#F4F4F6; color:var(--muted); font-size:.78rem; padding:11px 13px;
-    border-radius:11px; margin-bottom:16px; display:none; line-height:1.5;
+    background:var(--line); color:var(--ink-soft); font-size:.82rem; line-height:1.5;
+    border-radius:8px; padding:12px 14px; margin-bottom:20px; display:none;
   }
-  .info-box.show{ display:block; animation:cardIn .3s var(--ease); }
-  .info-box.success-box{ background:#F0FDF4; color:var(--green-dark); }
+  .info-box.show{ display:block; }
+  .info-box.success-box{ background:var(--good-soft); color:var(--good); }
 
-  .loader-wrap{ text-align:center; padding:22px 0 6px; }
-  .spinner{
-    width:28px; height:28px; border:3px solid #F0F0F0; border-top-color:var(--coral);
-    border-radius:50%; margin:0 auto 12px; animation:spin .7s linear infinite;
+  .back-row{
+    display:flex; align-items:center; gap:6px; font-size:.82rem; color:var(--ink-soft);
+    cursor:pointer; margin-bottom:20px; width:fit-content; transition:color .2s;
   }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
-  .loader-wrap p{ color:var(--muted); font-size:.8rem; }
-
-  .panel{ display:none; }
-  .panel.show{ display:block; animation:cardIn .3s var(--ease); }
-  .panel.leaving{ animation:panelLeave .2s var(--ease) forwards; pointer-events:none; }
-  @keyframes panelLeave{ to{ opacity:0; transform:translateY(-8px) scale(.97); } }
-
-  /* ═══ Kartu sukses: muncul gantiin form login pas berhasil masuk ═══ */
-  .success-inner{ text-align:center; padding:2px 0 4px; }
-  .check-wrap{ width:60px; height:60px; margin:0 auto 16px; }
-  .check-wrap svg{ width:100%; height:100%; overflow:visible; }
-  .check-circle{
-    fill:none; stroke:var(--green); stroke-width:3.5; stroke-dasharray:151; stroke-dashoffset:151;
-    animation:drawCircle .5s var(--ease) forwards;
-  }
-  .check-mark{
-    fill:none; stroke:var(--green-dark); stroke-width:4.5; stroke-linecap:round; stroke-linejoin:round;
-    stroke-dasharray:36; stroke-dashoffset:36; animation:drawCheck .3s var(--ease) .42s forwards;
-  }
-  @keyframes drawCircle{ to{ stroke-dashoffset:0; } }
-  @keyframes drawCheck{ to{ stroke-dashoffset:0; } }
-
-  .success-title{
-    font-family:var(--df); font-weight:800; font-size:1.28rem; letter-spacing:.005em;
-    color:var(--ink); margin-bottom:6px; opacity:0; transform:translateY(6px);
-    animation:fadeUpText .45s var(--ease) .5s forwards;
-  }
-  .success-note{
-    color:var(--muted); font-size:.84rem; margin-bottom:24px; opacity:0; transform:translateY(6px);
-    animation:fadeUpText .45s var(--ease) .64s forwards;
-  }
-  @keyframes fadeUpText{ to{ opacity:1; transform:none; } }
-  .progress-track{ width:100%; height:5px; border-radius:99px; background:#EFEFF2; overflow:hidden; }
-  .progress-bar{ height:100%; width:0%; border-radius:99px; background:linear-gradient(90deg,var(--green),var(--green-dark)); transition:width 1.7s linear; }
-  .back-row{ display:flex; align-items:center; gap:6px; margin-bottom:18px; cursor:pointer; color:var(--muted); font-size:.8rem; font-weight:600; }
-  .back-row svg{ width:16px; height:16px; }
   .back-row:hover{ color:var(--ink); }
+  .back-row svg{ width:16px; height:16px; }
+
+  .ghost-btn{
+    width:100%; margin-top:12px; background:none; border:none; padding:8px;
+    font-family:var(--di); font-size:.82rem; color:var(--ink-soft); cursor:pointer; transition:color .2s;
+  }
+  .ghost-btn:hover{ color:var(--ink); }
+
+  /* ═══ loader ═══ */
+  .loader-wrap{ display:flex; flex-direction:column; align-items:center; padding:20px 0; }
+  .spinner{
+    width:26px; height:26px; border:2.5px solid var(--line-strong); border-top-color:var(--accent);
+    border-radius:50%; animation:spin .8s linear infinite; margin-bottom:14px;
+  }
+  .loader-wrap p{ color:var(--ink-soft); font-size:.85rem; }
+
+  /* ═══ sukses ═══ */
+
+
+
+  .field-icon-input{ position:relative; }
+  .field-icon-input svg{
+    position:absolute; left:0; bottom:11px; width:15px; height:15px; color:var(--ink-faint);
+    pointer-events:none;
+  }
+  .field-icon-input input{ padding-left:23px; }
 
   @media (prefers-reduced-motion: reduce){
     *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
@@ -245,34 +159,12 @@
 </style>
 </head>
 <body>
-  <div class="stage-light"></div>
-  <div class="studio-floor"></div>
+  <div class="wrap">
+    <div class="brand"><span class="live-dot" id="liveDot"></span><span class="wordmark">ICABEEE</span></div>
+    <div class="team-label">Team</div>
 
-  <div class="card">
-    <div class="card-topbar"></div>
-
-    <div class="robot-wrap">
-      <div class="mascot-glow"></div>
-      <div class="robot-badge" id="robotBadge">
-        <svg viewBox="0 0 100 100">
-          <defs>
-            <linearGradient id="robotGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop id="robotGradStart" offset="0%" stop-color="#FF5C39"/>
-              <stop id="robotGradEnd" offset="100%" stop-color="#E8481F"/>
-            </linearGradient>
-          </defs>
-          <line x1="50" y1="6" x2="50" y2="17" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-          <circle class="robot-antenna-light" cx="50" cy="6" r="4.5"/>
-          <rect class="robot-head" x="16" y="16" width="68" height="60" rx="20"/>
-          <circle class="eye left" id="eyeLeft" cx="37" cy="46" r="6.5" fill="#fff"/>
-          <circle class="eye right" id="eyeRight" cx="63" cy="46" r="6.5" fill="#fff"/>
-          <path id="robotMouth" d="M37 60 Q50 67 63 60" fill="none" stroke-width="4" stroke-linecap="round"/>
-        </svg>
-      </div>
-    </div>
-
-    <div class="title">ICABEEE TEAM</div>
-    <div class="sub" id="subText">Masuk untuk lanjut ke dashboard kamu</div>
+    <div class="heading" id="headingText">Masuk ke dashboard</div>
+    <div class="sub" id="subText"></div>
 
     <div class="err" id="errBox"></div>
 
@@ -281,25 +173,24 @@
       <form id="loginForm">
         <div class="field">
           <label for="email">Email</label>
-          <div class="input-wrap">
+          <div class="field-icon-input">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 6 8 6 8-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
             <input type="email" id="email" required autocomplete="username" placeholder="nama@email.com">
           </div>
         </div>
-        <div class="field" style="margin-bottom:0;">
+        <div class="field">
           <label for="password">Password</label>
-          <div class="input-wrap">
+          <div class="field-icon-input">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
             <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
           </div>
         </div>
         <div class="field-foot">
-          <button type="button" class="link-btn" id="forgotLinkBtn">Lupa Password?</button>
+          <button type="button" class="link-btn" id="forgotLinkBtn">Lupa password?</button>
         </div>
         <button type="submit" class="submit" id="loginBtn">
           <span class="btn-label" id="loginBtnLabel">Masuk</span>
           <span class="btn-spinner"></span>
-          <span class="btn-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg></span>
         </button>
       </form>
     </div>
@@ -316,34 +207,20 @@
       <form id="forgotForm">
         <div class="field" style="margin-bottom:14px;">
           <label for="forgotEmail">Email</label>
-          <div class="input-wrap">
+          <div class="field-icon-input">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 6 8 6 8-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
             <input type="email" id="forgotEmail" required autocomplete="username" placeholder="nama@email.com">
           </div>
         </div>
-        <button type="submit" class="submit" id="forgotBtn">Kirim Link Reset</button>
+        <button type="submit" class="submit" id="forgotBtn">Kirim link reset</button>
       </form>
-      <button type="button" class="ghost-btn" id="backToLoginBtn2">Kembali ke Login</button>
+      <button type="button" class="ghost-btn" id="backToLoginBtn2">Kembali ke login</button>
     </div>
 
+    <!-- ═══ Loader ═══ -->
     <div class="loader-wrap panel" id="loader">
       <div class="spinner"></div>
       <p>Memuat akun kamu…</p>
-    </div>
-
-    <!-- ═══ Kartu sukses ═══ -->
-    <div class="panel" id="successPanel">
-      <div class="success-inner">
-        <div class="check-wrap">
-          <svg viewBox="0 0 52 52">
-            <circle class="check-circle" cx="26" cy="26" r="24"/>
-            <path class="check-mark" d="M14 27l7 7 16-16"/>
-          </svg>
-        </div>
-        <div class="success-title" id="successTitle">Berhasil masuk</div>
-        <div class="success-note" id="successNote">Mengalihkan ke dashboard kamu…</div>
-        <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
-      </div>
     </div>
   </div>
 
@@ -378,21 +255,11 @@
     const loginBtnLabel = document.getElementById('loginBtnLabel');
     const loader = document.getElementById('loader');
     const loginPanel = document.getElementById('loginPanel');
-    const successPanel = document.getElementById('successPanel');
-    const successTitle = document.getElementById('successTitle');
-    const successNote = document.getElementById('successNote');
-    const progressBar = document.getElementById('progressBar');
     const subText = document.getElementById('subText');
-    const robot = document.getElementById('robotBadge');
-    const mouth = document.getElementById('robotMouth');
-    const eyeLeft = document.getElementById('eyeLeft');
-    const eyeRight = document.getElementById('eyeRight');
-    const gradStart = document.getElementById('robotGradStart');
-    const gradEnd = document.getElementById('robotGradEnd');
 
     // ── ganti kartu/panel dengan transisi halus (fade + geser dikit) ──
     function activePanel() {
-      return document.querySelector('#loginPanel.show, #forgotPanel.show, #loader.show, #successPanel.show');
+      return document.querySelector('#loginPanel.show, #forgotPanel.show, #loader.show');
     }
     function switchPanel(fromEl, toEl) {
       if (fromEl === toEl) return;
@@ -417,42 +284,24 @@
       errBox.classList.remove('show'); void errBox.offsetWidth; errBox.classList.add('show');
       subText.textContent = 'Ada yang salah, coba lagi.';
       subText.className = 'sub error';
-      robotError();
+      flagError();
     }
 
-    function robotError() {
-      robot.classList.remove('state-success');
-      robot.classList.add('state-error');
+    // Feedback visual sekarang cukup lewat titik "live" di wordmark — gak ada
+    // lagi badge/maskot yang gonta-ganti ekspresi. Sengaja dibikin minim.
+    function flagError() {
       document.body.classList.remove('state-success');
-      gradStart.setAttribute('stop-color', '#EF4444');
-      gradEnd.setAttribute('stop-color', '#DC2626');
-      eyeLeft.setAttribute('r', '2.2'); eyeLeft.setAttribute('cy', '48');
-      eyeRight.setAttribute('r', '2.2'); eyeRight.setAttribute('cy', '48');
-      mouth.setAttribute('d', 'M37 66 Q50 56 63 66');
-      robot.classList.remove('shake'); void robot.offsetWidth; robot.classList.add('shake');
+      document.body.classList.add('state-error');
       setTimeout(() => {
-        robot.classList.remove('state-error', 'shake');
-        gradStart.setAttribute('stop-color', '#FF5C39');
-        gradEnd.setAttribute('stop-color', '#E8481F');
-        eyeLeft.setAttribute('r', '6.5'); eyeLeft.setAttribute('cy', '46');
-        eyeRight.setAttribute('r', '6.5'); eyeRight.setAttribute('cy', '46');
-        mouth.setAttribute('d', 'M37 60 Q50 67 63 60');
-        subText.textContent = 'Masuk untuk lanjut ke dashboard kamu';
+        document.body.classList.remove('state-error');
+        subText.textContent = '';
         subText.className = 'sub';
       }, 2800);
     }
 
-    function robotSuccess(name) {
-      robot.classList.add('state-success');
+    function flagSuccess() {
       document.body.classList.add('state-success');
-      gradStart.setAttribute('stop-color', '#4ADE80');
-      gradEnd.setAttribute('stop-color', '#16A34A');
-      eyeLeft.setAttribute('r', '3'); eyeLeft.setAttribute('cy', '42');
-      eyeRight.setAttribute('r', '3'); eyeRight.setAttribute('cy', '42');
-      mouth.setAttribute('d', 'M35 56 Q50 76 65 56');
       loginBtn.classList.add('success');
-      subText.textContent = name ? `Selamat datang, ${name}!` : 'Selamat datang!';
-      subText.className = 'sub success';
     }
 
     async function redirectByRole(uid) {
@@ -465,26 +314,13 @@
         setBtnLabel('Masuk');
         return;
       }
-      const name = snap.data().name;
-      robotSuccess(name);
+      flagSuccess();
       loginBtn.classList.remove('loading');
       loginBtn.classList.add('success');
       setBtnLabel('Berhasil masuk!');
-      successTitle.textContent = name ? `Halo, ${name}!` : 'Berhasil masuk';
-      successNote.textContent = 'Mengalihkan ke dashboard kamu…';
-      progressBar.style.transition = 'none';
-      progressBar.style.width = '0%';
-      // kasih jeda dikit biar tombol "Berhasil masuk!" kelihatan dulu sebelum kartu berganti
-      setTimeout(() => {
-        switchPanel(activePanel(), successPanel);
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          progressBar.style.transition = 'width 1.7s linear';
-          progressBar.style.width = '100%';
-        }));
-      }, 420);
       setTimeout(() => {
         window.location.href = snap.data().role === 'owner' ? 'dashboard-owner.html' : 'dashboard-karyawan.html';
-      }, 2400);
+      }, 900);
     }
 
     onAuthStateChanged(auth, (user) => {
@@ -523,6 +359,7 @@
     const forgotForm = document.getElementById('forgotForm');
     const forgotBtn = document.getElementById('forgotBtn');
     const forgotInfoBox = document.getElementById('forgotInfoBox');
+    const headingText = document.getElementById('headingText');
 
     function openForgotPanel() {
       errBox.classList.remove('show');
@@ -531,13 +368,15 @@
       forgotInfoBox.className = 'info-box show';
       forgotInfoBox.textContent = 'Masukin email akun kamu. Kalau terdaftar, link buat bikin password baru bakal dikirim ke email itu.';
       document.getElementById('forgotEmail').value = document.getElementById('email').value.trim();
-      subText.textContent = 'Reset password akun kamu';
+      headingText.textContent = 'Reset password';
+      subText.textContent = 'Kami kirim link resetnya ke email kamu';
       subText.className = 'sub';
     }
     function closeForgotPanel() {
       forgotPanel.classList.remove('show');
       loginPanelEl.classList.add('show');
-      subText.textContent = 'Masuk untuk lanjut ke dashboard kamu';
+      headingText.textContent = 'Masuk ke dashboard';
+      subText.textContent = '';
       subText.className = 'sub';
       forgotForm.style.display = 'block';
     }
@@ -562,7 +401,7 @@
         forgotForm.style.display = 'none';
       }
       forgotBtn.disabled = false;
-      forgotBtn.textContent = 'Kirim Link Reset';
+      forgotBtn.textContent = 'Kirim link reset';
     });
   </script>
 </body>
