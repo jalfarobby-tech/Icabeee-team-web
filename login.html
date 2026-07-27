@@ -28,24 +28,8 @@
   .wrap{ width:100%; max-width:368px; opacity:0; transform:translateY(6px); animation:riseIn .6s var(--ease) forwards; }
   @keyframes riseIn{ to{ opacity:1; transform:translateY(0); } }
 
-  /* ═══ wordmark + indikator live (signature element) ═══ */
-  .brand{ display:flex; align-items:center; justify-content:center; gap:9px; margin-bottom:6px; }
-  .live-dot{
-    width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0;
-    box-shadow:0 0 0 0 rgba(210,73,31,.4); animation:livePulse 2.4s ease-out infinite;
-    transition:background .35s var(--ease), box-shadow .35s var(--ease);
-  }
-  @keyframes livePulse{
-    0%{ box-shadow:0 0 0 0 rgba(210,73,31,.35); }
-    70%{ box-shadow:0 0 0 7px rgba(210,73,31,0); }
-    100%{ box-shadow:0 0 0 0 rgba(210,73,31,0); }
-  }
-  body.state-success .live-dot{ background:var(--good); animation:none; box-shadow:0 0 0 7px rgba(47,143,91,.12); }
-  body.state-error .live-dot{ background:var(--bad); animation:dotShake .5s var(--ease); box-shadow:none; }
-  @keyframes dotShake{
-    0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-3px); }
-    50%{ transform:translateX(3px); } 75%{ transform:translateX(-2px); }
-  }
+  /* ═══ wordmark ═══ */
+  .brand{ display:flex; align-items:center; justify-content:center; margin-bottom:6px; }
   .wordmark{ font-family:var(--df); font-weight:800; font-size:1.2rem; letter-spacing:.02em; }
   .team-label{
     text-align:center; font-size:.68rem; font-weight:600; letter-spacing:.22em;
@@ -135,7 +119,13 @@
   .ghost-btn:hover{ color:var(--ink); }
 
   /* ═══ loader ═══ */
-  .loader-wrap{ display:flex; flex-direction:column; align-items:center; padding:20px 0; }
+  .loader-wrap{ flex-direction:column; align-items:center; padding:20px 0; }
+  /* FIX: dulu .loader-wrap punya display:flex sendiri yang bentrok sama .panel{display:none}
+     — karena spesifisitasnya sama-sama 1 class, yang belakangan di file ini menang, jadinya
+     loader ini KELIHATAN TERUS dari awal buka halaman, gak peduli lagi loading apa enggak.
+     Sekarang pakai selector ID (#loader) yang spesifisitasnya lebih tinggi, jadi PASTI nurut
+     ke .panel.show — cuma kelihatan pas beneran lagi proses. */
+  #loader.show{ display:flex; }
   .spinner{
     width:26px; height:26px; border:2.5px solid var(--line-strong); border-top-color:var(--accent);
     border-radius:50%; animation:spin .8s linear infinite; margin-bottom:14px;
@@ -160,7 +150,7 @@
 </head>
 <body>
   <div class="wrap">
-    <div class="brand"><span class="live-dot" id="liveDot"></span><span class="wordmark">ICABEEE</span></div>
+    <div class="brand"><span class="wordmark">ICABEEE</span></div>
     <div class="team-label">Team</div>
 
     <div class="heading" id="headingText">Masuk ke dashboard</div>
