@@ -76,15 +76,8 @@
   .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:22px; }
   .stat-card{
     background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px;
-    transition:background .2s,border-color .2s, transform .2s ease, box-shadow .2s ease;
-    animation:fadeUp .45s var(--ease) backwards;
+    transition:background .2s,border-color .2s;
   }
-  .stat-card:hover{ transform:translateY(-3px); box-shadow:0 10px 24px rgba(0,0,0,.07); }
-  .stat-grid .stat-card:nth-child(1){ animation-delay:.03s; }
-  .stat-grid .stat-card:nth-child(2){ animation-delay:.08s; }
-  .stat-grid .stat-card:nth-child(3){ animation-delay:.13s; }
-  .stat-grid .stat-card:nth-child(4){ animation-delay:.18s; }
-  .stat-grid .stat-card:nth-child(5){ animation-delay:.23s; }
   .stat-icon{ width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(128,128,128,.1); color:var(--muted); margin-bottom:12px; }
   .stat-icon-rp{ font-family:var(--df); font-weight:800; font-size:.68rem; letter-spacing:-.02em; }
   .stat-num{ font-family:var(--df); font-weight:800; font-size:1.4rem; letter-spacing:-.02em; overflow-wrap:break-word; }
@@ -93,7 +86,7 @@
   .live-now-card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:22px; }
   .live-now-card h4{ font-family:var(--df); font-weight:700; font-size:.92rem; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
   .live-now-card h4 .pulse{ width:8px; height:8px; border-radius:50%; background:#22C55E; animation:pulseDot 1.6s ease infinite; }
-  .live-row{ display:flex; align-items:center; gap:12px; padding:10px 8px; border-bottom:1px solid var(--border); border-radius:10px; transition:background .15s ease; animation:fadeUp .3s var(--ease); }
+  .live-row{ display:flex; align-items:center; gap:12px; padding:10px 8px; border-bottom:1px solid var(--border); border-radius:10px; transition:background .15s ease; }
   .live-row:hover{ background:rgba(128,128,128,.05); }
   .live-row:last-child{ border-bottom:none; }
   .avatar{ width:36px; height:36px; border-radius:50%; background:var(--ink); color:var(--bg); display:flex; align-items:center; justify-content:center; font-family:var(--df); font-weight:800; font-size:.72rem; flex-shrink:0; overflow:hidden; }
@@ -117,7 +110,7 @@
   .chart-card h4{ font-family:var(--df); font-weight:700; font-size:.88rem; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border); }
   .chart-wrap{ position:relative; height:210px; }
 
-  .leaderboard-item{ display:flex; align-items:center; gap:10px; padding:9px 8px; border-bottom:1px solid var(--border); border-radius:10px; transition:background .15s ease; animation:fadeUp .3s var(--ease); }
+  .leaderboard-item{ display:flex; align-items:center; gap:10px; padding:9px 8px; border-bottom:1px solid var(--border); border-radius:10px; transition:background .15s ease; }
   .leaderboard-item:hover{ background:rgba(128,128,128,.05); }
   .leaderboard-item:last-child{ border-bottom:none; }
   .lb-rank{ font-family:var(--df); font-weight:800; font-size:.8rem; color:var(--muted); width:18px; }
@@ -351,7 +344,6 @@
       display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); row-gap:12px; column-gap:8px;
       background:var(--card); border:1px solid var(--border); border-radius:16px;
       padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
-      animation:fadeUp .3s var(--ease);
     }
     .emp-table-wrap tr:active{ transform:scale(.98); }
     .emp-table-wrap tr:last-child{ margin-bottom:0; }
@@ -399,7 +391,6 @@
       display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); row-gap:6px; column-gap:8px;
       background:var(--card); border:1px solid var(--border); border-radius:16px;
       padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
-      animation:fadeUp .3s var(--ease);
     }
     .absensi-table-wrap tr:last-child{ margin-bottom:0; }
 
@@ -434,7 +425,6 @@
       display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); row-gap:10px; column-gap:8px;
       background:var(--card); border:1px solid var(--border); border-radius:16px;
       padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
-      animation:fadeUp .3s var(--ease);
     }
     .keuangan-table-wrap tr:last-child{ margin-bottom:0; }
     .keuangan-table-wrap td{ display:block; border:none; padding:0; white-space:normal; }
@@ -477,7 +467,6 @@
       display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); row-gap:10px; column-gap:10px;
       background:var(--card); border:1px solid var(--border); border-radius:16px;
       padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
-      animation:fadeUp .3s var(--ease);
     }
     .riwayat-table-wrap tr:last-child{ margin-bottom:0; }
     .riwayat-table-wrap td{ display:block; border:none; padding:0; white-space:normal; }
@@ -584,7 +573,6 @@
       display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); row-gap:8px; column-gap:10px;
       background:var(--card); border:1px solid var(--border); border-radius:16px;
       padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
-      animation:fadeUp .3s var(--ease);
     }
     .expense-table-wrap tr:last-child{ margin-bottom:0; }
     .expense-table-wrap td{ display:block; border:none; padding:0; white-space:normal; }
@@ -961,7 +949,7 @@
         <label>Keterangan</label>
         <input type="text" id="expenseTitle" required placeholder="contoh: Gaji Siti Aminah - Juli, atau Beli ATK">
         <label>Jumlah (Rp)</label>
-        <input type="number" id="expenseAmount" required min="0" step="1000" placeholder="contoh: 1500000">
+        <input type="text" inputmode="numeric" id="expenseAmount" required placeholder="contoh: 1.500.000">
         <label>Tanggal</label>
         <input type="date" id="expenseDate" required>
         <div class="modal-btns">
@@ -988,9 +976,9 @@
         </div>
         <div class="hint" id="editTimeLockedHint" style="display:none; color:#D97706;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right:3px;"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Sesi ini masih LIVE, jadi tanggal/jam gak bisa diedit dari sini. Kalau mau ditutup, pakai tombol "Akhiri Paksa" di halaman Ringkasan.</div>
         <label>Penghasilan (Rp)</label>
-        <input type="number" id="editRevenue" min="0" step="1000" placeholder="contoh: 1500000">
+        <input type="text" inputmode="numeric" id="editRevenue" placeholder="contoh: 1.500.000">
         <label>Jumlah Viewer</label>
-        <input type="number" id="editViewers" min="0" step="1" placeholder="contoh: 250">
+        <input type="text" inputmode="numeric" id="editViewers" placeholder="contoh: 250">
         <label>Catatan</label>
         <input type="text" id="editNotes" placeholder="opsional">
         <div class="modal-btns">
@@ -1018,9 +1006,9 @@
           <div style="flex:1;"><label>Jam Selesai</label><input type="time" id="manualEndTime" required></div>
         </div>
         <label>Penghasilan (Rp)</label>
-        <input type="number" id="manualRevenue" min="0" step="1000" placeholder="contoh: 1500000">
+        <input type="text" inputmode="numeric" id="manualRevenue" placeholder="contoh: 1.500.000">
         <label>Jumlah Viewer</label>
-        <input type="number" id="manualViewers" min="0" step="1" placeholder="contoh: 250">
+        <input type="text" inputmode="numeric" id="manualViewers" placeholder="contoh: 250">
         <label>Catatan</label>
         <input type="text" id="manualNotes" placeholder="opsional, misal: diisiin manual krn lupa input">
         <label>Bukti Foto (opsional)</label>
@@ -2472,6 +2460,20 @@
       btn.textContent = originalLabel;
     });
 
+    // ── format titik ribuan otomatis buat semua input angka ──
+    // Ditulis 1 kali, dipakai ulang buat semua field angka (penghasilan,
+    // viewer, pengeluaran) biar gampang dibaca & gak salah input pas angkanya
+    // gede. Titiknya cuma tampilan doang — pas disimpan ke database tetap
+    // angka murni tanpa titik (lihat masing-masing tempat baca .value-nya).
+    function attachThousandsFormatter(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', () => {
+        const raw = el.value.replace(/\D/g, '');
+        el.value = raw ? Number(raw).toLocaleString('id-ID') : '';
+      });
+    }
+    ['expenseAmount', 'editRevenue', 'editViewers', 'manualRevenue', 'manualViewers'].forEach(attachThousandsFormatter);
 
     const photoInput = document.getElementById('photoInput');
     let selectedPhotoBase64 = null;
@@ -2544,7 +2546,7 @@
       e.preventDefault();
       const type = document.getElementById('expenseType').value;
       const title = document.getElementById('expenseTitle').value.trim();
-      const amount = Number(document.getElementById('expenseAmount').value);
+      const amount = Number(document.getElementById('expenseAmount').value.replace(/\./g, ''));
       const dateVal = document.getElementById('expenseDate').value;
       if (!title || !amount || !dateVal) return;
       try {
@@ -2583,8 +2585,8 @@
       accSelect.innerHTML = options;
       accSelect.value = currentAccId;
 
-      document.getElementById('editRevenue').value = s.revenue ?? '';
-      document.getElementById('editViewers').value = s.viewers ?? '';
+      document.getElementById('editRevenue').value = s.revenue != null ? Number(s.revenue).toLocaleString('id-ID') : '';
+      document.getElementById('editViewers').value = s.viewers != null ? Number(s.viewers).toLocaleString('id-ID') : '';
       document.getElementById('editNotes').value = s.notes || '';
 
       // isi field tanggal/jam dari data asli — format buat input type=date/time (lokal, bukan UTC)
@@ -2646,8 +2648,8 @@
       const accSelect = document.getElementById('editAccountId');
       const accountId = accSelect.value || null;
       const accountName = accountId ? (accSelect.selectedOptions[0]?.dataset.name || '') : '';
-      const revenue = Number(document.getElementById('editRevenue').value) || 0;
-      const viewers = Number(document.getElementById('editViewers').value) || 0;
+      const revenue = Number(document.getElementById('editRevenue').value.replace(/\./g, '')) || 0;
+      const viewers = Number(document.getElementById('editViewers').value.replace(/\./g, '')) || 0;
       const notes = document.getElementById('editNotes').value.trim();
 
       const payload = { accountId, accountName, revenue, viewers, notes };
@@ -2824,8 +2826,8 @@
       let endDate = new Date(`${dateVal}T${endTimeVal}:00`);
       if (endDate <= startDate) endDate.setDate(endDate.getDate() + 1); // jaga-jaga kalau live-nya lewat tengah malam
 
-      const revenue = Number(document.getElementById('manualRevenue').value) || 0;
-      const viewers = Number(document.getElementById('manualViewers').value) || 0;
+      const revenue = Number(document.getElementById('manualRevenue').value.replace(/\./g, '')) || 0;
+      const viewers = Number(document.getElementById('manualViewers').value.replace(/\./g, '')) || 0;
       const notes = document.getElementById('manualNotes').value.trim();
 
       const btn = document.getElementById('submitManualSession');
