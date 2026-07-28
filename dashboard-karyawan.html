@@ -100,7 +100,7 @@
 
   .date-heading{ font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin:16px 0 8px; }
   .date-heading:first-child{ margin-top:0; }
-  .history-item{ padding:15px 16px; margin-bottom:9px; animation:fadeUp .3s var(--ease); }
+  .history-item{ padding:15px 16px; margin-bottom:9px; }
   .history-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:10px; }
   .history-time{ font-size:.76rem; color:var(--muted); font-weight:600; }
   .history-duration{ font-family:var(--df); font-weight:700; font-size:.78rem; color:var(--coral); white-space:nowrap; }
@@ -241,7 +241,7 @@
         <label>Penghasilan dari Live (Rp)</label>
         <input type="text" inputmode="numeric" id="revenue" required placeholder="contoh: 1.500.000">
         <label>Jumlah Viewer</label>
-        <input type="number" id="viewers" min="0" required placeholder="contoh: 320">
+        <input type="text" inputmode="numeric" id="viewers" required placeholder="contoh: 320">
         <label>Catatan / Kendala (opsional)</label>
         <textarea id="notes" rows="3" placeholder="misal: koneksi sempat putus, banyak nanya ukuran, dll"></textarea>
 
@@ -363,6 +363,11 @@
     revenueInput.addEventListener('input', () => {
       const raw = revenueInput.value.replace(/\D/g, '');
       revenueInput.value = raw ? Number(raw).toLocaleString('id-ID') : '';
+    });
+    const viewersInput = document.getElementById('viewers');
+    viewersInput.addEventListener('input', () => {
+      const raw = viewersInput.value.replace(/\D/g, '');
+      viewersInput.value = raw ? Number(raw).toLocaleString('id-ID') : '';
     });
     const toast = document.getElementById('toast');
     const userNameEl = document.getElementById('userName');
@@ -855,7 +860,7 @@
       confirmEndBtn.disabled = true;
       confirmEndBtn.textContent = 'Menyimpan…';
       const revenue = Number(document.getElementById('revenue').value.replace(/\./g, ''));
-      const viewers = Number(document.getElementById('viewers').value);
+      const viewers = Number(document.getElementById('viewers').value.replace(/\./g, ''));
       const notes = document.getElementById('notes').value.trim();
       if (!document.getElementById('revenue').value || isNaN(revenue)) {
         showToast('Isi penghasilan dari live dulu ya.', true);
