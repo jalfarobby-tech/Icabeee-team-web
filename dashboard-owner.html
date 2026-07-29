@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Owner — ICABEEE TEAM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script>
@@ -24,7 +24,7 @@
 <style>
   :root{
     --ink:#111114; --muted:#6B7280; --border:#E5E7EB; --coral:#3D6A97;
-    --bg:#FAFAFA; --card:#fff; --df:'Sora',sans-serif; --di:'Inter',sans-serif;
+    --bg:#FAFAFA; --card:#fff; --df:'IBM Plex Sans',sans-serif; --di:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Sans',sans-serif;
     --ease:cubic-bezier(.16,1,.3,1);
   }
   html[data-theme="dark"]{
@@ -44,7 +44,7 @@
     color:var(--coral); background:rgba(61,106,151,.12); padding:2px 8px; border-radius:999px;
     margin-left:8px; text-transform:uppercase; letter-spacing:.03em; vertical-align:middle;
   }
-  .sidebar-clock{ font-family:var(--df); font-weight:800; font-size:1.3rem; letter-spacing:-.02em; margin-top:8px; font-variant-numeric:tabular-nums; }
+  .sidebar-clock{ font-family:var(--mono); font-weight:600; font-size:1.3rem; letter-spacing:-.01em; margin-top:8px; font-variant-numeric:tabular-nums; }
   .sidebar-date{ font-size:.68rem; color:var(--muted); margin-top:2px; }
   .sidebar-nav{ flex:1; padding:14px 12px; display:flex; flex-direction:column; gap:2px; }
   .nav-item{ display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; font-size:.85rem; font-weight:600; color:var(--muted); cursor:pointer; border:none; background:none; width:100%; text-align:left; transition:all .15s; }
@@ -80,7 +80,7 @@
   }
   .stat-icon{ width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(128,128,128,.1); color:var(--muted); margin-bottom:12px; }
   .stat-icon-rp{ font-family:var(--df); font-weight:800; font-size:.68rem; letter-spacing:-.02em; }
-  .stat-num{ font-family:var(--df); font-weight:800; font-size:1.4rem; letter-spacing:-.02em; overflow-wrap:break-word; }
+  .stat-num{ font-family:var(--mono); font-weight:600; font-size:1.4rem; letter-spacing:-.01em; overflow-wrap:break-word; font-variant-numeric:tabular-nums; }
   .stat-label{ font-size:.74rem; color:var(--muted); margin-top:3px; }
 
   .live-now-card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:22px; }
@@ -94,7 +94,7 @@
   .live-info{ flex:1; min-width:0; }
   .live-name{ font-size:.85rem; font-weight:700; }
   .live-meta{ font-size:.72rem; color:var(--muted); }
-  .live-duration{ font-family:var(--df); font-weight:700; font-size:.8rem; color:var(--coral); }
+  .live-duration{ font-family:var(--mono); font-weight:600; font-size:.8rem; color:var(--coral); font-variant-numeric:tabular-nums; }
   .live-duration.warn{ color:#DC2626; }
 
   .force-end-btn{
@@ -116,7 +116,7 @@
   .lb-rank{ font-family:var(--df); font-weight:800; font-size:.8rem; color:var(--muted); width:18px; }
   .lb-info{ flex:1; min-width:0; }
   .lb-name{ font-size:.8rem; font-weight:700; }
-  .lb-value{ font-size:.7rem; color:var(--coral); font-weight:600; }
+  .lb-value{ font-family:var(--mono); font-size:.7rem; color:var(--coral); font-weight:600; font-variant-numeric:tabular-nums; }
 
   .section-title{
     font-family:var(--df); font-weight:700; font-size:1rem; margin-bottom:14px;
@@ -130,6 +130,7 @@
 
   .emp-table-wrap{ background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
   table{ width:100%; border-collapse:collapse; }
+  td, .stat-num, .lb-value{ font-variant-numeric:tabular-nums; }
   thead th{ text-align:left; font-size:.68rem; color:var(--muted); font-weight:700; padding:12px 16px; background:rgba(128,128,128,.05); border-bottom:1px solid var(--border); white-space:nowrap; text-transform:uppercase; letter-spacing:.03em; }
   tbody td{ padding:13px 16px; font-size:.8rem; border-bottom:1px solid var(--border); white-space:nowrap; }
   tbody tr:last-child td{ border-bottom:none; }
@@ -431,7 +432,7 @@
 
     /* baris 1: nama + pendapatan */
     .keuangan-table-wrap td:nth-child(1){ grid-column:1/2; grid-row:1; align-self:center; font-size:.92rem; font-weight:700; }
-    .keuangan-table-wrap td:nth-child(3){ grid-column:2/3; grid-row:1; justify-self:end; align-self:center; font-weight:800; color:var(--coral); }
+    .keuangan-table-wrap td:nth-child(3){ grid-column:2/3; grid-row:1; justify-self:end; align-self:center; font-family:var(--mono); font-weight:600; color:var(--coral); }
 
     /* baris 2: sesi */
     .keuangan-table-wrap td:nth-child(2){
@@ -479,7 +480,7 @@
 
     /* baris 2: akun live */
     .riwayat-table-wrap td:nth-child(2){
-      grid-column:1/3; grid-row:2; font-size:.76rem; font-weight:700; color:var(--coral);
+      grid-column:1/3; grid-row:2; font-size:.76rem; font-family:var(--mono); font-weight:600; color:var(--coral);
     }
 
     /* baris 3: tanggal + waktu */
@@ -492,7 +493,7 @@
 
     /* baris 4: durasi / penghasilan */
     .riwayat-table-wrap td:nth-child(5){ grid-column:1/2; grid-row:4; }
-    .riwayat-table-wrap td:nth-child(6){ grid-column:2/3; grid-row:4; font-weight:800; color:var(--coral); }
+    .riwayat-table-wrap td:nth-child(6){ grid-column:2/3; grid-row:4; font-family:var(--mono); font-weight:600; color:var(--coral); }
 
     /* baris 5: viewer */
     .riwayat-table-wrap td:nth-child(8){ grid-column:1/2; grid-row:5; }
@@ -1709,10 +1710,10 @@
         data: { labels: days, datasets: [{ label: 'Penghasilan', data, borderColor: '#3D6A97', backgroundColor: 'rgba(61,106,151,.08)', fill: true, tension: .35, pointRadius: 2 }] },
         options: {
           responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
+          plugins: { legend: { display: false }, tooltip: { titleFont: { family: "'IBM Plex Sans', sans-serif" }, bodyFont: { family: "'IBM Plex Sans', sans-serif" }, callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
           scales: {
-            y: { beginAtZero: true, suggestedMax: 100000, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10 } } },
-            x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10 } } }
+            y: { beginAtZero: true, suggestedMax: 100000, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } },
+            x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } }
           }
         }
       });
@@ -1739,10 +1740,10 @@
         data: { labels: entries.map(e => e.name), datasets: [{ label: 'Penghasilan Bulan Ini', data: entries.map(e => e.revenue), backgroundColor: chartBarColor(), borderRadius: 6, maxBarThickness: 40 }] },
         options: {
           responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
+          plugins: { legend: { display: false }, tooltip: { titleFont: { family: "'IBM Plex Sans', sans-serif" }, bodyFont: { family: "'IBM Plex Sans', sans-serif" }, callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
           scales: {
-            y: { beginAtZero: true, suggestedMax: 100000, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10 } } },
-            x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10 } } }
+            y: { beginAtZero: true, suggestedMax: 100000, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } },
+            x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } }
           }
         }
       });
@@ -2119,10 +2120,10 @@
         },
         options: {
           responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
+          plugins: { legend: { display: false }, tooltip: { titleFont: { family: "'IBM Plex Sans', sans-serif" }, bodyFont: { family: "'IBM Plex Sans', sans-serif" }, callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
           scales: {
-            y: { beginAtZero: true, suggestedMax: 100000, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10 } } },
-            x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10 } } }
+            y: { beginAtZero: true, suggestedMax: 100000, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } },
+            x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } }
           }
         }
       });
