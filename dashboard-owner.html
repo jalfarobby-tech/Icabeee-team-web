@@ -454,10 +454,10 @@
 
   /* ═══ Riwayat Sesi Live — kartu di mobile ═══ */
   @media (max-width:640px){
-    .filter-bar{ padding:12px; gap:10px 8px; }
-    .filter-bar > div{ flex:1 1 130px; }
+    .filter-bar{ display:grid; grid-template-columns:1fr 1fr; gap:10px 8px; padding:12px; }
+    .filter-bar > div:has(select){ grid-column:1/-1; }
     .filter-bar input{ width:100%; }
-    .filter-bar .btn, .filter-bar .btn.ghost{ flex:1 1 auto; }
+    .filter-bar > button{ grid-column:1/-1; }
 
     .riwayat-table-wrap{ background:none; border:none; overflow:visible; }
     .riwayat-table-wrap table{ display:block; width:100%; }
