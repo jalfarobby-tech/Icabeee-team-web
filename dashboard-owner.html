@@ -302,7 +302,7 @@
     .sidebar-backdrop.show{ display:block; }
 
     .nav-item span, .icon-btn span{ display:inline; }
-    .nav-item, .icon-btn{ justify-content:flex-start; padding:10px 14px; }
+    .nav-item, .icon-btn{ justify-content:flex-start; padding:13px 14px; }
 
     .mobile-topbar{
       display:flex; align-items:center; justify-content:space-between;
@@ -310,7 +310,7 @@
       position:sticky; top:0; z-index:20;
     }
     .hamburger-btn{
-      width:38px; height:38px; border-radius:10px; border:1px solid var(--border); background:var(--card);
+      width:42px; height:42px; border-radius:10px; border:1px solid var(--border); background:var(--card);
       display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
     }
     .hamburger-btn svg{ width:18px; height:18px; color:var(--ink); }
@@ -319,17 +319,17 @@
       background:rgba(128,128,128,.06); border:1px solid var(--border);
     }
     .mobile-clock{
-      display:block; font-family:var(--df); font-weight:800; font-size:1.02rem;
+      display:block; font-family:var(--mono); font-weight:600; font-size:1.02rem;
       letter-spacing:-.01em; font-variant-numeric:tabular-nums; line-height:1.15;
     }
     .mobile-date{ font-size:.64rem; color:var(--muted); font-weight:600; margin-top:1px; text-transform:capitalize; }
 
     #notifBellBtnMobile{
-      width:38px; height:38px; padding:0; justify-content:center; flex-shrink:0;
+      width:42px; height:42px; padding:0; justify-content:center; flex-shrink:0;
     }
 
     .main-header{ display:none; }
-    .content{ padding:18px 16px 60px; }
+    .content{ padding:18px 16px calc(60px + env(safe-area-inset-bottom)); }
     .stat-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
     .chart-grid{ grid-template-columns:1fr; }
   }
