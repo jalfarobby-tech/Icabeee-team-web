@@ -482,6 +482,9 @@
     .riwayat-table-wrap td:nth-child(2){
       grid-column:1/3; grid-row:2; font-size:.76rem; font-family:var(--mono); font-weight:600; color:var(--coral);
     }
+    .riwayat-table-wrap td:nth-child(2)::before{
+      content:"Akun: "; font-family:var(--di); font-weight:700; color:var(--muted); text-transform:none; letter-spacing:0;
+    }
 
     /* baris 3: tanggal + waktu */
     .riwayat-table-wrap td:nth-child(3){
@@ -515,6 +518,9 @@
     .riwayat-table-wrap td:nth-child(9){
       grid-column:1/3; grid-row:6; font-size:.78rem; color:var(--muted);
       padding-top:10px; border-top:1px solid var(--border);
+    }
+    .riwayat-table-wrap td:nth-child(9)::before{
+      content:"Catatan: "; font-weight:700;
     }
     .riwayat-table-wrap td:nth-child(9):empty,
     .riwayat-table-wrap td:nth-child(9)[data-empty="1"]{ display:none; }
@@ -590,7 +596,7 @@
 
     /* baris 3: tanggal + jumlah */
     .expense-table-wrap td:nth-child(1){ grid-column:1/2; grid-row:3; font-size:.78rem; color:var(--muted); font-weight:600; align-self:center; }
-    .expense-table-wrap td:nth-child(4){ grid-column:2/3; grid-row:3; justify-self:end; align-self:center; font-family:var(--df); font-weight:800; font-size:.92rem; color:#DC2626; }
+    .expense-table-wrap td:nth-child(4){ grid-column:2/3; grid-row:3; justify-self:end; align-self:center; font-family:var(--mono); font-weight:600; font-size:.92rem; color:#DC2626; }
 
     .expense-table-wrap tr:has(.empty-state){
       display:block; background:var(--card); border:1px solid var(--border);
