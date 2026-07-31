@@ -158,6 +158,20 @@
   .proof-hint{ font-size:.7rem; color:var(--muted); margin:-4px 0 14px; }
 
   .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--bg); padding:12px 20px; border-radius:10px; font-size:.83rem; opacity:0; transition:all .3s; z-index:60; pointer-events:none; max-width:88vw; }
+
+  .starting-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.72); backdrop-filter:blur(2px);
+    display:none; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+    z-index:100; padding:24px; text-align:center;
+  }
+  .starting-overlay.show{ display:flex; }
+  .starting-spinner{
+    width:38px; height:38px; border-radius:50%; border:3px solid rgba(255,255,255,.25);
+    border-top-color:#fff; animation:startingSpin .8s linear infinite;
+  }
+  @keyframes startingSpin{ to{ transform:rotate(360deg); } }
+  .starting-text{ color:#fff; font-family:var(--df); font-weight:700; font-size:1rem; }
+  .starting-subtext{ color:rgba(255,255,255,.75); font-size:.8rem; max-width:280px; }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
   @media print{
@@ -198,6 +212,7 @@
         <div class="card status-card" id="statusCard">
           <div class="platform-tag">TikTok Live</div>
           <div class="status-row"><span class="status-dot off" id="statusDot"></span><span class="status-label" id="statusLabel">Belum Live</span></div>
+          <div class="pending-sync-tag" id="pendingSyncTag" style="display:none; font-size:.72rem; color:#DC2626; font-weight:600; margin-top:2px;">⚠️ Belum kekonfirmasi server — cek koneksi internet kamu</div>
           <div class="timer" id="timer">00:00:00</div>
           <div class="account-select-wrap" id="accountSelectWrap">
             <label>Pilih Akun Live</label>
@@ -275,6 +290,12 @@
 
   <div class="toast" id="toast"></div>
 
+  <div class="starting-overlay" id="startingOverlay">
+    <div class="starting-spinner"></div>
+    <div class="starting-text">Menyimpan ke server…</div>
+    <div class="starting-subtext">Jangan tutup app dulu ya, tunggu bentar (biasanya cuma beberapa detik)</div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app-check.js";
@@ -282,7 +303,7 @@
     import {
       initializeFirestore, persistentLocalCache, persistentSingleTabManager,
       doc, getDoc, getDocs, getDocsFromServer, setDoc, collection, addDoc, updateDoc, waitForPendingWrites,
-      query, where, orderBy, onSnapshot, Timestamp, limit
+      query, where, orderBy, onSnapshot, Timestamp, limit, runTransaction
     } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
     const ACCOUNTS_COLLECTION = 'liveAccounts';
 
@@ -409,8 +430,9 @@
       }, 1000);
     }
 
-    function setLiveUI(isLive) {
+    function setLiveUI(isLive, isPending) {
       const statusCard = document.getElementById('statusCard');
+      const pendingSyncTag = document.getElementById('pendingSyncTag');
       if (isLive) {
         statusCard.classList.add('is-live');
         statusDot.className = 'status-dot on';
@@ -421,6 +443,12 @@
           liveAccountTag.textContent = 'Akun: ' + activeAccountName;
           liveAccountTag.style.display = 'inline-flex';
         }
+        // Timer di layar ini jalan dari cache lokal begitu tombol "Mulai Live"
+        // dipencet — TAPI itu belum tentu udah beneran nyampe & tersimpan di
+        // server (misal internet kepotong/App Check gagal). Badge ini kasih
+        // tahu jujur kalau datanya masih "ngantri", bukan udah pasti tercatat,
+        // biar karyawan gak salah kira udah live padahal ownernya gak lihat apa-apa.
+        pendingSyncTag.style.display = isPending ? 'block' : 'none';
         startTimer();
       } else {
         statusCard.classList.remove('is-live');
@@ -429,6 +457,7 @@
         startBtn.style.display = 'flex'; stopBtn.style.display = 'none';
         accountSelectWrap.style.display = 'block';
         liveAccountTag.style.display = 'none';
+        pendingSyncTag.style.display = 'none';
         clearInterval(timerInterval); timerEl.textContent = '00:00:00';
         document.getElementById('alertBanner').classList.remove('show');
       }
@@ -490,12 +519,16 @@
 
     function listenActiveSession() {
       const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'active'));
-      onSnapshot(q, (snap) => {
+      // includeMetadataChanges: true — biar onSnapshot ini juga kepicu ulang pas
+      // status "hasPendingWrites" berubah dari true jadi false (yaitu pas
+      // tulisan yang tadinya cuma nyangkut lokal akhirnya beneran keterima
+      // server), bukan cuma pas datanya ganti.
+      onSnapshot(q, { includeMetadataChanges: true }, (snap) => {
         if (!snap.empty) {
           const d = snap.docs[0];
           activeSessionId = d.id; activeSessionStart = d.data().startTime;
           activeAccountName = d.data().accountName || '';
-          setLiveUI(true);
+          setLiveUI(true, d.metadata.hasPendingWrites);
           // jaring pengaman: kalau tombol Mulai Live masih nyangkut disabled
           // (nunggu konfirmasi server yang lambat) padahal sesinya udah kebuat,
           // langsung reset tombolnya biar UI gak keliatan stuck.
@@ -505,6 +538,15 @@
           }
         } else {
           activeSessionId = null; activeAccountName = ''; setLiveUI(false);
+          // jaring pengaman: kalau ternyata gak ada sesi aktif tapi dokumen kunci
+          // (activeLocks) masih ke-set true — misal sesi kehapus manual tanpa
+          // lewat alur normal — bersihin sendiri biar karyawan gak ke-block
+          // pas mau mulai live baru.
+          getDoc(doc(db, 'activeLocks', currentUser.uid)).then(lockSnap => {
+            if (lockSnap.exists() && lockSnap.data().active) {
+              setDoc(doc(db, 'activeLocks', currentUser.uid), { active: false, sessionId: null, uid: currentUser.uid }).catch(() => {});
+            }
+          }).catch(() => {});
           // jaring pengaman: kalau sesi udah kedetect selesai/kehapus di server
           // tapi modal "Isi Data Live" masih kebuka nyangkut di 'Menyimpan…'
           // (misal koneksi lambat pas nunggu konfirmasi updateDoc), tutup paksa modalnya
@@ -519,51 +561,6 @@
         }
       }, (err) => { showToast('Gagal memuat status live: ' + err.message, true); console.error(err); });
     }
-
-    // Resync paksa kalau tab sempat kebeku (HP pindah ke app lain lama, browser
-    // ngerem/nge-freeze tab di background). Listener onSnapshot bisa diam-diam putus
-    // koneksi pas dibekukan, dan gak selalu otomatis nyambung ulang begitu tab balik
-    // ke depan — akibatnya status live & riwayat bisa nyangkut di data lama. Makanya
-    // begitu tab kelihatan lagi SETELAH sempat ngilang >2 menit, kita paksa 1x baca
-    // langsung dari server (getDocsFromServer) buat mastiin datanya beneran sinkron.
-    // Kalau cuma sebentar pindah-pindah app, gak ngapa-ngapain — jadi gak nambah
-    // beban baca Firestore buat kasus normal sehari-hari.
-    let lastHiddenAt = null;
-    const RESYNC_THRESHOLD_MS = 2 * 60 * 1000; // 2 menit
-    async function forceResync() {
-      if (!currentUser) return;
-      try {
-        const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'active'));
-        const snap = await getDocsFromServer(q);
-        if (!snap.empty) {
-          const d = snap.docs[0];
-          activeSessionId = d.id; activeSessionStart = d.data().startTime;
-          activeAccountName = d.data().accountName || '';
-          setLiveUI(true);
-        } else {
-          activeSessionId = null; activeAccountName = '';
-          setLiveUI(false);
-        }
-      } catch (err) {
-        console.error('Gagal resync status live', err);
-      }
-      // Statistik "Jam Kerja"/"Sesi Live" & absensi juga cuma fetch sekali pas
-      // dashboard pertama dibuka — ikut disegerin di sini biar gak nyangkut
-      // basi kayak riwayat.
-      listenHistory();
-      listenStats();
-      listenAttendanceSessions();
-    }
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') {
-        lastHiddenAt = Date.now();
-        return;
-      }
-      if (lastHiddenAt && (Date.now() - lastHiddenAt) >= RESYNC_THRESHOLD_MS) {
-        forceResync();
-      }
-      lastHiddenAt = null;
-    });
 
     function relativeDateLabel(date) {
       const today = new Date(); today.setHours(0,0,0,0);
@@ -787,35 +784,58 @@
       isStartingSession = true;
       startBtn.disabled = true;
       const startBtnOriginalHTML = startBtn.innerHTML;
+      const startingOverlay = document.getElementById('startingOverlay');
       if (!navigator.onLine) {
         showToast('HP kamu lagi offline. Sambungin internet dulu ya.', true);
         startBtn.disabled = false;
         isStartingSession = false;
         return;
       }
-      // Sama kayak Simpan & Selesai: dibiarin jalan di background, gak dipaksa gagal
-      // cuma gara-gara lambat. listenActiveSession bakal otomatis unlock UI begitu
-      // sesinya kedetect kebuat (lewat onSnapshot), jadi gak perlu klik ulang.
-      // Juga nunggu waitForPendingWrites biar toast "Live dimulai" cuma muncul
-      // setelah beneran kekonfirmasi server — sama alasannya kayak fix di endForm.
-      addDoc(collection(db, 'sessions'), {
-        uid: currentUser.uid, employeeName: currentUserName, platform: 'TikTok',
-        accountId, accountName,
-        status: 'active', startTime: Timestamp.now(), endTime: null,
-        revenue: null, viewers: null, notes: ''
+      // Overlay ini SENGAJA nahan layar (nutupin tombol lain) selama proses
+      // nyimpen ke server berlangsung — biar karyawan gak keburu nutup/pindah
+      // app pas data "Mulai Live" masih ngantri di HP dan belum beneran
+      // kekirim. Kalau app-nya sampe dibunuh total sebelum ini kelar, proses
+      // kirimnya ikut keputus dan datanya gak nyampe ke server sama sekali.
+      startingOverlay.classList.add('show');
+      // Pakai transaction + dokumen "kunci" (activeLocks/{uid}) buat mastiin
+      // satu karyawan gak pernah punya lebih dari 1 sesi live aktif dalam
+      // waktu bersamaan — misal gara-gara double-tap pas jaringan lambat, atau
+      // buka dari 2 device. Transaction ini WAJIB online (gak bisa antri
+      // offline kayak addDoc biasa), tapi itu udah sesuai kok, soalnya kita
+      // emang udah nge-block tombol ini kalau lagi offline (cek di atas).
+      // Begitu transaction ini sukses, otomatis udah pasti kekonfirmasi
+      // server (gak butuh waitForPendingWrites lagi kayak sebelumnya).
+      const employeeLockRef = doc(db, 'activeLocks', currentUser.uid);
+      const newSessionRef = doc(collection(db, 'sessions'));
+      runTransaction(db, async (tx) => {
+        const lockSnap = await tx.get(employeeLockRef);
+        if (lockSnap.exists() && lockSnap.data().active) {
+          throw new Error('SUDAH_ADA_SESI_AKTIF');
+        }
+        tx.set(newSessionRef, {
+          uid: currentUser.uid, employeeName: currentUserName, platform: 'TikTok',
+          accountId, accountName,
+          status: 'active', startTime: Timestamp.now(), endTime: null,
+          revenue: null, viewers: null, notes: ''
+        });
+        tx.set(employeeLockRef, { active: true, sessionId: newSessionRef.id, uid: currentUser.uid });
       })
-        .then(() => waitForPendingWrites(db))
         .then(() => {
           activeAccountName = accountName;
           showToast('Live dimulai. Semangat!');
         })
         .catch(err => {
-          showToast('Gagal memulai live: ' + err.message, true);
+          if (err.message === 'SUDAH_ADA_SESI_AKTIF') {
+            showToast('Kamu udah punya sesi live aktif. Refresh dulu ya.', true);
+          } else {
+            showToast('Gagal memulai live: ' + err.message, true);
+          }
           startBtn.innerHTML = startBtnOriginalHTML;
         })
         .finally(() => {
           startBtn.disabled = false;
           isStartingSession = false;
+          startingOverlay.classList.remove('show');
         });
 
       setTimeout(() => {
@@ -945,7 +965,11 @@
       // tabel cuma download data teks kecil (`hasProof: true/false`), dan fotonya
       // BARU di-fetch pas tombol "Lihat Bukti" beneran diklik.
       payload.hasProof = hasProof;
-      const writes = [updateDoc(doc(db, 'sessions', sessionIdToClose), payload)];
+      const writes = [
+        updateDoc(doc(db, 'sessions', sessionIdToClose), payload),
+        // lepas kunci sesi aktif juga, biar karyawan bisa mulai live baru lagi nanti
+        setDoc(doc(db, 'activeLocks', currentUser.uid), { active: false, sessionId: null, uid: currentUser.uid })
+      ];
       if (hasProof) {
         writes.push(setDoc(doc(db, 'sessionProofs', sessionIdToClose), {
           uid: currentUser.uid, photo: selectedProofBase64, createdAt: Timestamp.now()
