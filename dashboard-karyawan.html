@@ -547,7 +547,12 @@
       } catch (err) {
         console.error('Gagal resync status live', err);
       }
+      // Statistik "Jam Kerja"/"Sesi Live" & absensi juga cuma fetch sekali pas
+      // dashboard pertama dibuka — ikut disegerin di sini biar gak nyangkut
+      // basi kayak riwayat.
       listenHistory();
+      listenStats();
+      listenAttendanceSessions();
     }
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
