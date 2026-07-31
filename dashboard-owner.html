@@ -1281,6 +1281,9 @@
             revenue: 0, viewers: 0,
             notes: '(Ditutup otomatis oleh sistem — live nonstop lebih dari 24 jam, kemungkinan lupa disudahi. Data penghasilan bisa diedit manual kalau tahu datanya.)'
           });
+          if (s.uid) {
+            await setDoc(doc(db, 'activeLocks', s.uid), { active: false, sessionId: null, uid: s.uid });
+          }
         } catch (err) {
           console.error('Gagal auto-close sesi', s.id, err);
           autoClosingIds.delete(s.id);
@@ -1639,11 +1642,18 @@
     async function forceEndSession(sessionId) {
       if (!confirm('Akhiri sesi live ini secara paksa? Gunakan ini kalau karyawan lupa/terputus dan tidak bisa menyelesaikan sendiri. Data penghasilan akan diisi 0, bisa diedit manual nanti kalau kamu tahu datanya.')) return;
       try {
+        const s = allSessions.find(x => x.id === sessionId);
         await updateDoc(doc(db, 'sessions', sessionId), {
           status: 'selesai', endTime: Timestamp.now(),
           revenue: 0, viewers: 0,
           notes: '(Diakhiri paksa oleh owner — kemungkinan lupa/terputus)'
         });
+        // Lepas juga kunci "sesi aktif" karyawan itu, biar dia bisa mulai live
+        // baru lagi nanti (kalau gak dilepas, transaction guard di dashboard
+        // karyawan bakal ngira dia masih ada sesi aktif dan nolak mulai live baru).
+        if (s?.uid) {
+          await setDoc(doc(db, 'activeLocks', s.uid), { active: false, sessionId: null, uid: s.uid });
+        }
         showToast('Sesi berhasil diakhiri.');
       } catch (err) {
         showToast('Gagal mengakhiri sesi: ' + err.message, true);
