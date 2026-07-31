@@ -520,6 +520,46 @@
       }, (err) => { showToast('Gagal memuat status live: ' + err.message, true); console.error(err); });
     }
 
+    // Resync paksa kalau tab sempat kebeku (HP pindah ke app lain lama, browser
+    // ngerem/nge-freeze tab di background). Listener onSnapshot bisa diam-diam putus
+    // koneksi pas dibekukan, dan gak selalu otomatis nyambung ulang begitu tab balik
+    // ke depan — akibatnya status live & riwayat bisa nyangkut di data lama. Makanya
+    // begitu tab kelihatan lagi SETELAH sempat ngilang >2 menit, kita paksa 1x baca
+    // langsung dari server (getDocsFromServer) buat mastiin datanya beneran sinkron.
+    // Kalau cuma sebentar pindah-pindah app, gak ngapa-ngapain — jadi gak nambah
+    // beban baca Firestore buat kasus normal sehari-hari.
+    let lastHiddenAt = null;
+    const RESYNC_THRESHOLD_MS = 2 * 60 * 1000; // 2 menit
+    async function forceResync() {
+      if (!currentUser) return;
+      try {
+        const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), where('status', '==', 'active'));
+        const snap = await getDocsFromServer(q);
+        if (!snap.empty) {
+          const d = snap.docs[0];
+          activeSessionId = d.id; activeSessionStart = d.data().startTime;
+          activeAccountName = d.data().accountName || '';
+          setLiveUI(true);
+        } else {
+          activeSessionId = null; activeAccountName = '';
+          setLiveUI(false);
+        }
+      } catch (err) {
+        console.error('Gagal resync status live', err);
+      }
+      listenHistory();
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        lastHiddenAt = Date.now();
+        return;
+      }
+      if (lastHiddenAt && (Date.now() - lastHiddenAt) >= RESYNC_THRESHOLD_MS) {
+        forceResync();
+      }
+      lastHiddenAt = null;
+    });
+
     function relativeDateLabel(date) {
       const today = new Date(); today.setHours(0,0,0,0);
       const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
