@@ -2,9 +2,15 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<!-- FIX: sebelumnya pakai "no-store" yang kelewat agresif — itu ikut
+     mematikan bfcache (fitur browser buat resume tab instan pas app dibuka
+     lagi), jadinya tiap kali orang gonta-ganti app di HP terus balik lagi ke
+     tab ini, browser reload total & baca ulang SEMUA data dari nol — ini yang
+     bikin kuota Firestore tiba-tiba melonjak padahal cuma "lihat-lihat" doang.
+     "no-cache" doang (tanpa no-store) tetap maksa browser cek versi terbaru ke
+     server sebelum nampilin (jadi update tetap langsung kepake), tapi gak
+     matiin bfcache, jadi buka-tutup app biasa gak lagi baca ulang semuanya. -->
+<meta http-equiv="Cache-Control" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Owner — ICABEEE TEAM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
