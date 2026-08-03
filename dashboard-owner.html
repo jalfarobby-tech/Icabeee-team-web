@@ -2,15 +2,9 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<!-- FIX: sebelumnya pakai "no-store" yang kelewat agresif — itu ikut
-     mematikan bfcache (fitur browser buat resume tab instan pas app dibuka
-     lagi), jadinya tiap kali orang gonta-ganti app di HP terus balik lagi ke
-     tab ini, browser reload total & baca ulang SEMUA data dari nol — ini yang
-     bikin kuota Firestore tiba-tiba melonjak padahal cuma "lihat-lihat" doang.
-     "no-cache" doang (tanpa no-store) tetap maksa browser cek versi terbaru ke
-     server sebelum nampilin (jadi update tetap langsung kepake), tapi gak
-     matiin bfcache, jadi buka-tutup app biasa gak lagi baca ulang semuanya. -->
-<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Owner — ICABEEE TEAM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -463,9 +457,10 @@
 
   /* ═══ Riwayat Sesi Live — kartu di mobile ═══ */
   @media (max-width:640px){
-    .filter-bar{ display:grid; grid-template-columns:1fr 1fr; gap:10px 8px; padding:12px; }
+    .filter-bar{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px 8px; padding:12px; }
+    .filter-bar > div{ min-width:0; }
     .filter-bar > div:has(select){ grid-column:1/-1; }
-    .filter-bar input{ width:100%; }
+    .filter-bar input, .filter-bar select{ width:100%; box-sizing:border-box; min-width:0; }
     .filter-bar > button{ grid-column:1/-1; }
 
     .riwayat-table-wrap{ background:none; border:none; overflow:visible; }
@@ -729,6 +724,11 @@
           <div class="chart-card">
             <h4>Perbandingan Performa Karyawan (Bulan Ini)</h4>
             <div class="chart-wrap"><canvas id="compareChart"></canvas></div>
+          </div>
+
+          <div class="chart-card" style="margin-top:14px;">
+            <h4>Perbandingan Performa Akun (Bulan Ini)</h4>
+            <div class="chart-wrap"><canvas id="accountCompareChart"></canvas></div>
           </div>
         </div>
 
@@ -1116,7 +1116,7 @@
     applyTheme(localStorage.getItem('icabeee-theme') || 'light');
     themeToggle.addEventListener('click', () => {
       applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-      renderChart(); renderCompareChart(); renderKeuangan();
+      renderChart(); renderCompareChart(); renderAccountCompareChart(); renderKeuangan();
     });
 
     let allUsers = {};
@@ -1126,7 +1126,7 @@
     let allAccounts = [];
     let selectedHistoryAccountId = '';
     let currentOwnerUid = null, currentOwnerName = 'Owner';
-    let revenueChart = null, compareChart = null, keuanganChart = null;
+    let revenueChart = null, compareChart = null, accountCompareChart = null, keuanganChart = null;
     let filterStartDate = null, filterEndDate = null, filterEmployeeUid = '';
     let archivedRangeSessions = null; // hasil query on-demand pas filter tanggal minta data di luar cache realtime
     let liveTimerInterval = null;
@@ -1193,17 +1193,31 @@
       });
     });
 
+    let currentUserRole = '';
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.href = 'login.html'; return; }
       const snap = await getDoc(doc(db, 'users', user.uid));
-      if (!snap.exists() || snap.data().role !== 'owner') { window.location.href = 'login.html'; return; }
+      const role = snap.exists() ? snap.data().role : null;
+      if (!snap.exists() || (role !== 'owner' && role !== 'hrd')) { window.location.href = 'login.html'; return; }
+      currentUserRole = role;
       currentOwnerUid = user.uid;
       currentOwnerName = snap.data().name || 'Owner';
       document.getElementById('sidebarOwnerName').textContent = currentOwnerName;
-      document.getElementById('sidebarOwnerRole').textContent = snap.data().jabatan || 'Owner';
+      document.getElementById('sidebarOwnerRole').textContent = snap.data().jabatan || (role === 'hrd' ? 'HRD' : 'Owner');
+      if (role === 'hrd') {
+        // HRD bisa akses dashboard ini penuh KECUALI bagian Keuangan (gaji &
+        // pengeluaran) — nav-nya disembunyiin, dan data-nya sama sekali gak
+        // di-fetch (bukan cuma disembunyiin doang, biar konsisten sama rules
+        // Firestore yang juga nolak baca koleksi expenses buat role ini).
+        const keuanganNav = document.querySelector('.nav-item[data-tab="keuangan"]');
+        if (keuanganNav) keuanganNav.style.display = 'none';
+        const backupBtn = document.getElementById('backupAllBtn');
+        if (backupBtn) backupBtn.style.display = 'none'; // backup JSON ikut nyeret data expenses
+      } else {
+        listenExpenses();
+      }
       listenUsers();
       listenSessions();
-      listenExpenses();
       listenNotifications();
       listenLiveAccounts();
       startPeriodicRefresh();
@@ -1216,7 +1230,7 @@
     function startPeriodicRefresh() {
       setInterval(() => {
         listenUsers();
-        listenExpenses();
+        if (currentUserRole !== 'hrd') listenExpenses();
         listenNotifications();
         listenLiveAccounts();
       }, 15 * 60 * 1000);
@@ -1281,9 +1295,6 @@
             revenue: 0, viewers: 0,
             notes: '(Ditutup otomatis oleh sistem — live nonstop lebih dari 24 jam, kemungkinan lupa disudahi. Data penghasilan bisa diedit manual kalau tahu datanya.)'
           });
-          if (s.uid) {
-            await setDoc(doc(db, 'activeLocks', s.uid), { active: false, sessionId: null, uid: s.uid });
-          }
         } catch (err) {
           console.error('Gagal auto-close sesi', s.id, err);
           autoClosingIds.delete(s.id);
@@ -1308,8 +1319,32 @@
 
     // Notifikasi juga diganti fetch sekali + refresh berkala — masih cukup
     // sigap (lihat startPeriodicRefresh) tanpa perlu koneksi real-time terus.
+    // Riwayat Edit lama-lama numpuk & bikin query makin berat tiap kali
+    // dashboard dibuka. Jadi tiap kali listenNotifications() jalan (pas load
+    // & tiap 15 menit lewat startPeriodicRefresh), sekalian bersihin log yang
+    // umurnya udah lewat 3 hari — otomatis, gak perlu tombol, gak perlu confirm
+    // (ini cuma log koreksi, bukan data penjualan/keuangan, jadi aman dihapus
+    // diam-diam). Cuma owner yang boleh delete notifications (lihat rules),
+    // makanya HRD di-skip biar gak kena permission-denied percuma.
+    async function cleanupOldNotifications() {
+      if (currentUserRole !== 'owner') return;
+      try {
+        const cutoff = Timestamp.fromDate(new Date(Date.now() - 3 * 24 * 60 * 60 * 1000));
+        const q = query(collection(db, 'notifications'), where('createdAt', '<', cutoff));
+        const snap = await getDocs(q);
+        if (snap.empty) return;
+        const ids = snap.docs.map(d => d.id);
+        for (let i = 0; i < ids.length; i += 250) {
+          const batch = writeBatch(db);
+          ids.slice(i, i + 250).forEach(id => batch.delete(doc(db, 'notifications', id)));
+          await batch.commit();
+        }
+      } catch (err) { console.error('Gagal auto-cleanup notifications:', err); }
+    }
+
     async function listenNotifications() {
       try {
+        await cleanupOldNotifications();
         const q = query(collection(db, 'notifications'), orderBy('createdAt', 'desc'), limit(150));
         const snap = await getDocs(q);
         allNotifications = [];
@@ -1560,6 +1595,7 @@
       safeRender('renderAlert', renderAlert);
       safeRender('renderChart', renderChart);
       safeRender('renderCompareChart', renderCompareChart);
+      safeRender('renderAccountCompareChart', renderAccountCompareChart);
       safeRender('renderLeaderboard', renderLeaderboard);
       safeRender('renderLiveNow', renderLiveNow);
       safeRender('renderEmployeeTable', renderEmployeeTable);
@@ -1642,18 +1678,11 @@
     async function forceEndSession(sessionId) {
       if (!confirm('Akhiri sesi live ini secara paksa? Gunakan ini kalau karyawan lupa/terputus dan tidak bisa menyelesaikan sendiri. Data penghasilan akan diisi 0, bisa diedit manual nanti kalau kamu tahu datanya.')) return;
       try {
-        const s = allSessions.find(x => x.id === sessionId);
         await updateDoc(doc(db, 'sessions', sessionId), {
           status: 'selesai', endTime: Timestamp.now(),
           revenue: 0, viewers: 0,
           notes: '(Diakhiri paksa oleh owner — kemungkinan lupa/terputus)'
         });
-        // Lepas juga kunci "sesi aktif" karyawan itu, biar dia bisa mulai live
-        // baru lagi nanti (kalau gak dilepas, transaction guard di dashboard
-        // karyawan bakal ngira dia masih ada sesi aktif dan nolak mulai live baru).
-        if (s?.uid) {
-          await setDoc(doc(db, 'activeLocks', s.uid), { active: false, sessionId: null, uid: s.uid });
-        }
         showToast('Sesi berhasil diakhiri.');
       } catch (err) {
         showToast('Gagal mengakhiri sesi: ' + err.message, true);
@@ -1773,6 +1802,38 @@
         }
       });
       document.getElementById('compareChart').parentElement.style.height = '240px';
+    }
+
+    function renderAccountCompareChart() {
+      const now = new Date();
+      const monthSessions = allSessions.filter(s => {
+        const d = s.startTime?.toDate();
+        return d && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && s.status === 'selesai';
+      });
+      const byAcc = {};
+      allAccounts.forEach(a => byAcc[a.id] = { name: a.name, revenue: 0 });
+      monthSessions.forEach(s => {
+        const key = s.accountId || s.accountName || 'lainnya';
+        if (!byAcc[key]) byAcc[key] = { name: s.accountName || 'Lainnya', revenue: 0 };
+        byAcc[key].revenue += Number(s.revenue) || 0;
+      });
+      const entries = Object.values(byAcc);
+      const ctx = document.getElementById('accountCompareChart').getContext('2d');
+      if (accountCompareChart) accountCompareChart.destroy();
+      if (entries.length === 0) return;
+      accountCompareChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: entries.map(e => e.name), datasets: [{ label: 'Penghasilan Bulan Ini', data: entries.map(e => e.revenue), backgroundColor: chartBarColor(), borderRadius: 6, maxBarThickness: 40 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { titleFont: { family: "'IBM Plex Sans', sans-serif" }, bodyFont: { family: "'IBM Plex Sans', sans-serif" }, callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
+          scales: {
+            y: { beginAtZero: true, suggestedMax: 100000, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } },
+            x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } }
+          }
+        }
+      });
+      document.getElementById('accountCompareChart').parentElement.style.height = '240px';
     }
 
     function renderLeaderboard() {
@@ -2111,7 +2172,11 @@
       if (!tbody) return;
       const data = computeKeuangan();
       const { total: totalPengeluaran } = computeExpenses();
-      const labaBersih = data.totalPendapatan - totalPengeluaran;
+      // Laba bersih = 8% dari total pendapatan live (bukan pendapatan dikurangi
+      // pengeluaran) — angka 8% ini rate tetap dari Jo, gampang diubah di sini
+      // kalau kedepannya beda persentase.
+      const LABA_BERSIH_PERSEN = 0.08;
+      const labaBersih = data.totalPendapatan * LABA_BERSIH_PERSEN;
 
       countUp(document.getElementById('keuPendapatan'), Math.round(data.totalPendapatan), true);
       countUp(document.getElementById('keuSesi'), data.totalSesi);
