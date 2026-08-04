@@ -314,7 +314,8 @@
       loginBtn.classList.add('success');
       setBtnLabel('Berhasil masuk!');
       setTimeout(() => {
-        window.location.href = snap.data().role === 'owner' ? 'dashboard-owner.html' : 'dashboard-karyawan.html';
+        const role = snap.data().role;
+        window.location.href = (role === 'owner' || role === 'hrd') ? 'dashboard-owner.html' : 'dashboard-karyawan.html';
       }, 900);
     }
 
