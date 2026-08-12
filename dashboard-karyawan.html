@@ -254,7 +254,7 @@
         <label>Catatan / Kendala (opsional)</label>
         <textarea id="notes" rows="3" placeholder="misal: koneksi sempat putus, banyak nanya ukuran, dll"></textarea>
 
-        <label>Bukti Hasil Penjualan (opsional)</label>
+        <label>Bukti Hasil Penjualan (wajib)</label>
         <input type="file" id="proofFileInput" accept="image/*" style="display:none;">
         <div class="proof-upload-box" id="proofUploadBox">
           <div class="placeholder" id="proofPlaceholder">
@@ -326,6 +326,11 @@
     let myAttendanceSessions = [];
 
     function initials(name) { return (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase(); }
+    // Teks bebas (catatan, nama akun) WAJIB lewat esc() sebelum masuk innerHTML,
+    // biar gak bisa disalahgunain buat nyisipin kode HTML/script (stored XSS).
+    function esc(str) {
+      return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
 
     const statusDot = document.getElementById('statusDot');
     const statusLabel = document.getElementById('statusLabel');
@@ -357,7 +362,7 @@
         } else {
           accountSelect.disabled = false;
           accountSelect.innerHTML = '<option value="">— Pilih akun —</option>' +
-            liveAccounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+            liveAccounts.map(a => `<option value="${a.id}">${esc(a.name)}</option>`).join('');
           if (liveAccounts.some(a => a.id === prevValue)) accountSelect.value = prevValue;
         }
       } catch (err) {
@@ -617,11 +622,11 @@
               <div class="history-duration">${Math.floor(durMin/60)}j ${durMin%60}m</div>
             </div>
             <div class="history-fields">
-              <div><div class="hf-label">Akun</div><div class="hf-value account-val">${s.accountName || '-'}</div></div>
+              <div><div class="hf-label">Akun</div><div class="hf-value account-val">${esc(s.accountName) || '-'}</div></div>
               <div><div class="hf-label">Viewer</div><div class="hf-value">${s.viewers ?? 0}</div></div>
               <div><div class="hf-label">Penghasilan</div><div class="hf-value">Rp ${Number(s.revenue ?? 0).toLocaleString('id-ID')}</div></div>
             </div>
-            ${s.notes ? `<div class="history-notes">"${s.notes}"</div>` : ''}
+            ${s.notes ? `<div class="history-notes">"${esc(s.notes)}"</div>` : ''}
           `;
           historyList.appendChild(el);
         });
@@ -918,6 +923,14 @@
       const notes = document.getElementById('notes').value.trim();
       if (!document.getElementById('revenue').value || isNaN(revenue)) {
         showToast('Isi penghasilan dari live dulu ya.', true);
+        confirmEndBtn.disabled = false;
+        confirmEndBtn.textContent = 'Simpan & Selesai';
+        isEndingSession = false;
+        return;
+      }
+
+      if (!selectedProofBase64) {
+        showToast('Upload dulu bukti screenshot penjualan ya, wajib diisi.', true);
         confirmEndBtn.disabled = false;
         confirmEndBtn.textContent = 'Simpan & Selesai';
         isEndingSession = false;
