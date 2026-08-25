@@ -1132,6 +1132,22 @@
     let liveTimerInterval = null;
     let absensiFilterStart = null, absensiFilterEnd = null;
     let keuFilterStart = null, keuFilterEnd = null;
+    // FIX: banyak angka "sepanjang waktu"/"bulan ini" per karyawan (Rincian per
+    // Karyawan & total pendapatan di tab Keuangan, Jam Kerja di tabel karyawan,
+    // grafik perbandingan bulanan, leaderboard) dulu cuma ngitung dari
+    // `allSessions` — cache realtime yang dibatasi 400 sesi TERBARU
+    // SE-PERUSAHAAN (lihat listenSessions). Begitu total sesi semua karyawan
+    // gabungan lewat 400, sesi-sesi lama karyawan yang udah lama kerja/rajin
+    // live otomatis kepotong dari cache ini — padahal dashboard karyawan
+    // sendiri narik data per-uid (gak kepotong sama batas 400 itu), jadi
+    // angkanya beda dan owner keliatan "kurang" dari yang sebenarnya.
+    // fullSessionsArchive nampung hasil query Firestore LANGSUNG (tanpa limit)
+    // begitu ketauan cache-nya kepotong — lihat ensureFullSessionsArchive()
+    // dan sessionsBase() di bawah, dipakai gantiin allSessions di semua
+    // perhitungan yang sifatnya "sepanjang waktu"/agregat per-karyawan.
+    let fullSessionsArchive = null;
+    let fullArchiveLoading = false;
+    let fullArchiveFetchedAt = 0;
 
     function initials(name) {
       return (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
@@ -1225,7 +1241,7 @@
 
     // listenSessions tetap real-time (butuh reaksi instan buat "Sedang Live").
     // 4 data lain (karyawan, pengeluaran, notifikasi, akun live) sekarang cuma
-    // di-fetch ulang tiap 3 menit — cukup sigap buat kebutuhan owner, tapi jauh
+    // di-fetch ulang tiap 15 menit — cukup sigap buat kebutuhan owner, tapi jauh
     // lebih hemat kuota dibanding dengerin real-time terus-menerus seharian.
     function startPeriodicRefresh() {
       setInterval(() => {
@@ -1261,6 +1277,12 @@
       // hari, dan leaderboard. Data yang lebih lama tetap bisa diakses lewat filter
       // tanggal di tab Riwayat / Export Excel — itu query terpisah (fetchSessionsInRange),
       // gak kena batas ini.
+      //
+      // CATATAN: sempat dicoba diganti ke getDocs + polling 45 detik untuk hemat
+      // kuota, tapi itu KELIRU — getDocs baca ulang SEMUA 400 dokumen tiap kali
+      // dipanggil (bukan cuma yang berubah), jadi malah jauh lebih boros daripada
+      // onSnapshot (yang cuma kena biaya penuh sekali di awal, abis itu cuma kena
+      // biaya read untuk dokumen yang BENERAN berubah). Dibalikin ke onSnapshot.
       const q = query(collection(db, 'sessions'), orderBy('startTime', 'desc'), limit(400));
       onSnapshot(q, (snap) => {
         allSessions = [];
@@ -1603,6 +1625,7 @@
       safeRender('renderSessionsTable', renderSessionsTable);
       safeRender('renderAbsensi', renderAbsensi);
       safeRender('renderKeuangan', renderKeuangan);
+      ensureFullSessionsArchive(); // async, jalan di belakang layar — render ulang otomatis kalau ada archive baru
       safeRender('renderRiwayatEditTable', renderRiwayatEditTable);
       safeRender('renderAccountTable', renderAccountTable);
       safeRender('renderAccountHistoryTable', renderAccountHistoryTable);
@@ -1775,7 +1798,7 @@
 
     function renderCompareChart() {
       const now = new Date();
-      const monthSessions = allSessions.filter(s => {
+      const monthSessions = sessionsBase().filter(s => {
         const d = s.startTime?.toDate();
         return d && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && s.status === 'selesai';
       });
@@ -1806,7 +1829,7 @@
 
     function renderAccountCompareChart() {
       const now = new Date();
-      const monthSessions = allSessions.filter(s => {
+      const monthSessions = sessionsBase().filter(s => {
         const d = s.startTime?.toDate();
         return d && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && s.status === 'selesai';
       });
@@ -1838,7 +1861,7 @@
 
     function renderLeaderboard() {
       const now = new Date();
-      const monthSessions = allSessions.filter(s => {
+      const monthSessions = sessionsBase().filter(s => {
         const d = s.startTime?.toDate();
         return d && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && s.status === 'selesai';
       });
@@ -1871,7 +1894,7 @@
       uids.forEach((uid) => {
         const user = allUsers[uid];
         const activeSession = allSessions.find(s => s.uid === uid && s.status === 'active');
-        const completedSessions = allSessions.filter(s => s.uid === uid && s.status === 'selesai');
+        const completedSessions = sessionsBase().filter(s => s.uid === uid && s.status === 'selesai');
         const totalMinutes = completedSessions.reduce((sum, s) => {
           if (!s.startTime || !s.endTime) return sum;
           return sum + Math.round((s.endTime.toDate() - s.startTime.toDate()) / 60000);
@@ -1903,7 +1926,7 @@
       tbody.innerHTML = '';
       uids.forEach((uid) => {
         const user = allUsers[uid];
-        const completedSessions = allSessions.filter(s => s.uid === uid && s.status === 'selesai');
+        const completedSessions = sessionsBase().filter(s => s.uid === uid && s.status === 'selesai');
         const totalMinutes = completedSessions.reduce((sum, s) => {
           if (!s.startTime || !s.endTime) return sum;
           return sum + Math.round((s.endTime.toDate() - s.startTime.toDate()) / 60000);
@@ -1987,6 +2010,7 @@
           await batch.commit();
         }
         showToast(`Berhasil hapus total: profil + ${sessCount} riwayat sesi live "${name}".`);
+        invalidateFullSessionsArchive();
       } catch (err) { showToast('Gagal menghapus total: ' + err.message, true); }
     }
     window.purgeEmployeeData = purgeEmployeeData;
@@ -2013,6 +2037,96 @@
       if (allSessions.length < 400) return null; // belum kepotong limit, semua data ada di cache
       const oldest = allSessions[allSessions.length - 1];
       return oldest?.startTime ? oldest.startTime.toDate() : null;
+    }
+
+    // Basis data buat semua perhitungan "sepanjang waktu"/agregat per-karyawan
+    // (Rincian per Karyawan, total pendapatan, Jam Kerja, grafik perbandingan
+    // bulanan, leaderboard). Gabungan riwayat lengkap (fullSessionsArchive, bisa
+    // dari cache localStorage yang "agak basi") DAN cache realtime (allSessions)
+    // — realtime yang menang kalau ID-nya sama, biar sesi yang baru aja
+    // selesai/diedit tetap langsung nongol walau archive belum di-refresh.
+    function sessionsBase() {
+      if (!fullSessionsArchive) return allSessions;
+      const map = new Map();
+      fullSessionsArchive.forEach(s => map.set(s.id, s));
+      allSessions.forEach(s => map.set(s.id, s)); // realtime selalu menang, lebih baru
+      return Array.from(map.values());
+    }
+
+    // ── cache riwayat lengkap di localStorage, biar HEMAT KUOTA ──
+    // fetchSessionsInRange(null, null) narik SELURUH koleksi sessions — kalau
+    // ini dipanggil tiap buka/refresh dashboard, kuota baca Firestore bisa
+    // boncos begitu datanya udah banyak. Jadi hasilnya disimpen di localStorage
+    // (0 biaya Firestore buat baca ulang) dan cuma dianggap "basi"/perlu
+    // di-refresh dari server kalau lebih dari 24 jam — data historis (sesi
+    // yang statusnya udah 'selesai') praktis gak berubah, jadi aman disimpen
+    // agak lama. Begitu ada perubahan data sesi dari owner sendiri (tambah
+    // manual/edit/hapus/purge karyawan), cache ini langsung dianggap basi lewat
+    // invalidateFullSessionsArchive() biar gak nampilin data usang.
+    const ARCHIVE_CACHE_KEY = 'icabeee-owner-full-sessions-cache-v1';
+    const ARCHIVE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 jam
+
+    function serializeSessionsForCache(sessions) {
+      return sessions.map(s => ({ ...s, startTime: s.startTime ? s.startTime.toDate().getTime() : null, endTime: s.endTime ? s.endTime.toDate().getTime() : null }));
+    }
+    function tsWrap(ms) { return (ms === null || ms === undefined) ? null : { toDate: () => new Date(ms) }; }
+    function deserializeSessionsFromCache(raw) {
+      return raw.map(s => ({ ...s, startTime: tsWrap(s.startTime), endTime: tsWrap(s.endTime) }));
+    }
+    function loadArchiveFromLocalStorage() {
+      try {
+        const raw = localStorage.getItem(ARCHIVE_CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed.fetchedAt || (Date.now() - parsed.fetchedAt) > ARCHIVE_MAX_AGE_MS) return null;
+        return { sessions: deserializeSessionsFromCache(parsed.sessions), fetchedAt: parsed.fetchedAt };
+      } catch (e) { return null; }
+    }
+    function saveArchiveToLocalStorage(sessions) {
+      try { localStorage.setItem(ARCHIVE_CACHE_KEY, JSON.stringify({ fetchedAt: Date.now(), sessions: serializeSessionsForCache(sessions) })); }
+      catch (e) { /* localStorage penuh/gak kebuka — gapapa, skip cache aja, gak fatal */ }
+    }
+    // Panggil ini tiap kali owner sendiri nambah/edit/hapus sesi (manual entry,
+    // koreksi penghasilan, hapus sesi, purge karyawan) — biar cache gak nampilin
+    // data usang sampai 24 jam ke depan. Cache dibuang, lain kali sessionsBase()
+    // dibutuhkan bakal ambil sekali lagi dari server (baru setelah itu balik hemat).
+    function invalidateFullSessionsArchive() {
+      fullSessionsArchive = null;
+      try { localStorage.removeItem(ARCHIVE_CACHE_KEY); } catch (e) {}
+    }
+
+    // Dipanggil tiap kali render() jalan (termasuk otomatis tiap ada update
+    // realtime). Kalau cache realtime ketauan kepotong (allSessions udah nyentuh
+    // limit 400): 1) coba pakai cache localStorage dulu (gratis, 0 baca
+    // Firestore), 2) kalau gak ada/udah basi, baru sekali itu ambil dari server
+    // dan simpen lagi ke localStorage. fullSessionsArchive yang udah kepegang di
+    // memori juga gak di-fetch ulang selama tab ini masih kebuka.
+    async function ensureFullSessionsArchive() {
+      const oldestSynced = oldestSyncedSessionDate();
+      if (!oldestSynced) return; // belum kepotong, allSessions udah lengkap
+      if (fullSessionsArchive || fullArchiveLoading) return; // udah ada di memori / lagi diambil, gak usah ulang
+
+      const cached = loadArchiveFromLocalStorage();
+      if (cached) {
+        fullSessionsArchive = cached.sessions;
+        fullArchiveFetchedAt = cached.fetchedAt;
+        render();
+        return;
+      }
+
+      fullArchiveLoading = true;
+      try {
+        const fetched = await fetchSessionsInRange(null, null);
+        fullSessionsArchive = fetched;
+        fullArchiveFetchedAt = Date.now();
+        saveArchiveToLocalStorage(fetched);
+        render(); // data lengkap kepakai, render ulang semua yang butuh riwayat penuh
+      } catch (err) {
+        console.error('Gagal ambil riwayat sesi lengkap:', err);
+        showToast('Sebagian data riwayat lama gagal dimuat, beberapa angka bisa kurang akurat: ' + err.message, true);
+      } finally {
+        fullArchiveLoading = false;
+      }
     }
 
     function renderFilterEmployeeOptions() {
@@ -2131,7 +2245,7 @@
 
     // ── keuangan otomatis (pendapatan & hasil penjualan) ──
     function computeKeuangan() {
-      let sessions = allSessions.filter(s => s.status === 'selesai' && s.startTime);
+      let sessions = sessionsBase().filter(s => s.status === 'selesai' && s.startTime);
       if (keuFilterStart) sessions = sessions.filter(s => s.startTime.toDate() >= keuFilterStart);
       if (keuFilterEnd) sessions = sessions.filter(s => s.startTime.toDate() <= keuFilterEnd);
 
@@ -2781,6 +2895,7 @@
         showToast('Data sesi berhasil diperbarui.');
         editSessionModalOverlay.classList.remove('show');
         editingSessionId = null;
+        invalidateFullSessionsArchive();
       } catch (err) { showToast('Gagal memperbarui: ' + err.message, true); }
     });
 
@@ -2802,6 +2917,7 @@
         showToast('Data sesi berhasil dihapus.');
         editSessionModalOverlay.classList.remove('show');
         editingSessionId = null;
+        invalidateFullSessionsArchive();
       } catch (err) { showToast('Gagal menghapus: ' + err.message, true); }
     });
 
@@ -2947,6 +3063,7 @@
           });
         }
         showToast('Sesi live manual berhasil disimpan.');
+        invalidateFullSessionsArchive();
         manualSessionModalOverlay.classList.remove('show');
       } catch (err) {
         showToast('Gagal menyimpan sesi: ' + err.message, true);
