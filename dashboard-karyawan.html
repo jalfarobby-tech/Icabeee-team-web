@@ -558,6 +558,13 @@
       listenHistory();
       listenStats();
       listenAttendanceSessions();
+      // FIX: dulu daftar akun live cuma di-fetch sekali pas dashboard dibuka,
+      // gak pernah ikut di-refresh — jadi kalau owner tambah/nonaktifin akun
+      // pas karyawan lagi buka tab lama, karyawan gak lihat perubahannya
+      // sampai reload manual. Sekarang ikut disegerin di sini (nebeng resync
+      // yang sudah ada, bukan interval baru), jadi tetap 0 biaya tambahan
+      // buat kasus normal sehari-hari.
+      listenLiveAccounts();
     }
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
@@ -716,7 +723,16 @@
     // listener lain, ini cuma daftar riwayat pribadi, gak perlu real-time.
     async function listenAttendanceSessions() {
       try {
-        const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), orderBy('startTime', 'desc'), limit(100));
+        // FIX: limit di sini dulu 100, terus computeMyAbsensi() masih motong lagi
+        // jadi 50 buat ANGKA "Total Hadir" (bukan cuma buat daftar yang
+        // ditampilkan) — jadinya begitu riwayat live udah lebih dari 50 sesi,
+        // "Total Hadir" nyangkut di 50 terus padahal sesi aslinya lebih banyak.
+        // Ini juga yang bikin angkanya keliatan "pas" sama data yang kepotong
+        // di dashboard owner walau sebenarnya dua bug yang beda akar. Limit
+        // dinaikin ke 1000 (samain kayak query performa di listenMySessions)
+        // biar "Total Hadir" nunjukin jumlah asli, dan cap 50 di
+        // computeMyAbsensi() dihapus.
+        const q = query(collection(db, 'sessions'), where('uid', '==', currentUser.uid), orderBy('startTime', 'desc'), limit(1000));
         const snap = await getDocsFromServer(q).catch(() => getDocs(q)); // paksa ambil dari server asli dulu (bukan cache lokal); kalau lagi offline beneran, baru fallback ke cache
         myAttendanceSessions = [];
         snap.forEach(d => myAttendanceSessions.push({ id: d.id, ...d.data() }));
@@ -732,7 +748,7 @@
           return { date: liveStart, liveStr: liveStart.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), status: 'hadir' };
         });
       records.sort((a, b) => b.date - a.date);
-      return records.slice(0, 50);
+      return records; // FIX: dulu di-slice(0, 50) di sini, bikin "Total Hadir" gak pernah nunjukin angka lebih dari 50. Paginasi tampilan tetap jalan lewat ATT_PAGE_SIZE di renderMyAttendance().
     }
 
     const ATT_PAGE_SIZE = 5;
