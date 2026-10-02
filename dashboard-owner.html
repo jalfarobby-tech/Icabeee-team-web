@@ -195,6 +195,9 @@
   html[data-theme="dark"] .expense-type-pill.gaji{ background:#1C2A3D; color:#7DA3D1; }
   html[data-theme="dark"] .expense-type-pill.operasional{ background:#332A18; color:#C9A66B; }
   .delete-expense-btn{ border:1px solid var(--border); background:var(--card); color:#DC2626; width:28px; height:28px; border-radius:7px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+  .expense-actions{ display:inline-flex; gap:6px; }
+  .edit-expense-btn{ border:1px solid var(--border); background:var(--card); color:var(--muted); width:28px; height:28px; border-radius:7px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+  .edit-expense-btn:hover{ border-color:var(--muted); color:var(--ink); }
   .delete-expense-btn:hover{ background:#FEF2F2; border-color:#DC2626; }
   html[data-theme="dark"] .delete-expense-btn:hover{ background:#450A0A; }
   .edit-session-btn{
@@ -999,8 +1002,8 @@
   <!-- Modal tambah pengeluaran / gaji -->
   <div class="modal-overlay" id="expenseModalOverlay">
     <div class="modal">
-      <h3>Catat Pengeluaran / Gaji</h3>
-      <div class="hint">Dicatat manual oleh owner — otomatis masuk ke rekap keuangan supaya laba bersih tetap akurat.</div>
+      <h3 id="expenseModalTitle">Catat Pengeluaran / Gaji</h3>
+      <div class="hint" id="expenseModalHint">Dicatat manual oleh owner — otomatis masuk ke rekap keuangan supaya laba bersih tetap akurat.</div>
       <form id="expenseForm">
         <label>Jenis</label>
         <select id="expenseType" required>
@@ -1315,12 +1318,21 @@
     // di-fetch ulang tiap 15 menit — cukup sigap buat kebutuhan owner, tapi jauh
     // lebih hemat kuota dibanding dengerin real-time terus-menerus seharian.
     function startPeriodicRefresh() {
-      setInterval(() => {
+      const REFRESH_MS = 15 * 60 * 1000;
+      let lastRefreshAt = Date.now();
+      function refreshAll() {
+        lastRefreshAt = Date.now();
         listenUsers();
         if (currentUserRole !== 'hrd') listenExpenses();
         listenNotifications();
         listenLiveAccounts();
-      }, 15 * 60 * 1000);
+      }
+      // Tab yang lagi di background gak perlu narik data (hemat read). Begitu dibuka
+      // lagi dan udah lewat 15 menit, langsung disegarkan.
+      setInterval(() => { if (!document.hidden) refreshAll(); }, REFRESH_MS);
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && Date.now() - lastRefreshAt >= REFRESH_MS) refreshAll();
+      });
     }
 
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
@@ -1397,12 +1409,29 @@
 
     // Sama kayak listenUsers — pengeluaran gak butuh update real-time detik itu
     // juga, fetch sekali + refresh berkala aja.
+    const EXPENSE_FETCH_LIMIT = 300;
+    let expensesOlderCache = null; // riwayat penuh, diambil 1x per tab HANYA kalau data > limit
     async function listenExpenses() {
       try {
-        const q = query(collection(db, 'expenses'), orderBy('date', 'desc'), limit(300));
-        const snap = await getDocs(q);
-        allExpenses = [];
-        snap.forEach((d) => allExpenses.push({ id: d.id, ...d.data() }));
+        const col = collection(db, 'expenses');
+        const snap = await getDocs(query(col, orderBy('date', 'desc'), limit(EXPENSE_FETCH_LIMIT)));
+        const recent = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        if (snap.size < EXPENSE_FETCH_LIMIT) {
+          allExpenses = recent; // semua data udah ke-load
+        } else {
+          // Kena limit: pengeluaran lama bisa kepotong, bikin Total Pengeluaran &
+          // Laba Bersih salah di rentang lama. Ambil riwayat penuh sekali per tab,
+          // lalu tiap refresh cukup gabung dengan 300 terbaru (hapus/tambah tetap kebaca).
+          if (!expensesOlderCache) {
+            const all = await getDocs(query(col, orderBy('date', 'desc')));
+            expensesOlderCache = all.docs.map((d) => ({ id: d.id, ...d.data() }));
+          }
+          const cutoff = recent[recent.length - 1].date?.toMillis?.() ?? 0;
+          const map = new Map();
+          expensesOlderCache.filter(e => (e.date?.toMillis?.() ?? 0) <= cutoff).forEach(e => map.set(e.id, e));
+          recent.forEach(e => map.set(e.id, e));
+          allExpenses = Array.from(map.values()).sort((a, b) => (b.date?.toMillis?.() ?? 0) - (a.date?.toMillis?.() ?? 0));
+        }
         render();
       } catch (err) {
         showToast('Gagal memuat data pengeluaran: ' + err.message, true);
@@ -2333,13 +2362,13 @@
         byEmployee[s.uid].pendapatan += rev;
 
         const d = s.startTime.toDate();
-        const dayKey = d.toLocaleDateString('id-ID', { day:'2-digit', month:'2-digit' });
-        if (!byDay[dayKey]) byDay[dayKey] = { pendapatan: 0, order: d.getTime() };
+        const dayKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        if (!byDay[dayKey]) byDay[dayKey] = { pendapatan: 0, order: d.getTime(), label: d.toLocaleDateString('id-ID', { day:'2-digit', month:'2-digit' }) };
         byDay[dayKey].pendapatan += rev;
       });
 
       const perEmployee = Object.values(byEmployee).sort((a, b) => b.pendapatan - a.pendapatan);
-      const perDay = Object.entries(byDay).map(([label, v]) => ({ label, ...v })).sort((a, b) => a.order - b.order);
+      const perDay = Object.values(byDay).sort((a, b) => a.order - b.order);
 
       return { totalPendapatan, totalSesi: sessions.length, perEmployee, perDay };
     }
@@ -2430,7 +2459,7 @@
             <td><span class="expense-type-pill ${type}">${typeLabel[type] || 'Lainnya'}</span></td>
             <td>${e.title || '-'}</td>
             <td>Rp ${Math.round(Number(e.amount) || 0).toLocaleString('id-ID')}</td>
-            <td><button class="delete-expense-btn" onclick="window.deleteExpenseRow('${e.id}')" title="Hapus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></td>
+            <td><div class="expense-actions"><button class="edit-expense-btn" onclick="window.editExpenseRow('${e.id}')" title="Edit" aria-label="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button><button class="delete-expense-btn" onclick="window.deleteExpenseRow('${e.id}')" title="Hapus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></td>
           </tr>
         `;
       }).join('');
@@ -2451,6 +2480,23 @@
         showToast('Catatan berhasil dihapus.');
         listenExpenses();
       } catch (err) { showToast('Gagal menghapus: ' + err.message, true); }
+    };
+
+    // Edit: buka modal yang sama dengan form catat, diisi data lama.
+    // Simpan = 1 write (updateDoc) + update data lokal, TANPA fetch ulang.
+    let editingExpenseId = null;
+    window.editExpenseRow = (id) => {
+      const e = allExpenses.find(x => x.id === id);
+      if (!e) return;
+      editingExpenseId = id;
+      document.getElementById('expenseType').value = e.type || 'lainnya';
+      document.getElementById('expenseTitle').value = e.title || '';
+      document.getElementById('expenseAmount').value = Math.round(Number(e.amount) || 0).toLocaleString('id-ID');
+      const d = e.date ? e.date.toDate() : new Date();
+      document.getElementById('expenseDate').value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      document.getElementById('expenseModalTitle').textContent = 'Edit Pengeluaran / Gaji';
+      document.getElementById('expenseModalHint').textContent = 'Perubahan langsung memengaruhi total pengeluaran dan laba bersih.';
+      document.getElementById('expenseModalOverlay').classList.add('show');
     };
 
     function setKeuRange(start, end) {
@@ -2830,11 +2876,18 @@
 
     // ── modal catat pengeluaran / gaji ──
     const expenseModalOverlay = document.getElementById('expenseModalOverlay');
+    function resetExpenseModalMode() {
+      editingExpenseId = null;
+      document.getElementById('expenseModalTitle').textContent = 'Catat Pengeluaran / Gaji';
+      document.getElementById('expenseModalHint').textContent = 'Dicatat manual oleh owner — otomatis masuk ke rekap keuangan supaya laba bersih tetap akurat.';
+    }
     document.getElementById('addExpenseBtn').addEventListener('click', () => {
+      resetExpenseModalMode();
+      document.getElementById('expenseForm').reset();
       document.getElementById('expenseDate').value = new Date().toISOString().slice(0, 10);
       expenseModalOverlay.classList.add('show');
     });
-    document.getElementById('cancelExpense').addEventListener('click', () => expenseModalOverlay.classList.remove('show'));
+    document.getElementById('cancelExpense').addEventListener('click', () => { expenseModalOverlay.classList.remove('show'); resetExpenseModalMode(); });
 
     document.getElementById('expenseForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -2843,6 +2896,27 @@
       const amount = Number(document.getElementById('expenseAmount').value.replace(/\./g, ''));
       const dateVal = document.getElementById('expenseDate').value;
       if (!title || !amount || !dateVal) return;
+      if (editingExpenseId) {
+        const id = editingExpenseId;
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        try {
+          const date = Timestamp.fromDate(new Date(dateVal + 'T00:00:00'));
+          await updateDoc(doc(db, 'expenses', id), { type, title, amount, date });
+          [allExpenses, expensesOlderCache || []].forEach(arr => {
+            const row = arr.find(x => x.id === id);
+            if (row) Object.assign(row, { type, title, amount, date });
+          });
+          allExpenses.sort((a, b) => (b.date?.toMillis?.() ?? 0) - (a.date?.toMillis?.() ?? 0));
+          showToast('Catatan berhasil diperbarui.');
+          expenseModalOverlay.classList.remove('show');
+          document.getElementById('expenseForm').reset();
+          resetExpenseModalMode();
+          render();
+        } catch (err) { showToast('Gagal memperbarui: ' + err.message, true); }
+        finally { if (submitBtn) submitBtn.disabled = false; }
+        return;
+      }
       try {
         await addDoc(collection(db, 'expenses'), {
           type, title, amount,
