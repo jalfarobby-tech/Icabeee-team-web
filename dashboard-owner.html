@@ -31,7 +31,7 @@
     --ease:cubic-bezier(.16,1,.3,1);
   }
   html[data-theme="dark"]{
-    --ink:#F4F4F5; --muted:#9CA3AF; --border:#2A2A2E; --bg:#0E0E10; --card:#18181B;
+    --ink:#F5F5F5; --muted:#9A9A9A; --border:#222222; --bg:#000000; --card:#0D0D0D; --coral:#00C27A;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{ overflow-x:hidden; }
@@ -72,7 +72,7 @@
     display:none; align-items:center; gap:10px; background:#FEF2F2; border:1px solid #FECACA; color:#B91C1C;
     padding:12px 16px; border-radius:12px; font-size:.82rem; margin-bottom:18px;
   }
-  html[data-theme="dark"] .alert-banner{ background:#2E1E1B; border-color:#4A2E2A; color:#D9968A; }
+  html[data-theme="dark"] .alert-banner{ background:#1F1210; border-color:#3A211D; color:#D9968A; }
   .alert-banner.show{ display:flex; }
   .alert-banner svg{ width:18px; height:18px; flex-shrink:0; }
 
@@ -82,6 +82,12 @@
     transition:background .2s,border-color .2s;
   }
   .stat-icon{ width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(128,128,128,.1); color:var(--muted); margin-bottom:12px; }
+  /* Dark: ikon flat tanpa kotak abu (gaya aplikasi trading), aksen hijau */
+  html[data-theme="dark"] .stat-icon{ width:auto; height:auto; background:none; border-radius:0; justify-content:flex-start; margin-bottom:10px; color:#7A7A7A; }
+  html[data-theme="dark"] .stat-icon svg{ width:18px; height:18px; stroke-width:1.75; }
+  html[data-theme="dark"] #keuLabaBersih{ color:var(--coral); }
+  html[data-theme="dark"] .sidebar-role{ background:rgba(0,194,122,.12); }
+  html[data-theme="dark"] .keu-grid .stat-card.hero .stat-icon{ color:var(--coral); }
   .stat-icon-rp{ font-family:var(--df); font-weight:800; font-size:.68rem; letter-spacing:-.02em; }
   .stat-num{ font-family:var(--mono); font-weight:600; font-size:1.4rem; letter-spacing:-.01em; overflow-wrap:break-word; font-variant-numeric:tabular-nums; }
   .stat-label{ font-size:.74rem; color:var(--muted); margin-top:3px; }
@@ -144,12 +150,12 @@
   .status-pill{ display:inline-flex; align-items:center; gap:5px; font-size:.7rem; font-weight:600; padding:4px 9px; border-radius:999px; }
   .status-pill.on{ background:#DCFCE7; color:#16A34A; }
   .status-pill.off{ background:rgba(128,128,128,.12); color:var(--muted); }
-  html[data-theme="dark"] .status-pill.on{ background:#1E2F26; color:#6FA97D; }
+  html[data-theme="dark"] .status-pill.on{ background:#0F2318; color:#6FA97D; }
   .status-pill .dot2{ width:6px; height:6px; border-radius:50%; }
   .status-pill.on .dot2{ background:#16A34A; }
   .status-pill.off .dot2{ background:#9CA3AF; }
   .status-pill.hadir{ background:#DCFCE7; color:#16A34A; }
-  html[data-theme="dark"] .status-pill.hadir{ background:#1E2F26; color:#6FA97D; }
+  html[data-theme="dark"] .status-pill.hadir{ background:#0F2318; color:#6FA97D; }
   .status-pill.hadir .dot2{ background:#16A34A; }
   .status-pill.resigned{ background:rgba(220,38,38,.1); color:#DC2626; }
   .status-pill.resigned .dot2{ background:#DC2626; }
@@ -184,7 +190,7 @@
   }
 
   .approve-btn{ border:1px solid #16A34A; background:#F0FDF4; color:#16A34A; padding:5px 10px; border-radius:7px; font-size:.68rem; font-weight:700; cursor:pointer; }
-  html[data-theme="dark"] .approve-btn{ background:#1E2F26; }
+  html[data-theme="dark"] .approve-btn{ background:#0F2318; }
   .status-approved{ display:inline-flex; align-items:center; gap:4px; font-size:.68rem; font-weight:700; color:#16A34A; }
   .status-pending{ display:inline-flex; align-items:center; gap:4px; font-size:.68rem; font-weight:700; color:#D97706; }
 
@@ -192,8 +198,8 @@
   .expense-type-pill.gaji{ background:#DBEAFE; color:#2563EB; }
   .expense-type-pill.operasional{ background:#FEF3C7; color:#D97706; }
   .expense-type-pill.lainnya{ background:rgba(128,128,128,.12); color:var(--muted); }
-  html[data-theme="dark"] .expense-type-pill.gaji{ background:#1C2A3D; color:#7DA3D1; }
-  html[data-theme="dark"] .expense-type-pill.operasional{ background:#332A18; color:#C9A66B; }
+  html[data-theme="dark"] .expense-type-pill.gaji{ background:#111C2B; color:#7DA3D1; }
+  html[data-theme="dark"] .expense-type-pill.operasional{ background:#241D0F; color:#C9A66B; }
   .delete-expense-btn{ border:1px solid var(--border); background:var(--card); color:#DC2626; width:28px; height:28px; border-radius:7px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
   .expense-actions{ display:inline-flex; gap:6px; }
   .edit-expense-btn{ border:1px solid var(--border); background:var(--card); color:var(--muted); width:28px; height:28px; border-radius:7px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
@@ -206,6 +212,8 @@
     display:inline-flex; align-items:center; gap:4px; white-space:nowrap;
   }
   .edit-session-btn:hover{ background:var(--coral); border-color:var(--coral); color:#fff; }
+  .proof-view-btn{ display:inline-flex; align-items:center; border:1px solid var(--border); background:var(--card); color:var(--muted); padding:5px 10px; border-radius:8px; font-family:var(--df); font-weight:600; font-size:.68rem; cursor:pointer; white-space:nowrap; }
+  .proof-view-btn:hover{ border-color:var(--muted); color:var(--ink); }
 
   .filter-bar{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; align-items:end; background:var(--card); padding:14px; border:1px solid var(--border); border-radius:12px; }
   .filter-bar label{ font-size:.7rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px; }
@@ -350,7 +358,7 @@
   .keu-grid .stat-card.hero{
     grid-column:1/-1; background:rgba(61,106,151,.06); border-color:rgba(61,106,151,.28);
   }
-  html[data-theme="dark"] .keu-grid .stat-card.hero{ background:rgba(125,163,209,.08); border-color:rgba(125,163,209,.25); }
+  html[data-theme="dark"] .keu-grid .stat-card.hero{ background:#141414; border-color:#2C2C2C; }
   .keu-grid .stat-card.hero .stat-num{ font-size:clamp(1.5rem,7vw,2rem); font-weight:700; }
   .keu-grid .stat-card.hero .stat-label{ font-size:.8rem; font-weight:600; color:var(--ink); margin-top:4px; }
   .keu-note{ font-size:.72rem; color:var(--muted); margin-top:6px; line-height:1.45; }
@@ -370,7 +378,7 @@
     }
     .bottom-nav button svg{ width:20px; height:20px; }
     .bottom-nav button.active{ color:var(--coral); font-weight:700; }
-    html[data-theme="dark"] .bottom-nav button.active{ color:#7DA3D1; }
+    html[data-theme="dark"] .bottom-nav button.active{ color:var(--coral); }
     .content{ padding-bottom:calc(84px + env(safe-area-inset-bottom)); }
     .toast{ bottom:calc(72px + env(safe-area-inset-bottom)); }
     .keu-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -378,85 +386,90 @@
     .keu-grid .stat-card.wide{ grid-column:1/-1; }
   }
 
-  /* ═══ Data Karyawan — kartu di mobile ═══ */
+  /* ═══ Data Karyawan — daftar ringkas di mobile (gaya watchlist) ═══ */
   @media (max-width:640px){
     .emp-table-wrap{ background:none; border:none; overflow:visible; }
     .emp-table-wrap table{ display:block; width:100%; }
     .emp-table-wrap thead{ display:none; }
-    .emp-table-wrap tbody{ display:block; }
-
-    .emp-table-wrap tr{
-      display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); row-gap:12px; column-gap:8px;
-      background:var(--card); border:1px solid var(--border); border-radius:16px;
-      padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
+    .emp-table-wrap tbody{
+      display:block; background:var(--card); border:1px solid var(--border);
+      border-radius:14px; overflow:hidden;
     }
-    .emp-table-wrap tr:active{ transform:scale(.98); }
-    .emp-table-wrap tr:last-child{ margin-bottom:0; }
+
+    /* tiap karyawan = 1 baris ringkas: [avatar nama] [status] / [jam kerja] [tombol] */
+    .emp-table-wrap tr{
+      display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center;
+      row-gap:8px; column-gap:10px; padding:12px 14px;
+      background:none; border:none; border-bottom:1px solid var(--border);
+      border-radius:0; margin:0; box-shadow:none;
+    }
+    .emp-table-wrap tr:last-child{ border-bottom:none; }
 
     .emp-table-wrap td{ display:block; border:none; padding:0; white-space:normal; }
 
-    .emp-table-wrap td:nth-child(1){ grid-column:1/2; grid-row:1; align-self:center; }
-    .emp-table-wrap td:nth-child(1) .emp-name-cell{ flex-wrap:wrap; gap:10px; }
-    .emp-table-wrap td:nth-child(1) .emp-name-cell .avatar{ width:38px; height:38px; font-size:.78rem; }
-    .emp-table-wrap td:nth-child(1) .emp-name-cell span{ font-size:.92rem; font-weight:700; }
+    .emp-table-wrap td:nth-child(1){ grid-column:1; grid-row:1; min-width:0; }
+    .emp-table-wrap td:nth-child(1) .emp-name-cell{ gap:10px; min-width:0; }
+    .emp-table-wrap td:nth-child(1) .emp-name-cell .avatar{ width:32px; height:32px; font-size:.7rem; }
+    .emp-table-wrap td:nth-child(1) .emp-name-cell span{
+      font-size:.88rem; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
 
-    .emp-table-wrap td:nth-child(2){ grid-column:2/3; grid-row:1; justify-self:end; align-self:center; }
+    .emp-table-wrap td:nth-child(2){ grid-column:2; grid-row:1; justify-self:end; }
 
     .emp-table-wrap td:nth-child(3){
-      padding-top:12px; border-top:1px solid var(--border); grid-row:2; grid-column:1/3;
+      grid-column:1; grid-row:2; padding:0 0 0 42px;
+      display:flex; align-items:baseline; gap:6px; font-size:.8rem; font-weight:600;
     }
-
-    .emp-table-wrap td:nth-child(3)::before{ content:"Jam Kerja"; }
     .emp-table-wrap td:nth-child(3)::before{
-      display:block; font-size:.6rem; font-weight:700; color:var(--muted);
-      text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px;
+      content:"Jam Kerja"; font-size:.62rem; font-weight:600; color:var(--muted);
+      text-transform:uppercase; letter-spacing:.04em;
     }
-    .emp-table-wrap td:nth-child(3){ font-size:.85rem; font-weight:600; }
 
-    .emp-table-wrap td:nth-child(4){
-      grid-column:1/3; grid-row:3; padding-top:12px; border-top:1px solid var(--border);
-    }
-    .emp-table-wrap td:nth-child(4) .resign-btn{ width:100%; padding:9px; }
+    .emp-table-wrap td:nth-child(4){ grid-column:2; grid-row:2; justify-self:end; }
+    .emp-table-wrap td:nth-child(4) .resign-btn{ width:auto; padding:5px 11px; font-size:.68rem; }
 
-    .emp-table-wrap tr:has(.empty-state){
-      display:block; background:var(--card); border:1px solid var(--border);
-      border-radius:16px; padding:0; box-shadow:none;
-    }
-    .emp-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
+    .emp-table-wrap tr:has(.empty-state){ display:block; padding:0; border-bottom:none; }
+    .emp-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding:0; border-top:none; display:block; }
   }
 
-  /* ═══ Absensi — kartu di mobile ═══ */
+  /* ═══ Absensi — rekap per karyawan (bisa dibuka lihat tanggal) ═══ */
+  .abs-name{ font-weight:600; }
+  .abs-toggle{ padding:6px 12px; font-size:.72rem; white-space:nowrap; }
+  .abs-chev{ display:inline-block; transition:transform .15s; }
+  .abs-emp-row.open .abs-chev{ transform:rotate(180deg); }
+  .abs-detail-row td{ background:rgba(128,128,128,.05); padding:12px 16px; }
+  .abs-date-list{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:0 20px; }
+  .abs-date-item{ display:flex; justify-content:space-between; gap:12px; font-size:.78rem; padding:7px 0; border-bottom:1px solid var(--border); }
+  .abs-date-item span:last-child{ color:var(--muted); font-variant-numeric:tabular-nums; }
+  .abs-more{ margin-top:10px; width:auto; padding:7px 14px; font-size:.72rem; }
+
   @media (max-width:640px){
     .absensi-table-wrap{ background:none; border:none; overflow:visible; }
     .absensi-table-wrap table{ display:block; width:100%; }
     .absensi-table-wrap thead{ display:none; }
-    .absensi-table-wrap tbody{ display:block; }
-
-    .absensi-table-wrap tr{
-      display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); row-gap:6px; column-gap:8px;
-      background:var(--card); border:1px solid var(--border); border-radius:16px;
-      padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
-    }
-    .absensi-table-wrap tr:last-child{ margin-bottom:0; }
-
-    .absensi-table-wrap td{ display:block; border:none; padding:0; white-space:normal; }
-
-    /* baris 1: nama karyawan + status pill */
-    .absensi-table-wrap td:nth-child(2){ grid-column:1/2; grid-row:1; align-self:center; font-size:.92rem; font-weight:700; }
-    .absensi-table-wrap td:nth-child(3){ grid-column:2/3; grid-row:1; justify-self:end; align-self:center; }
-
-    /* baris 2: tanggal & jam live */
-    .absensi-table-wrap td:nth-child(1){
-      grid-column:1/3; grid-row:2; font-size:.74rem; color:var(--muted); font-weight:600;
-    }
-
-    .absensi-table-wrap tr:has(.empty-state){
+    .absensi-table-wrap tbody{
       display:block; background:var(--card); border:1px solid var(--border);
-      border-radius:16px; padding:0; box-shadow:none;
+      border-radius:14px; overflow:hidden;
     }
-    .absensi-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
-    .absensi-table-wrap tr.load-more-row{ display:block; background:none; border:none; box-shadow:none; padding:0; }
-    .absensi-table-wrap tr.load-more-row td{ display:block; padding:0; border:none; }
+    .absensi-table-wrap td{ display:block; border:none; padding:0; white-space:normal; background:none; }
+
+    .absensi-table-wrap tr.abs-emp-row{
+      display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; column-gap:8px;
+      padding:12px 14px; margin:0; background:none; border:none; border-bottom:1px solid var(--border);
+      border-radius:0; box-shadow:none;
+    }
+    .absensi-table-wrap .abs-name{ font-size:.88rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .absensi-table-wrap .abs-toggle{ padding:5px 10px; font-size:.68rem; }
+
+    .absensi-table-wrap tr.abs-detail-row{
+      display:block; padding:0 14px 10px; margin:0; background:none; border:none; border-bottom:1px solid var(--border);
+    }
+    .absensi-table-wrap .abs-date-list{ grid-template-columns:1fr; }
+    .absensi-table-wrap .abs-more{ width:100%; }
+
+    .absensi-table-wrap tbody > tr:last-child{ border-bottom:none; }
+    .absensi-table-wrap tr:has(.empty-state){ display:block; padding:0; border-bottom:none; }
+    .absensi-table-wrap tr:has(.empty-state) td{ padding:0; }
   }
 
   /* ═══ Keuangan — kartu di mobile ═══ */
@@ -503,89 +516,76 @@
     .filter-bar > div:has(select){ grid-column:1/-1; }
     .filter-bar input, .filter-bar select{ width:100%; box-sizing:border-box; min-width:0; }
     .filter-bar > button{ grid-column:1/-1; }
+    /* input tanggal di mobile: browser kasih lebar bawaan yang besar, paksa ikut kolom grid */
+    .filter-bar input[type="date"]{ -webkit-appearance:none; appearance:none; display:block; width:100%; max-width:100%; min-width:0; box-sizing:border-box; padding:9px 8px; font-size:.75rem; text-align:center; overflow:hidden; }
+    .filter-bar input[type="date"]::-webkit-date-and-time-value{ text-align:center; min-width:0; }
+    .filter-bar input[type="date"]::-webkit-datetime-edit{ padding:0; min-width:0; }
+    .filter-bar label{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
+    /* tombol aksi atas: grid 2 kolom biar nggak makan 3 baris */
+    #panel-riwayat .section-title{ flex-direction:column; align-items:stretch; gap:10px; }
+    #panel-riwayat .section-title .btn-row{ display:grid; grid-template-columns:1fr 1fr; gap:8px; width:100%; }
+    #panel-riwayat .section-title .btn-row .btn{ padding:9px 8px; font-size:.7rem; white-space:nowrap; text-align:center; }
+
+    /* daftar sesi: 1 kotak, tiap sesi 3-4 baris ringkas (gaya watchlist) */
     .riwayat-table-wrap{ background:none; border:none; overflow:visible; }
     .riwayat-table-wrap table{ display:block; width:100%; }
     .riwayat-table-wrap thead{ display:none; }
-    .riwayat-table-wrap tbody{ display:block; }
-
-    .riwayat-table-wrap tr{
-      display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); row-gap:10px; column-gap:10px;
-      background:var(--card); border:1px solid var(--border); border-radius:16px;
-      padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05);
+    .riwayat-table-wrap tbody{
+      display:block; background:var(--card); border:1px solid var(--border);
+      border-radius:14px; overflow:hidden;
     }
-    .riwayat-table-wrap tr:last-child{ margin-bottom:0; }
+    .riwayat-table-wrap tr{
+      display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center;
+      row-gap:6px; column-gap:10px; padding:12px 14px; margin:0;
+      background:none; border:none; border-bottom:1px solid var(--border);
+      border-radius:0; box-shadow:none;
+    }
+    .riwayat-table-wrap tr:last-child{ border-bottom:none; }
     .riwayat-table-wrap td{ display:block; border:none; padding:0; white-space:normal; }
 
-    /* baris 1: nama karyawan + status */
-    .riwayat-table-wrap td:nth-child(1){
-      grid-column:1/2; grid-row:1; align-self:center; font-size:.92rem; font-weight:700;
-    }
-    .riwayat-table-wrap td:nth-child(10){ grid-column:2/3; grid-row:1; justify-self:end; align-self:center; }
-
-    /* baris 2: akun live */
-    .riwayat-table-wrap td:nth-child(2){
-      grid-column:1/3; grid-row:2; font-size:.76rem; font-family:var(--mono); font-weight:600; color:var(--coral);
-    }
-    .riwayat-table-wrap td:nth-child(2)::before{
-      content:"Akun: "; font-family:var(--di); font-weight:700; color:var(--muted); text-transform:none; letter-spacing:0;
+    /* baris 1: nama (kiri) + penghasilan (kanan) */
+    .riwayat-table-wrap td:nth-child(1){ grid-column:1; grid-row:1; font-size:.9rem; font-weight:600; min-width:0; }
+    .riwayat-table-wrap td:nth-child(6){
+      grid-column:2; grid-row:1; justify-self:end; font-family:var(--mono); font-weight:600;
+      font-size:.88rem; color:var(--coral); font-variant-numeric:tabular-nums;
     }
 
-    /* baris 3: tanggal + waktu */
-    .riwayat-table-wrap td:nth-child(3){
-      grid-column:1/3; grid-row:3; font-size:.78rem; color:var(--muted); font-weight:600;
-      padding-top:10px; border-top:1px solid var(--border);
-    }
+    /* baris 2: tanggal • jam (kiri) + durasi / LIVE (kanan) */
+    .riwayat-table-wrap td:nth-child(3){ grid-column:1; grid-row:2; font-size:.74rem; color:var(--muted); font-weight:500; }
     .riwayat-table-wrap td:nth-child(3)::after{ content:" • " attr(data-time); }
     .riwayat-table-wrap td:nth-child(4){ display:none; }
+    .riwayat-table-wrap td:nth-child(5){ grid-column:2; grid-row:2; justify-self:end; font-size:.76rem; font-weight:600; }
 
-    /* baris 4: durasi / penghasilan */
-    .riwayat-table-wrap td:nth-child(5){ grid-column:1/2; grid-row:4; }
-    .riwayat-table-wrap td:nth-child(6){ grid-column:2/3; grid-row:4; font-family:var(--mono); font-weight:600; color:var(--coral); }
-
-    /* baris 5: viewer */
-    .riwayat-table-wrap td:nth-child(8){ grid-column:1/2; grid-row:5; }
-
-    .riwayat-table-wrap td:nth-child(5)::before{ content:"Durasi"; }
-    .riwayat-table-wrap td:nth-child(6)::before{ content:"Penghasilan"; }
-    .riwayat-table-wrap td:nth-child(8)::before{ content:"Viewer"; }
-    .riwayat-table-wrap td:nth-child(5)::before,
-    .riwayat-table-wrap td:nth-child(6)::before,
-    .riwayat-table-wrap td:nth-child(8)::before{
-      display:block; font-size:.6rem; font-weight:700; color:var(--muted);
-      text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px;
+    /* baris 3: akun (kiri) + viewer (kanan) */
+    .riwayat-table-wrap td:nth-child(2){ grid-column:1; grid-row:3; font-size:.72rem; font-weight:600; color:var(--coral); min-width:0; }
+    .riwayat-table-wrap td:nth-child(2)::before{
+      content:"Akun: "; font-weight:600; color:var(--muted);
     }
-    .riwayat-table-wrap td:nth-child(5),
-    .riwayat-table-wrap td:nth-child(6),
-    .riwayat-table-wrap td:nth-child(8){ font-size:.85rem; font-weight:600; }
+    .riwayat-table-wrap td:nth-child(8){ grid-column:2; grid-row:3; justify-self:end; font-size:.72rem; font-weight:600; color:var(--muted); }
+    .riwayat-table-wrap td:nth-child(8)::before{ content:"Viewer "; font-weight:500; }
 
-    /* baris 6: catatan (kalau ada) */
+    /* baris 4: catatan (kalau ada), maks 2 baris */
     .riwayat-table-wrap td:nth-child(9){
-      grid-column:1/3; grid-row:6; font-size:.78rem; color:var(--muted);
-      padding-top:10px; border-top:1px solid var(--border);
+      grid-column:1/3; grid-row:4; font-size:.74rem; color:var(--muted);
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
     }
-    .riwayat-table-wrap td:nth-child(9)::before{
-      content:"Catatan: "; font-weight:700;
-    }
+    .riwayat-table-wrap td:nth-child(9)::before{ content:"Catatan: "; font-weight:600; }
     .riwayat-table-wrap td:nth-child(9):empty,
     .riwayat-table-wrap td:nth-child(9)[data-empty="1"]{ display:none; }
 
-    /* baris 7: bukti foto */
-    .riwayat-table-wrap td:nth-child(7){ grid-column:1/3; grid-row:7; }
+    /* baris 5: bukti foto (kiri, kalau ada) + tombol edit kecil (kanan) */
+    .riwayat-table-wrap td:nth-child(7){ grid-column:1; grid-row:5; }
     .riwayat-table-wrap td:nth-child(7)[data-empty="1"]{ display:none; }
-    .riwayat-table-wrap td:nth-child(7) .proof-thumb{ width:48px; height:48px; }
+    .riwayat-table-wrap td:nth-child(7) .proof-thumb{ width:40px; height:40px; }
+    .riwayat-table-wrap td:nth-child(11){ grid-column:2; grid-row:5; justify-self:end; }
+    .riwayat-table-wrap td:nth-child(11) .edit-session-btn{ width:auto; justify-content:center; padding:5px 12px; font-size:.68rem; }
 
-    /* baris 8: tombol edit */
-    .riwayat-table-wrap td:nth-child(11){
-      grid-column:1/3; grid-row:8; padding-top:10px; border-top:1px solid var(--border);
-    }
-    .riwayat-table-wrap td:nth-child(11) .edit-session-btn{ width:100%; justify-content:center; padding:9px; }
+    /* status "Selesai" dobel info (durasi sudah tampil / LIVE sudah ada badge) -> disembunyikan di mobile */
+    .riwayat-table-wrap td:nth-child(10){ display:none; }
 
-    .riwayat-table-wrap tr:has(.empty-state){
-      display:block; background:var(--card); border:1px solid var(--border);
-      border-radius:16px; padding:0; box-shadow:none;
-    }
-    .riwayat-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
+    .riwayat-table-wrap tr:has(.empty-state){ display:block; padding:0; border-bottom:none; }
+    .riwayat-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding:0; border-top:none; }
     .riwayat-table-wrap tr.load-more-row{ display:block; background:none; border:none; box-shadow:none; padding:0; }
     .riwayat-table-wrap tr.load-more-row td{ display:block; grid-column:unset; padding:0; border:none; }
   }
@@ -852,7 +852,7 @@
           <div class="table-scroll absensi-table-wrap">
             <table>
               <thead>
-                <tr><th>Tanggal &amp; Jam Live</th><th>Karyawan</th><th>Status</th></tr>
+                <tr><th>Karyawan</th><th>Jumlah Hadir</th><th>Detail</th></tr>
               </thead>
               <tbody id="absensiTableBody"><tr><td colspan="3" class="empty-state">Belum ada data</td></tr></tbody>
             </table>
@@ -876,9 +876,9 @@
           </div>
 
           <div class="stat-grid keu-grid">
-            <div class="stat-card hero"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l6-6 4 4 8-8M21 2h-6M21 2v6"/></svg></div><div class="stat-num" id="keuLabaBersih">Rp 0</div><div class="stat-label">Laba Bersih</div><div class="keu-note" id="keuLabaNote">8% pendapatan − pengeluaran &amp; gaji</div></div>
-            <div class="stat-card"><div class="stat-icon stat-icon-rp">Rp</div><div class="stat-num" id="keuPendapatan">Rp 0</div><div class="stat-label">Total Pendapatan</div></div>
+            <div class="stat-card hero"><div class="stat-icon stat-icon-rp">Rp</div><div class="stat-num" id="keuPendapatan">Rp 0</div><div class="stat-label">Total Pendapatan</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div><div class="stat-num" id="keuPengeluaran">Rp 0</div><div class="stat-label">Total Pengeluaran &amp; Gaji</div></div>
+            <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l6-6 4 4 8-8M21 2h-6M21 2v6"/></svg></div><div class="stat-num" id="keuLabaBersih">Rp 0</div><div class="stat-label">Laba Bersih</div><div class="keu-note" id="keuLabaNote">8% pendapatan − pengeluaran &amp; gaji</div></div>
             <div class="stat-card wide"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><div class="stat-num" data-count="0" id="keuSesi">0</div><div class="stat-label">Sesi Live</div></div>
           </div>
 
@@ -1854,9 +1854,23 @@
       if (e.target.id === 'proofLightbox') document.getElementById('proofLightbox').classList.remove('show');
     });
 
-    function chartTextColor() { return getComputedStyle(root).getPropertyValue('--ink').trim() || '#111114'; }
-    function chartGridColor() { return root.getAttribute('data-theme') === 'dark' ? '#2A2A2E' : '#F4F4F5'; }
-    function chartBarColor() { return '#3D6A97'; }
+    function chartTextColor() { return getComputedStyle(root).getPropertyValue('--muted').trim() || '#6B7280'; }
+    function chartGridColor() { return root.getAttribute('data-theme') === 'dark' ? '#1F1F1F' : '#F4F4F5'; }
+    function chartIsDark() { return root.getAttribute('data-theme') === 'dark'; }
+    function chartAccent() { return chartIsDark() ? '#00C27A' : '#3D6A97'; }
+    function chartBarColor() { return chartAccent(); }
+    function chartAreaFill(ctx) {
+      const h = (ctx && ctx.canvas && ctx.canvas.clientHeight) || 260;
+      const g = ctx.createLinearGradient(0, 0, 0, h);
+      const rgb = chartIsDark() ? '0,194,122' : '61,106,151';
+      g.addColorStop(0, 'rgba(' + rgb + ',.28)');
+      g.addColorStop(1, 'rgba(' + rgb + ',0)');
+      return g;
+    }
+    function chartTooltipStyle() {
+      const d = chartIsDark();
+      return { backgroundColor: d ? '#141414' : '#111114', borderColor: d ? '#2C2C2C' : 'transparent', borderWidth: d ? 1 : 0, padding: 10, cornerRadius: 8, displayColors: false, titleColor: '#9A9A9A', bodyColor: '#FFFFFF', titleMarginBottom: 4 };
+    }
     function formatRupiahShort(v) {
       v = Number(v) || 0;
       if (v === 0) return 'Rp 0';
@@ -1884,12 +1898,12 @@
       if (revenueChart) revenueChart.destroy();
       revenueChart = new Chart(ctx, {
         type: 'line',
-        data: { labels: days, datasets: [{ label: 'Penghasilan', data, borderColor: '#3D6A97', backgroundColor: 'rgba(61,106,151,.08)', fill: true, tension: .35, pointRadius: 2 }] },
+        data: { labels: days, datasets: [{ label: 'Penghasilan', data, borderColor: chartAccent(), backgroundColor: chartAreaFill(ctx), borderWidth: 2, fill: true, tension: .35, pointRadius: 0, pointHoverRadius: 4, pointHoverBackgroundColor: chartAccent(), pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2 }] },
         options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { titleFont: { family: "'IBM Plex Sans', sans-serif" }, bodyFont: { family: "'IBM Plex Sans', sans-serif" }, callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
+          responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { display: false }, tooltip: { ...chartTooltipStyle(), titleFont: { family: "'IBM Plex Sans', sans-serif" }, bodyFont: { family: "'IBM Plex Sans', sans-serif" }, callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
           scales: {
-            y: { beginAtZero: true, suggestedMax: 100000, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } },
+            y: { beginAtZero: true, suggestedMax: 100000, border: { display: false }, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } },
             x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } }
           }
         }
@@ -1914,12 +1928,12 @@
       if (entries.length === 0) return;
       compareChart = new Chart(ctx, {
         type: 'bar',
-        data: { labels: entries.map(e => e.name), datasets: [{ label: 'Penghasilan Bulan Ini', data: entries.map(e => e.revenue), backgroundColor: chartBarColor(), borderRadius: 6, maxBarThickness: 40 }] },
+        data: { labels: entries.map(e => e.name), datasets: [{ label: 'Penghasilan Bulan Ini', data: entries.map(e => e.revenue), backgroundColor: chartBarColor(), borderRadius: 4, maxBarThickness: 32 }] },
         options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { titleFont: { family: "'IBM Plex Sans', sans-serif" }, bodyFont: { family: "'IBM Plex Sans', sans-serif" }, callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
+          responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { display: false }, tooltip: { ...chartTooltipStyle(), titleFont: { family: "'IBM Plex Sans', sans-serif" }, bodyFont: { family: "'IBM Plex Sans', sans-serif" }, callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
           scales: {
-            y: { beginAtZero: true, suggestedMax: 100000, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } },
+            y: { beginAtZero: true, suggestedMax: 100000, border: { display: false }, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } },
             x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } }
           }
         }
@@ -1946,12 +1960,12 @@
       if (entries.length === 0) return;
       accountCompareChart = new Chart(ctx, {
         type: 'bar',
-        data: { labels: entries.map(e => e.name), datasets: [{ label: 'Penghasilan Bulan Ini', data: entries.map(e => e.revenue), backgroundColor: chartBarColor(), borderRadius: 6, maxBarThickness: 40 }] },
+        data: { labels: entries.map(e => e.name), datasets: [{ label: 'Penghasilan Bulan Ini', data: entries.map(e => e.revenue), backgroundColor: chartBarColor(), borderRadius: 4, maxBarThickness: 32 }] },
         options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { titleFont: { family: "'IBM Plex Sans', sans-serif" }, bodyFont: { family: "'IBM Plex Sans', sans-serif" }, callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
+          responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { display: false }, tooltip: { ...chartTooltipStyle(), titleFont: { family: "'IBM Plex Sans', sans-serif" }, bodyFont: { family: "'IBM Plex Sans', sans-serif" }, callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
           scales: {
-            y: { beginAtZero: true, suggestedMax: 100000, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } },
+            y: { beginAtZero: true, suggestedMax: 100000, border: { display: false }, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } },
             x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } }
           }
         }
@@ -2308,8 +2322,15 @@
       return records;
     }
 
-    let absensiPageSize = 25;
+    let absensiPageSize = 25; // dipertahankan: masih di-reset oleh handler filter
+    let absensiGroups = [];
+    const absensiExpanded = new Set();
+    const absensiDetailLimit = {};
+    const ABS_DETAIL_STEP = 10;
+    function absEsc(t) { return String(t).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])); }
 
+    // Semua dihitung dari allSessions yang sudah ada di memori (listener yang sama dengan tab lain),
+    // jadi merapikan tampilan absensi ini TIDAK menambah query/read Firebase sama sekali.
     function renderAbsensi() {
       const tbody = document.getElementById('absensiTableBody');
       if (!tbody) return;
@@ -2317,31 +2338,62 @@
 
       countUp(document.getElementById('statHadir'), records.length);
 
-      if (records.length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Belum ada data absensi</td></tr>'; return; }
-
-      const visible = records.slice(0, absensiPageSize);
-      tbody.innerHTML = visible.map(r => {
-        const dateStr = r.date.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
-        return `
-          <tr>
-            <td>${dateStr} · ${r.liveStr}</td><td>${r.employeeName || '-'}</td>
-            <td><span class="status-pill hadir"><span class="dot2"></span>Hadir</span></td>
-          </tr>
-        `;
-      }).join('');
-
-      if (records.length > absensiPageSize) {
-        tbody.innerHTML += `<tr class="load-more-row"><td colspan="3" style="text-align:center; padding:14px;">
-          <button class="btn ghost" id="absensiMoreBtn" style="width:auto; padding:9px 20px;">
-            Muat Lebih Banyak (${records.length - absensiPageSize} lagi)
-          </button>
-        </td></tr>`;
-        document.getElementById('absensiMoreBtn').addEventListener('click', () => {
-          absensiPageSize += 25;
-          renderAbsensi();
-        });
+      if (records.length === 0) {
+        absensiGroups = [];
+        tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Belum ada data absensi</td></tr>';
+        return;
       }
+
+      const map = {};
+      records.forEach(r => { const k = r.employeeName || '-'; (map[k] = map[k] || []).push(r); });
+      absensiGroups = Object.keys(map)
+        .map(name => ({ name, records: map[name] }))
+        .sort((a, b) => b.records.length - a.records.length || a.name.localeCompare(b.name));
+      renderAbsensiRows();
     }
+
+    function renderAbsensiRows() {
+      const tbody = document.getElementById('absensiTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = absensiGroups.map((g, i) => {
+        const open = absensiExpanded.has(g.name);
+        let html = `
+          <tr class="abs-emp-row${open ? ' open' : ''}">
+            <td class="abs-name">${absEsc(g.name)}</td>
+            <td><span class="status-pill hadir"><span class="dot2"></span>${g.records.length}× hadir</span></td>
+            <td><button class="btn ghost abs-toggle" data-idx="${i}" aria-expanded="${open}">${open ? 'Tutup' : 'Lihat tanggal'} <span class="abs-chev">▾</span></button></td>
+          </tr>`;
+        if (open) {
+          const limit = absensiDetailLimit[g.name] || ABS_DETAIL_STEP;
+          const items = g.records.slice(0, limit).map(r => {
+            const d = r.date.toLocaleDateString('id-ID', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+            return `<div class="abs-date-item"><span>${d}</span><span>${r.liveStr}</span></div>`;
+          }).join('');
+          const more = g.records.length > limit
+            ? `<button class="btn ghost abs-more" data-idx="${i}">Lihat lebih banyak (${g.records.length - limit} lagi)</button>` : '';
+          html += `<tr class="abs-detail-row"><td colspan="3"><div class="abs-date-list">${items}</div>${more}</td></tr>`;
+        }
+        return html;
+      }).join('');
+    }
+
+    (function bindAbsensiToggle() {
+      const tb = document.getElementById('absensiTableBody');
+      if (!tb || tb.dataset.bound) return;
+      tb.dataset.bound = '1';
+      tb.addEventListener('click', (e) => {
+        const t = e.target.closest('.abs-toggle, .abs-more');
+        if (!t) return;
+        const g = absensiGroups[Number(t.dataset.idx)];
+        if (!g) return;
+        if (t.classList.contains('abs-toggle')) {
+          if (absensiExpanded.has(g.name)) absensiExpanded.delete(g.name); else absensiExpanded.add(g.name);
+        } else {
+          absensiDetailLimit[g.name] = (absensiDetailLimit[g.name] || ABS_DETAIL_STEP) + ABS_DETAIL_STEP;
+        }
+        renderAbsensiRows();
+      });
+    })();
 
     // ── keuangan otomatis (pendapatan & hasil penjualan) ──
     function computeKeuangan() {
@@ -2421,14 +2473,14 @@
         data: {
           labels: data.perDay.map(d => d.label),
           datasets: [
-            { label: 'Pendapatan', data: data.perDay.map(d => d.pendapatan), backgroundColor: '#3D6A97', borderRadius: 5, maxBarThickness: 28 }
+            { label: 'Pendapatan', data: data.perDay.map(d => d.pendapatan), backgroundColor: chartAccent(), borderRadius: 4, maxBarThickness: 22 }
           ]
         },
         options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { titleFont: { family: "'IBM Plex Sans', sans-serif" }, bodyFont: { family: "'IBM Plex Sans', sans-serif" }, callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
+          responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { display: false }, tooltip: { ...chartTooltipStyle(), titleFont: { family: "'IBM Plex Sans', sans-serif" }, bodyFont: { family: "'IBM Plex Sans', sans-serif" }, callbacks: { label: ctx => 'Rp ' + Number(ctx.parsed.y || 0).toLocaleString('id-ID') } } },
           scales: {
-            y: { beginAtZero: true, suggestedMax: 100000, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } },
+            y: { beginAtZero: true, suggestedMax: 100000, border: { display: false }, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 6, callback: v => formatRupiahShort(v), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } },
             x: { grid: { display: false }, ticks: { color: chartTextColor(), font: { size: 10, family: "'IBM Plex Sans', sans-serif" } } }
           }
         }
