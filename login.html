@@ -7,44 +7,62 @@
      reload total tiap buka-tutup app. "no-cache" doang udah cukup buat maksa
      browser cek versi terbaru tanpa efek samping itu. -->
 <meta http-equiv="Cache-Control" content="no-cache">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
 <title>Masuk — ICABEEE TEAM</title>
+<script>
+  /* ikut tema yang dipilih di dashboard (key sama), diset sebelum render biar gak kedip */
+  try{ document.documentElement.setAttribute('data-theme', localStorage.getItem('icabeee-theme') || 'light'); }
+  catch(e){ document.documentElement.setAttribute('data-theme','light'); }
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#F6F5F2; --ink:#17171A; --ink-soft:#6E6E76; --ink-faint:#A9A8A2;
-    --line:#E4E2DC; --line-strong:#D3D0C8;
-    --accent:#D2491F; --accent-soft:#FBEAE0;
-    --good:#2F8F5B; --good-soft:#E7F3EC;
-    --bad:#C23B2E; --bad-soft:#FBEAE8;
-    --df:'Sora',sans-serif; --di:'Inter',sans-serif;
+    --ink:#111114; --muted:#6B7280; --border:#E5E7EB; --bg:#FAFAFA; --card:#fff;
+    --pos:#16A34A; --pos-ink:#fff; --neg:#B42318; --neg-soft:#FEF2F2; --neg-line:#FECACA;
+    --good-soft:#F0FDF4; --good-line:#BBF7D0; --soft:rgba(128,128,128,.07);
+    --df:'IBM Plex Sans',sans-serif; --di:'IBM Plex Sans',sans-serif;
     --ease:cubic-bezier(.16,1,.3,1);
   }
-  *{ box-sizing:border-box; }
-  html,body{ height:100%; }
-  body{
-    margin:0; font-family:var(--di); color:var(--ink); background:var(--paper);
-    display:flex; align-items:center; justify-content:center; padding:24px;
-    -webkit-font-smoothing:antialiased;
+  html[data-theme="dark"]{
+    --ink:#F5F5F5; --muted:#9A9A9A; --border:#222222; --bg:#000000; --card:#0D0D0D;
+    --pos:#00C27A; --pos-ink:#00140C; --neg:#F87171; --neg-soft:#1F1210; --neg-line:#3A211D;
+    --good-soft:#0A1A12; --good-line:#14382A;
   }
+  *{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    font-family:var(--di); color:var(--ink); background:var(--bg); min-height:100vh; min-height:100dvh;
+    display:flex; padding:24px 20px; padding-top:max(24px, env(safe-area-inset-top)); padding-bottom:max(24px, env(safe-area-inset-bottom));
+    -webkit-font-smoothing:antialiased; transition:background .2s,color .2s;
+  }
+  button,input{ font-family:inherit; }
 
-  .wrap{ width:100%; max-width:368px; opacity:0; transform:translateY(6px); animation:riseIn .6s var(--ease) forwards; }
+  .theme-btn{
+    position:fixed; top:max(16px, env(safe-area-inset-top)); right:16px; width:38px; height:38px; border-radius:10px;
+    border:1px solid var(--border); background:var(--card); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:border-color .15s;
+  }
+  .theme-btn:hover{ border-color:var(--muted); }
+  .theme-btn svg{ width:16px; height:16px; color:var(--muted); }
+
+  /* margin:auto = tengah vertikal, tapi tetap bisa di-scroll kalau keyboard HP nutupin layar */
+  .wrap{ width:100%; max-width:380px; margin:auto; opacity:0; transform:translateY(6px); animation:riseIn .6s var(--ease) forwards; }
   @keyframes riseIn{ to{ opacity:1; transform:translateY(0); } }
 
   /* ═══ wordmark ═══ */
-  .brand{ display:flex; align-items:center; justify-content:center; margin-bottom:6px; }
-  .wordmark{ font-family:var(--df); font-weight:800; font-size:1.2rem; letter-spacing:.02em; }
-  .team-label{
-    text-align:center; font-size:.68rem; font-weight:600; letter-spacing:.22em;
-    color:var(--ink-faint); text-transform:uppercase; margin-bottom:40px;
-  }
+  .brand{ display:flex; align-items:center; justify-content:center; gap:8px; }
+  .wordmark{ font-weight:800; font-size:1.3rem; letter-spacing:.03em; }
+  .live-dot{ width:7px; height:7px; border-radius:50%; background:var(--pos); animation:pulse 2s ease infinite; transition:background .25s; }
+  body.state-error .live-dot{ background:var(--neg); animation:none; }
+  body.state-success .live-dot{ animation:none; }
+  @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.4; } }
+  .team-label{ text-align:center; font-size:.66rem; font-weight:600; letter-spacing:.24em; color:var(--muted); text-transform:uppercase; margin:6px 0 30px; }
 
-  .heading{ font-family:var(--df); font-weight:700; font-size:1.3rem; text-align:center; margin-bottom:6px; }
-  .sub{ text-align:center; color:var(--ink-soft); font-size:.86rem; margin-bottom:30px; transition:color .3s; }
-  .sub.error{ color:var(--bad); }
-  .sub.success{ color:var(--good); }
+  .card{ background:var(--card); border:1px solid var(--border); border-radius:18px; padding:26px 22px 22px; transition:background .2s,border-color .2s; }
+  .heading{ font-weight:700; font-size:1.2rem; text-align:center; margin-bottom:6px; letter-spacing:-.01em; }
+  .sub{ text-align:center; color:var(--muted); font-size:.84rem; margin-bottom:22px; min-height:1.3em; transition:color .3s; }
+  .sub.error{ color:var(--neg); }
+  .sub.success{ color:var(--pos); }
 
   /* ═══ panel switching ═══ */
   .panel{ display:none; }
@@ -53,176 +71,163 @@
   @keyframes panelIn{ from{ opacity:0; transform:translateY(4px); } to{ opacity:1; transform:translateY(0); } }
   @keyframes panelOut{ to{ opacity:0; transform:translateY(-4px); } }
 
-  /* ═══ form, gaya garis-bawah polos (bukan kotak bervolume) ═══ */
-  .field{ margin-bottom:20px; }
-  .field label{
-    display:block; font-size:.74rem; font-weight:600; color:var(--ink-soft);
-    margin-bottom:7px; letter-spacing:.01em;
-  }
+  /* ═══ form ═══ */
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:.66rem; font-weight:700; color:var(--muted); margin-bottom:7px; letter-spacing:.06em; text-transform:uppercase; }
+  .field-icon-input{ position:relative; }
+  .field-icon-input > svg{ position:absolute; left:14px; top:50%; margin-top:-8px; width:16px; height:16px; color:var(--muted); pointer-events:none; }
   .field input{
-    width:100%; border:none; border-bottom:1.5px solid var(--line-strong); background:transparent;
-    padding:8px 2px; font-family:var(--di); font-size:.95rem; color:var(--ink);
-    outline:none; transition:border-color .25s var(--ease);
+    width:100%; border:1px solid var(--border); border-radius:12px; background:var(--bg); color:var(--ink);
+    padding:14px 14px 14px 40px; font-size:16px; outline:none; transition:border-color .2s, background .2s;
   }
-  .field input::placeholder{ color:var(--ink-faint); }
-  .field input:focus{ border-bottom-color:var(--accent); }
+  .field input::placeholder{ color:var(--muted); opacity:.6; }
+  .field input:focus{ border-color:var(--ink); }
+  .field input.has-toggle{ padding-right:46px; }
+  .pw-toggle{
+    position:absolute; right:4px; top:50%; margin-top:-17px; width:34px; height:34px; border:none; background:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; color:var(--muted); border-radius:8px;
+  }
+  .pw-toggle:hover{ color:var(--ink); }
+  .pw-toggle svg{ width:17px; height:17px; }
+  .pw-toggle .eye-off{ display:none; }
+  .pw-toggle.on .eye{ display:none; }
+  .pw-toggle.on .eye-off{ display:block; }
 
-  .field-foot{ display:flex; justify-content:flex-end; margin:-8px 0 22px; }
-  .link-btn{
-    background:none; border:none; padding:0; font-family:var(--di); font-size:.78rem;
-    color:var(--ink-soft); cursor:pointer; transition:color .2s;
-  }
-  .link-btn:hover{ color:var(--accent); }
+  .field-foot{ display:flex; justify-content:flex-end; margin:-4px 0 18px; }
+  .link-btn{ background:none; border:none; padding:4px 0; font-size:.8rem; color:var(--muted); cursor:pointer; transition:color .2s; }
+  .link-btn:hover{ color:var(--ink); }
 
   button.submit{
-    width:100%; border:none; border-radius:10px; padding:13px; cursor:pointer;
-    font-family:var(--di); font-weight:600; font-size:.92rem; color:#fff;
-    background:var(--ink); position:relative; overflow:hidden;
-    transition:background .25s var(--ease), transform .15s var(--ease);
+    width:100%; border:none; border-radius:12px; padding:15px; cursor:pointer; font-weight:700; font-size:.92rem;
+    color:var(--pos-ink); background:var(--pos); position:relative; overflow:hidden; transition:opacity .2s, transform .15s var(--ease);
   }
-  button.submit:hover{ background:#000; }
+  button.submit:hover{ opacity:.92; }
   button.submit:active{ transform:scale(.985); }
   button.submit:disabled{ cursor:default; }
-  button.submit.success{ background:var(--good); }
+  button.submit.loading{ opacity:.85; }
 
   .btn-label{ display:inline-block; transition:opacity .16s; }
   .btn-label.swap{ opacity:0; }
   .btn-spinner{
-    position:absolute; left:50%; top:50%; margin:-9px 0 0 -9px; width:18px; height:18px;
-    opacity:0; transition:opacity .18s;
-    border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%;
+    position:absolute; left:50%; top:50%; margin:-9px 0 0 -9px; width:18px; height:18px; opacity:0; transition:opacity .18s;
+    border:2px solid color-mix(in srgb, var(--pos-ink) 25%, transparent); border-top-color:var(--pos-ink); border-radius:50%;
   }
   button.submit.loading .btn-label{ opacity:0; }
   button.submit.loading .btn-spinner{ opacity:1; animation:spin .7s linear infinite; }
   @keyframes spin{ to{ transform:rotate(360deg); } }
 
-  .err{
-    display:none; background:var(--bad-soft); color:var(--bad); font-size:.8rem;
-    border-radius:8px; padding:10px 12px; margin-bottom:18px;
-  }
+  .err{ display:none; background:var(--neg-soft); border:1px solid var(--neg-line); color:var(--neg); font-size:.8rem; line-height:1.45; border-radius:12px; padding:11px 13px; margin-bottom:16px; }
   .err.show{ display:block; animation:errIn .3s var(--ease); }
   @keyframes errIn{ from{ opacity:0; transform:translateY(-4px); } to{ opacity:1; transform:translateY(0); } }
 
-  .info-box{
-    background:var(--line); color:var(--ink-soft); font-size:.82rem; line-height:1.5;
-    border-radius:8px; padding:12px 14px; margin-bottom:20px; display:none;
-  }
+  .info-box{ background:var(--soft); border:1px solid var(--border); color:var(--muted); font-size:.82rem; line-height:1.55; border-radius:12px; padding:12px 14px; margin-bottom:18px; display:none; }
   .info-box.show{ display:block; }
-  .info-box.success-box{ background:var(--good-soft); color:var(--good); }
+  .info-box.success-box{ background:var(--good-soft); border-color:var(--good-line); color:var(--pos); }
+  .info-box.error-box{ background:var(--neg-soft); border-color:var(--neg-line); color:var(--neg); }
 
-  .back-row{
-    display:flex; align-items:center; gap:6px; font-size:.82rem; color:var(--ink-soft);
-    cursor:pointer; margin-bottom:20px; width:fit-content; transition:color .2s;
-  }
+  .back-row{ display:flex; align-items:center; gap:6px; font-size:.82rem; color:var(--muted); cursor:pointer; margin-bottom:18px; width:fit-content; transition:color .2s; }
   .back-row:hover{ color:var(--ink); }
   .back-row svg{ width:16px; height:16px; }
-
-  .ghost-btn{
-    width:100%; margin-top:12px; background:none; border:none; padding:8px;
-    font-family:var(--di); font-size:.82rem; color:var(--ink-soft); cursor:pointer; transition:color .2s;
-  }
+  .ghost-btn{ width:100%; margin-top:10px; background:none; border:none; padding:10px; font-size:.82rem; color:var(--muted); cursor:pointer; transition:color .2s; }
   .ghost-btn:hover{ color:var(--ink); }
 
   /* ═══ loader ═══ */
-  .loader-wrap{ flex-direction:column; align-items:center; padding:20px 0; }
-  /* FIX: dulu .loader-wrap punya display:flex sendiri yang bentrok sama .panel{display:none}
-     — karena spesifisitasnya sama-sama 1 class, yang belakangan di file ini menang, jadinya
-     loader ini KELIHATAN TERUS dari awal buka halaman, gak peduli lagi loading apa enggak.
-     Sekarang pakai selector ID (#loader) yang spesifisitasnya lebih tinggi, jadi PASTI nurut
-     ke .panel.show — cuma kelihatan pas beneran lagi proses. */
+  .loader-wrap{ flex-direction:column; align-items:center; padding:24px 0 14px; }
+  /* FIX: .loader-wrap punya display:flex sendiri yang bentrok sama .panel{display:none}.
+     Pakai selector ID (#loader) supaya PASTI nurut ke .panel.show. */
   #loader.show{ display:flex; }
-  .spinner{
-    width:26px; height:26px; border:2.5px solid var(--line-strong); border-top-color:var(--accent);
-    border-radius:50%; animation:spin .8s linear infinite; margin-bottom:14px;
+  .spinner{ width:26px; height:26px; border:2.5px solid var(--border); border-top-color:var(--pos); border-radius:50%; animation:spin .8s linear infinite; margin-bottom:14px; }
+  .loader-wrap p{ color:var(--muted); font-size:.85rem; }
+
+  @media (max-width:420px){
+    body{ padding-left:16px; padding-right:16px; }
+    .card{ padding:24px 18px 20px; }
   }
-  .loader-wrap p{ color:var(--ink-soft); font-size:.85rem; }
-
-  /* ═══ sukses ═══ */
-
-
-
-  .field-icon-input{ position:relative; }
-  .field-icon-input svg{
-    position:absolute; left:0; bottom:11px; width:15px; height:15px; color:var(--ink-faint);
-    pointer-events:none;
-  }
-  .field-icon-input input{ padding-left:23px; }
-
   @media (prefers-reduced-motion: reduce){
     *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
   }
 </style>
 </head>
 <body>
+  <button class="theme-btn" id="themeBtn" type="button" title="Ganti tema" aria-label="Ganti tema">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+
   <div class="wrap">
-    <div class="brand"><span class="wordmark">ICABEEE</span></div>
+    <div class="brand"><span class="wordmark">ICABEEE</span><span class="live-dot"></span></div>
     <div class="team-label">Team</div>
 
-    <div class="heading" id="headingText">Masuk ke dashboard</div>
-    <div class="sub" id="subText"></div>
+    <div class="card">
+      <div class="heading" id="headingText">Masuk ke dashboard</div>
+      <div class="sub" id="subText"></div>
 
-    <div class="err" id="errBox"></div>
+      <div class="err" id="errBox" role="alert"></div>
 
-    <!-- ═══ Form login ═══ -->
-    <div class="panel show" id="loginPanel">
-      <form id="loginForm">
-        <div class="field">
-          <label for="email">Email</label>
-          <div class="field-icon-input">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 6 8 6 8-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
-            <input type="email" id="email" required autocomplete="username" placeholder="nama@email.com">
+      <!-- ═══ Form login ═══ -->
+      <div class="panel show" id="loginPanel">
+        <form id="loginForm">
+          <div class="field">
+            <label for="email">Email</label>
+            <div class="field-icon-input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 8 6 8-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+              <input type="email" id="email" required autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="nama@email.com">
+            </div>
           </div>
-        </div>
-        <div class="field">
-          <label for="password">Password</label>
-          <div class="field-icon-input">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-            <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="field-icon-input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+              <input type="password" id="password" class="has-toggle" required autocomplete="current-password" placeholder="••••••••">
+              <button type="button" class="pw-toggle" id="pwToggle" aria-label="Tampilkan password" title="Tampilkan password">
+                <svg class="eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.5 10.5 0 0 1 12 19c-6.4 0-10-7-10-7a18 18 0 0 1 5.1-5.9M9.9 5.2A9.7 9.7 0 0 1 12 5c6.4 0 10 7 10 7a18 18 0 0 1-2.2 3.2M14.1 14.1a3 3 0 1 1-4.2-4.2"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+              </button>
+            </div>
           </div>
-        </div>
-        <div class="field-foot">
-          <button type="button" class="link-btn" id="forgotLinkBtn">Lupa password?</button>
-        </div>
-        <button type="submit" class="submit" id="loginBtn">
-          <span class="btn-label" id="loginBtnLabel">Masuk</span>
-          <span class="btn-spinner"></span>
-        </button>
-      </form>
-    </div>
-
-    <!-- ═══ Panel lupa password ═══ -->
-    <div class="panel" id="forgotPanel">
-      <div class="back-row" id="backToLoginBtn" tabindex="0">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
-        Kembali ke login
+          <div class="field-foot">
+            <button type="button" class="link-btn" id="forgotLinkBtn">Lupa password?</button>
+          </div>
+          <button type="submit" class="submit" id="loginBtn">
+            <span class="btn-label" id="loginBtnLabel">Masuk</span>
+            <span class="btn-spinner"></span>
+          </button>
+        </form>
       </div>
-      <div class="info-box" id="forgotInfoBox">
-        Masukin email akun kamu. Kalau terdaftar, link buat bikin password baru bakal dikirim ke email itu.
-      </div>
-      <form id="forgotForm">
-        <div class="field" style="margin-bottom:14px;">
-          <label for="forgotEmail">Email</label>
-          <div class="field-icon-input">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 6 8 6 8-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
-            <input type="email" id="forgotEmail" required autocomplete="username" placeholder="nama@email.com">
-          </div>
-        </div>
-        <button type="submit" class="submit" id="forgotBtn">Kirim link reset</button>
-      </form>
-      <button type="button" class="ghost-btn" id="backToLoginBtn2">Kembali ke login</button>
-    </div>
 
-    <!-- ═══ Loader ═══ -->
-    <div class="loader-wrap panel" id="loader">
-      <div class="spinner"></div>
-      <p>Memuat akun kamu…</p>
+      <!-- ═══ Panel lupa password ═══ -->
+      <div class="panel" id="forgotPanel">
+        <div class="back-row" id="backToLoginBtn" tabindex="0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          Kembali ke login
+        </div>
+        <div class="info-box" id="forgotInfoBox">
+          Masukin email akun kamu. Kalau terdaftar, link buat bikin password baru bakal dikirim ke email itu.
+        </div>
+        <form id="forgotForm">
+          <div class="field" style="margin-bottom:14px;">
+            <label for="forgotEmail">Email</label>
+            <div class="field-icon-input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 8 6 8-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+              <input type="email" id="forgotEmail" required autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="nama@email.com">
+            </div>
+          </div>
+          <button type="submit" class="submit" id="forgotBtn">Kirim link reset</button>
+        </form>
+        <button type="button" class="ghost-btn" id="backToLoginBtn2">Kembali ke login</button>
+      </div>
+
+      <!-- ═══ Loader ═══ -->
+      <div class="loader-wrap panel" id="loader">
+        <div class="spinner"></div>
+        <p>Memuat akun kamu…</p>
+      </div>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app-check.js";
-    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -256,13 +261,24 @@
     function activePanel() {
       return document.querySelector('#loginPanel.show, #forgotPanel.show, #loader.show');
     }
+    // FIX: versi lama pakai timer terpisah per panel, jadi kalau error balik ke form
+    // datang SEBELUM transisi ke loader selesai (misal baca profil gagal cepat), loader
+    // malah nongol belakangan dan form-nya hilang -> user nyangkut di "Memuat akun…".
+    // Sekarang panggilan terakhir yang menang; transisi lama yang belum kelar dibatalin.
+    let panelSeq = 0;
     function switchPanel(fromEl, toEl) {
-      if (fromEl === toEl) return;
-      if (fromEl) {
-        fromEl.classList.add('leaving');
-        setTimeout(() => { fromEl.classList.remove('show', 'leaving'); }, 200);
-      }
-      setTimeout(() => { toEl.classList.add('show'); }, fromEl ? 190 : 0);
+      const panels = [loginPanel, document.getElementById('forgotPanel'), loader];
+      const othersShown = panels.some(p => p !== toEl && p.classList.contains('show'));
+      panelSeq++;
+      if (!othersShown && toEl.classList.contains('show')) { toEl.classList.remove('leaving'); return; }
+      const seq = panelSeq;
+      panels.forEach(p => { if (p !== toEl && p.classList.contains('show')) p.classList.add('leaving'); });
+      setTimeout(() => {
+        if (seq !== panelSeq) return;
+        panels.forEach(p => { if (p !== toEl) p.classList.remove('show', 'leaving'); });
+        toEl.classList.remove('leaving');
+        toEl.classList.add('show');
+      }, othersShown ? 190 : 0);
     }
 
     // ── ganti teks tombol dengan crossfade halus, gak loncat tiba-tiba ──
@@ -289,8 +305,10 @@
       document.body.classList.add('state-error');
       setTimeout(() => {
         document.body.classList.remove('state-error');
-        subText.textContent = '';
-        subText.className = 'sub';
+        if (subText.classList.contains('error')) {
+          subText.textContent = '';
+          subText.className = 'sub';
+        }
       }, 2800);
     }
 
@@ -299,22 +317,62 @@
       loginBtn.classList.add('success');
     }
 
+    // Dipakai kalau login gagal di tahap cek profil/role: balik ke form + reset tombol.
+    function backToLogin(msg) {
+      isRedirecting = false;
+      showError(msg);
+      switchPanel(activePanel(), loginPanel);
+      loginBtn.disabled = false;
+      loginBtn.classList.remove('loading', 'success');
+      setBtnLabel('Masuk');
+    }
+
+    // Guard: onAuthStateChanged & submit sama-sama manggil fungsi ini begitu login
+    // berhasil — tanpa guard, profil user dibaca 2x dan error bisa muncul dobel.
+    let isRedirecting = false;
+    const KNOWN_ROLES = ['owner', 'hrd', 'karyawan'];
     async function redirectByRole(uid) {
-      const snap = await getDoc(doc(db, 'users', uid));
-      if (!snap.exists()) {
-        showError('Akun kamu belum terdaftar di sistem. Hubungi owner.');
-        switchPanel(activePanel(), loginPanel);
-        loginBtn.disabled = false;
-        loginBtn.classList.remove('loading');
-        setBtnLabel('Masuk');
+      if (isRedirecting) return;
+      isRedirecting = true;
+
+      let data = null;
+      try {
+        const snap = await getDoc(doc(db, 'users', uid));
+        data = snap.exists() ? snap.data() : null;
+      } catch (err) {
+        // Dulu error di sini gak ketangkep: loader muter selamanya (jalur auto-login)
+        // atau muncul pesan "Email atau password salah" yang menyesatkan (jalur submit).
+        console.error('Gagal membaca profil user:', err);
+        backToLogin('Gagal memuat data akun. Cek koneksi internet kamu lalu coba lagi.');
         return;
       }
+
+      if (!data) {
+        // Akun Auth-nya ada tapi gak punya dokumen di /users — jangan dibiarin tetap
+        // login, kalau enggak tiap buka halaman ini bakal nyangkut di error yang sama.
+        try { await signOut(auth); } catch (e) {}
+        backToLogin('Akun kamu belum terdaftar di sistem. Hubungi owner.');
+        return;
+      }
+      if (data.active === false) {
+        try { await signOut(auth); } catch (e) {}
+        backToLogin('Akun kamu sudah dinonaktifkan. Hubungi owner kalau ini keliru.');
+        return;
+      }
+      if (!KNOWN_ROLES.includes(data.role)) {
+        // Role kosong/typo: dashboard manapun bakal nendang balik ke login.html, dan
+        // login ini nendang lagi ke dashboard -> loop redirect tanpa ujung. Stop di sini.
+        try { await signOut(auth); } catch (e) {}
+        backToLogin('Role akun kamu belum diatur. Hubungi owner.');
+        return;
+      }
+
       flagSuccess();
       loginBtn.classList.remove('loading');
       loginBtn.classList.add('success');
       setBtnLabel('Berhasil masuk!');
       setTimeout(() => {
-        const role = snap.data().role;
+        const role = data.role;
         window.location.href = (role === 'owner' || role === 'hrd') ? 'dashboard-owner.html' : 'dashboard-karyawan.html';
       }, 900);
     }
@@ -342,6 +400,7 @@
         let msg = 'Email atau password salah.';
         if (err.code === 'auth/too-many-requests') msg = 'Terlalu banyak percobaan. Coba lagi nanti.';
         if (err.code === 'auth/user-disabled') msg = 'Akun ini dinonaktifkan.';
+        if (err.code === 'auth/network-request-failed') msg = 'Koneksi internet bermasalah. Coba lagi.';
         showError(msg);
         loginBtn.disabled = false;
         loginBtn.classList.remove('loading');
@@ -391,14 +450,43 @@
         forgotInfoBox.textContent = `Link reset password sudah dikirim ke ${email}. Cek inbox (atau folder spam) ya, lalu buka linknya buat bikin password baru.`;
         forgotForm.style.display = 'none';
       } catch (err) {
-        // Demi keamanan, jangan bocorin apakah emailnya kedaftar atau nggak.
-        forgotInfoBox.className = 'info-box success-box show';
-        forgotInfoBox.textContent = `Kalau ${email} terdaftar di sistem, link reset password sudah dikirim. Cek inbox (atau folder spam) ya.`;
-        forgotForm.style.display = 'none';
+        if (err.code === 'auth/user-not-found') {
+          // Demi keamanan, jangan bocorin apakah emailnya kedaftar atau nggak.
+          forgotInfoBox.className = 'info-box success-box show';
+          forgotInfoBox.textContent = `Kalau ${email} terdaftar di sistem, link reset password sudah dikirim. Cek inbox (atau folder spam) ya.`;
+          forgotForm.style.display = 'none';
+        } else {
+          // Error beneran (offline, kebanyakan percobaan, dll) JANGAN disamarkan jadi
+          // "sudah dikirim" — user bakal nunggu email yang gak pernah dateng.
+          let m = 'Gagal mengirim link reset. Coba lagi sebentar lagi.';
+          if (err.code === 'auth/network-request-failed') m = 'Koneksi internet bermasalah. Coba lagi.';
+          if (err.code === 'auth/too-many-requests') m = 'Terlalu banyak percobaan. Coba lagi nanti.';
+          if (err.code === 'auth/invalid-email') m = 'Format email belum benar.';
+          forgotInfoBox.className = 'info-box error-box show';
+          forgotInfoBox.textContent = m;
+        }
       }
       forgotBtn.disabled = false;
       forgotBtn.textContent = 'Kirim link reset';
     });
+  </script>
+  <script>
+    /* tampilan saja: tombol mata di password + ganti tema */
+    (function(){
+      var pw = document.getElementById('password'), tg = document.getElementById('pwToggle');
+      tg.addEventListener('click', function(){
+        var show = pw.type === 'password';
+        pw.type = show ? 'text' : 'password';
+        tg.classList.toggle('on', show);
+        tg.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password');
+      });
+      var root = document.documentElement;
+      document.getElementById('themeBtn').addEventListener('click', function(){
+        var t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', t);
+        try{ localStorage.setItem('icabeee-theme', t); }catch(e){}
+      });
+    })();
   </script>
 </body>
 </html>
