@@ -519,6 +519,16 @@ footer.foot{display:block;padding:clamp(48px,6vw,72px) clamp(20px,5vw,60px) 28px
   .ecosystem-sec .section-cta{text-align:center}
 }
 
+/* Nav: tablet pakai menu hamburger, desktop sempit tidak berdesakan */
+.nav-links a,.nav-login,.nav-cta{white-space:nowrap}
+@media(max-width:1180px){
+  .nav-links,.nav-right{display:none}
+  .hbg{display:flex}
+}
+/* animasi geser dari kanan tidak boleh menambah lebar halaman (Safari/iPad) */
+.about-sec,.collabs-sec,.award-sec,.ecosystem-sec,.livecom-sec{overflow:hidden}
+@supports(overflow:clip){.about-sec,.collabs-sec,.award-sec,.ecosystem-sec,.livecom-sec{overflow:clip}}
+
 </style>
 <noscript><style>#loader{display:none}</style></noscript>
 <script type="application/ld+json">
