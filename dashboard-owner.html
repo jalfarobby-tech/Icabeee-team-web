@@ -1224,9 +1224,13 @@
     function initials(name) {
       return (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
     }
+    // Teks dari Firestore (nama, catatan, nama akun, dll) bisa diisi karyawan lewat devtools,
+    // jadi WAJIB di-escape sebelum masuk innerHTML. jsId() = hanya karakter aman buat dipakai di onclick.
+    function esc(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])); }
+    function jsId(v) { return String(v ?? '').replace(/[^A-Za-z0-9_-]/g, ''); }
     function avatarHtml(user, size) {
-      if (user && user.photoBase64) return `<div class="avatar" style="${size?`width:${size}px;height:${size}px;`:''}"><img src="${user.photoBase64}"></div>`;
-      return `<div class="avatar" style="${size?`width:${size}px;height:${size}px;`:''}">${initials(user ? user.name : '')}</div>`;
+      if (user && user.photoBase64) return `<div class="avatar" style="${size?`width:${size}px;height:${size}px;`:''}"><img src="${esc(user.photoBase64)}"></div>`;
+      return `<div class="avatar" style="${size?`width:${size}px;height:${size}px;`:''}">${esc(initials(user ? user.name : ''))}</div>`;
     }
     // Selama beberapa detik pertama halaman dibuka, beberapa listener Firestore (karyawan, sesi,
     // pengeluaran, dll) masih gantian masuk datanya — kalau dianimasiin tiap kali, angka keliatan
@@ -1500,13 +1504,13 @@
         const isActive = acc.active !== false;
         return `
           <tr>
-            <td>${acc.name}</td>
+            <td>${esc(acc.name)}</td>
             <td>${isActive ? '<span class="att-pill hadir"><span class="dot3"></span>Aktif</span>' : '<span class="att-pill" style="background:rgba(128,128,128,.15); color:var(--muted);"><span class="dot3" style="background:var(--muted);"></span>Nonaktif</span>'}</td>
             <td>${sessCount}</td>
             <td>
               <div class="btn-row">
-                <button class="btn ghost toggle-account-btn" data-id="${acc.id}" data-active="${isActive}">${isActive ? 'Nonaktifkan' : 'Aktifkan'}</button>
-                <button class="btn ghost delete-account-btn" data-id="${acc.id}" style="color:#DC2626;">Hapus</button>
+                <button class="btn ghost toggle-account-btn" data-id="${esc(acc.id)}" data-active="${isActive}">${isActive ? 'Nonaktifkan' : 'Aktifkan'}</button>
+                <button class="btn ghost delete-account-btn" data-id="${esc(acc.id)}" style="color:#DC2626;">Hapus</button>
               </div>
             </td>
           </tr>`;
@@ -1546,7 +1550,7 @@
       if (!sel) return;
       const prev = sel.value;
       sel.innerHTML = '<option value="">— Pilih akun untuk lihat riwayat —</option>' +
-        allAccounts.map(a => `<option value="${a.id}">${a.name}${a.active === false ? ' (nonaktif)' : ''}</option>`).join('');
+        allAccounts.map(a => `<option value="${esc(a.id)}">${esc(a.name)}${a.active === false ? ' (nonaktif)' : ''}</option>`).join('');
       if (allAccounts.some(a => a.id === prev)) sel.value = prev;
       selectedHistoryAccountId = sel.value;
       renderAccountHistoryTable();
@@ -1576,7 +1580,7 @@
           ? '<span class="att-pill hadir"><span class="dot3"></span>Sedang Live</span>'
           : '<span class="att-pill" style="background:rgba(128,128,128,.15); color:var(--muted);"><span class="dot3" style="background:var(--muted);"></span>Selesai</span>';
         return `<tr>
-          <td>${s.employeeName || '-'}</td>
+          <td>${esc(s.employeeName || '-')}</td>
           <td>${dateStr}</td>
           <td>${timeStr}</td>
           <td>${durStr}</td>
@@ -1638,14 +1642,14 @@
             const before = n.before[key], after = n.after[key];
             if (String(before ?? '') !== String(after ?? '')) {
               const fmt = v => key === 'revenue' ? 'Rp ' + Number(v || 0).toLocaleString('id-ID') : (v ?? '-');
-              diffs.push(`<span><b>${label}:</b> <span class="old-val">${fmt(before)}</span> → ${fmt(after)}</span>`);
+              diffs.push(`<span><b>${label}:</b> <span class="old-val">${esc(fmt(before))}</span> → ${esc(fmt(after))}</span>`);
             }
           });
         }
         return `
           <div class="notif-item ${isUnread ? 'unread' : ''}">
-            <div class="notif-item-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right:3px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Koreksi data — ${n.employeeName || '-'}</div>
-            <div class="notif-item-body">Diedit oleh <b>${n.editedByName || 'Owner'}</b> karena data penjualan yang diisi karyawan salah.</div>
+            <div class="notif-item-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right:3px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Koreksi data — ${esc(n.employeeName || '-')}</div>
+            <div class="notif-item-body">Diedit oleh <b>${esc(n.editedByName || 'Owner')}</b> karena data penjualan yang diisi karyawan salah.</div>
             ${diffs.length ? `<div class="notif-diff">${diffs.join('')}</div>` : ''}
             <div class="notif-item-time">${time}</div>
           </div>
@@ -1682,15 +1686,15 @@
             const before = n.before[key], after = n.after[key];
             if (String(before ?? '') !== String(after ?? '')) {
               const fmt = v => key === 'revenue' ? 'Rp ' + Number(v || 0).toLocaleString('id-ID') : (v || v === 0 ? v : '-');
-              diffs.push(`<span><b>${label}:</b> <span class="old-val">${fmt(before)}</span> → ${fmt(after)}</span>`);
+              diffs.push(`<span><b>${label}:</b> <span class="old-val">${esc(fmt(before))}</span> → ${esc(fmt(after))}</span>`);
             }
           });
         }
         return `
           <tr>
             <td>${time}</td>
-            <td>${n.employeeName || '-'}</td>
-            <td>${n.editedByName || 'Owner'}</td>
+            <td>${esc(n.employeeName || '-')}</td>
+            <td>${esc(n.editedByName || 'Owner')}</td>
             <td>${diffs.length ? `<div class="notif-diff">${diffs.join('')}</div>` : '-'}</td>
           </tr>
         `;
@@ -1773,14 +1777,14 @@
         const user = allUsers[s.uid];
         const isLong = mins >= 360;
         return `
-          <div class="live-row" data-start="${start ? start.getTime() : ''}" data-id="${s.id}">
+          <div class="live-row" data-start="${start ? start.getTime() : ''}" data-id="${esc(s.id)}">
             ${avatarHtml(user || { name: s.employeeName })}
             <div class="live-info">
-              <div class="live-name">${user?.name || s.employeeName || '-'}</div>
-              <div class="live-meta">${s.accountName ? s.accountName + ' · ' : ''}${s.platform || 'TikTok'} · mulai ${start ? start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'}</div>
+              <div class="live-name">${esc(user?.name || s.employeeName || '-')}</div>
+              <div class="live-meta">${s.accountName ? esc(s.accountName) + ' · ' : ''}${esc(s.platform || 'TikTok')} · mulai ${start ? start.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '-'}</div>
             </div>
             <div class="live-duration live-elapsed ${isLong ? 'warn' : ''}">${Math.floor(mins/60)}j ${mins%60}m</div>
-            <button class="force-end-btn" onclick="window.forceEndSession('${s.id}')">Akhiri Paksa</button>
+            <button class="force-end-btn" onclick="window.forceEndSession('${jsId(s.id)}')">Akhiri Paksa</button>
           </div>
         `;
       }).join('');
@@ -1991,7 +1995,7 @@
         <div class="leaderboard-item" style="animation-delay:${i*.05}s">
           <div class="lb-rank">#${i + 1}</div>
           ${avatarHtml(allUsers[e.uid] || { name: e.name }, 30)}
-          <div class="lb-info"><div class="lb-name">${e.name}</div><div class="lb-value" data-lb-uid="${e.uid}">Rp 0</div></div>
+          <div class="lb-info"><div class="lb-name">${esc(e.name)}</div><div class="lb-value" data-lb-uid="${esc(e.uid)}">Rp 0</div></div>
         </div>
       `).join('');
       sorted.forEach(e => {
@@ -2017,10 +2021,10 @@
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><div class="emp-name-cell">${avatarHtml(user, 30)}<span>${user.name}</span></div></td>
+          <td><div class="emp-name-cell">${avatarHtml(user, 30)}<span>${esc(user.name)}</span></div></td>
           <td><span class="status-pill ${activeSession ? 'on' : 'off'}"><span class="dot2"></span>${activeSession ? 'Sedang Live' : 'Tidak Live'}</span></td>
           <td>${h}j ${m}m</td>
-          <td><button class="resign-btn" onclick="window.resignEmployee('${uid}')" title="Nonaktifkan karyawan ini">Nonaktifkan</button></td>
+          <td><button class="resign-btn" onclick="window.resignEmployee('${jsId(uid)}')" title="Nonaktifkan karyawan ini">Nonaktifkan</button></td>
         `;
         tbody.appendChild(tr);
       });
@@ -2050,13 +2054,13 @@
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><div class="emp-name-cell">${avatarHtml(user, 30)}<span>${user.name}</span></div></td>
+          <td><div class="emp-name-cell">${avatarHtml(user, 30)}<span>${esc(user.name)}</span></div></td>
           <td>${resignedStr}</td>
           <td>${h}j ${m}m</td>
           <td>
-            <button class="reactivate-btn" onclick="window.reactivateEmployee('${uid}')" title="Aktifkan kembali karyawan ini">Aktifkan Kembali</button>
-            <button class="delete-perm-btn" onclick="window.deleteEmployeePermanent('${uid}')" title="Hapus profil karyawan, riwayat sesi live tetap disimpan">Hapus Profil</button>
-            <button class="purge-btn" onclick="window.purgeEmployeeData('${uid}')" title="Hapus profil DAN semua riwayat sesi live — tidak bisa dibatalkan">Hapus Total</button>
+            <button class="reactivate-btn" onclick="window.reactivateEmployee('${jsId(uid)}')" title="Aktifkan kembali karyawan ini">Aktifkan Kembali</button>
+            <button class="delete-perm-btn" onclick="window.deleteEmployeePermanent('${jsId(uid)}')" title="Hapus profil karyawan, riwayat sesi live tetap disimpan">Hapus Profil</button>
+            <button class="purge-btn" onclick="window.purgeEmployeeData('${jsId(uid)}')" title="Hapus profil DAN semua riwayat sesi live — tidak bisa dibatalkan">Hapus Total</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -2250,7 +2254,7 @@
       const uids = Object.keys(allUsers)
         .sort((a, b) => (allUsers[a].name || '').localeCompare(allUsers[b].name || '', 'id'));
       sel.innerHTML = '<option value="">Semua Karyawan</option>' +
-        uids.map(uid => `<option value="${uid}">${allUsers[uid].name}${allUsers[uid].active === false ? ' (nonaktif)' : ''}</option>`).join('');
+        uids.map(uid => `<option value="${esc(uid)}">${esc(allUsers[uid].name)}${allUsers[uid].active === false ? ' (nonaktif)' : ''}</option>`).join('');
       if (uids.includes(prev)) sel.value = prev;
     }
 
@@ -2277,17 +2281,17 @@
         // diklik (lihat fungsi viewProof). Tetep support data lama yang masih
         // punya s.proofBase64 nempel langsung (sebelum fitur pemisahan ini ada).
         const hasPhoto = s.hasProof || s.proofBase64;
-        const buktiStr = hasPhoto ? `<button type="button" class="proof-view-btn" onclick="window.viewProof('${s.id}')" title="Lihat bukti"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px; margin-right:3px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>Lihat</button>` : '-';
+        const buktiStr = hasPhoto ? `<button type="button" class="proof-view-btn" onclick="window.viewProof('${jsId(s.id)}')" title="Lihat bukti"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px; margin-right:3px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>Lihat</button>` : '-';
         let statusCell = '-';
         if (s.status === 'selesai') statusCell = '<span class="status-approved"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px; margin-right:3px;"><path d="M4 12l6 6L20 6"/></svg>Selesai</span>';
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${s.employeeName || '-'}${s.enteredByOwner ? ' <span style="display:inline-flex; align-items:center; gap:3px; font-size:.62rem; font-weight:700; color:var(--muted); background:rgba(128,128,128,.15); padding:2px 6px; border-radius:999px; white-space:nowrap;" title="Diisi manual oleh ' + (s.enteredByName || 'owner') + '"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>manual</span>' : ''}</td><td>${s.accountName || '-'}</td><td data-time="${timeStr}">${dateStr}</td><td>${timeStr}</td><td>${durStr}</td>
+          <td>${esc(s.employeeName || '-')}${s.enteredByOwner ? ' <span style="display:inline-flex; align-items:center; gap:3px; font-size:.62rem; font-weight:700; color:var(--muted); background:rgba(128,128,128,.15); padding:2px 6px; border-radius:999px; white-space:nowrap;" title="Diisi manual oleh ' + (s.enteredByName || 'owner') + '"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>manual</span>' : ''}</td><td>${esc(s.accountName || '-')}</td><td data-time="${timeStr}">${dateStr}</td><td>${timeStr}</td><td>${durStr}</td>
           <td>${s.revenue != null ? 'Rp ' + Number(s.revenue).toLocaleString('id-ID') : '-'}</td>
-          <td${hasPhoto ? '' : ' data-empty="1"'}>${buktiStr}</td><td>${s.viewers ?? '-'}</td><td${s.notes ? '' : ' data-empty="1"'}>${s.notes || '-'}</td>
+          <td${hasPhoto ? '' : ' data-empty="1"'}>${buktiStr}</td><td>${s.viewers ?? '-'}</td><td${s.notes ? '' : ' data-empty="1"'}>${esc(s.notes || '-')}</td>
           <td>${statusCell}</td>
-          <td><button class="edit-session-btn" onclick="window.openEditSession('${s.id}')" title="Edit data"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right:2px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Edit</button></td>
+          <td><button class="edit-session-btn" onclick="window.openEditSession('${jsId(s.id)}')" title="Edit data"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right:2px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Edit</button></td>
         `;
         tbody.appendChild(tr);
       });
@@ -2459,7 +2463,7 @@
       } else {
         tbody.innerHTML = data.perEmployee.map(e => `
           <tr>
-            <td>${e.name}</td><td>${e.sesi}</td>
+            <td>${esc(e.name)}</td><td>${e.sesi}</td>
             <td>Rp ${Math.round(e.pendapatan).toLocaleString('id-ID')}</td>
           </tr>
         `).join('');
@@ -2508,10 +2512,10 @@
         return `
           <tr>
             <td>${dateStr}</td>
-            <td><span class="expense-type-pill ${type}">${typeLabel[type] || 'Lainnya'}</span></td>
-            <td>${e.title || '-'}</td>
+            <td><span class="expense-type-pill ${esc(type)}">${esc(typeLabel[type] || 'Lainnya')}</span></td>
+            <td>${esc(e.title || '-')}</td>
             <td>Rp ${Math.round(Number(e.amount) || 0).toLocaleString('id-ID')}</td>
-            <td><div class="expense-actions"><button class="edit-expense-btn" onclick="window.editExpenseRow('${e.id}')" title="Edit" aria-label="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button><button class="delete-expense-btn" onclick="window.deleteExpenseRow('${e.id}')" title="Hapus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></td>
+            <td><div class="expense-actions"><button class="edit-expense-btn" onclick="window.editExpenseRow('${jsId(e.id)}')" title="Edit" aria-label="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button><button class="delete-expense-btn" onclick="window.deleteExpenseRow('${e.id}')" title="Hapus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></td>
           </tr>
         `;
       }).join('');
@@ -2999,9 +3003,9 @@
       let options = '<option value="">— Tidak ada akun —</option>';
       // kalau akun sesi ini sudah dihapus/nonaktif, tetap tampilkan biar kepilih & gak ketuker
       if (currentAccId && !allAccounts.some(a => a.id === currentAccId)) {
-        options += `<option value="${currentAccId}" data-name="${currentAccName}">${currentAccName || '(akun sudah dihapus)'} (nonaktif/dihapus)</option>`;
+        options += `<option value="${esc(currentAccId)}" data-name="${esc(currentAccName)}">${esc(currentAccName) || '(akun sudah dihapus)'} (nonaktif/dihapus)</option>`;
       }
-      options += allAccounts.map(a => `<option value="${a.id}" data-name="${a.name}">${a.name}${a.active === false ? ' (nonaktif)' : ''}</option>`).join('');
+      options += allAccounts.map(a => `<option value="${esc(a.id)}" data-name="${esc(a.name)}">${esc(a.name)}${a.active === false ? ' (nonaktif)' : ''}</option>`).join('');
       accSelect.innerHTML = options;
       accSelect.value = currentAccId;
 
@@ -3210,14 +3214,14 @@
       const uids = Object.keys(allUsers).filter(uid => allUsers[uid].active !== false)
         .sort((a, b) => (allUsers[a].name || '').localeCompare(allUsers[b].name || '', 'id'));
       sel.innerHTML = '<option value="">— Pilih karyawan —</option>' +
-        uids.map(uid => `<option value="${uid}">${allUsers[uid].name}</option>`).join('');
+        uids.map(uid => `<option value="${esc(uid)}">${esc(allUsers[uid].name)}</option>`).join('');
       if (uids.includes(prev)) sel.value = prev;
     }
     function populateManualAccountSelect() {
       const sel = document.getElementById('manualAccountId');
       const prev = sel.value;
       sel.innerHTML = '<option value="">— Tidak ada akun —</option>' +
-        allAccounts.map(a => `<option value="${a.id}" data-name="${a.name}">${a.name}${a.active === false ? ' (nonaktif)' : ''}</option>`).join('');
+        allAccounts.map(a => `<option value="${esc(a.id)}" data-name="${esc(a.name)}">${esc(a.name)}${a.active === false ? ' (nonaktif)' : ''}</option>`).join('');
       if (allAccounts.some(a => a.id === prev)) sel.value = prev;
     }
 
