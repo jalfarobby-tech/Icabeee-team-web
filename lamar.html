@@ -376,29 +376,24 @@ nav {
 
 /* ─── BANTUAN KOMPAK ─── */
 .tool-tip {
-  background: #fff; border: 1px solid var(--border); border-radius: 18px;
-  padding: 18px; margin-bottom: 24px;
-  box-shadow: 0 1px 0 rgba(13,13,18,.03), 0 10px 28px rgba(13,13,18,.05);
+  background: #fff; border: 1px solid var(--border); border-radius: 14px;
+  padding: 12px 14px 14px; margin-bottom: 20px;
 }
-.tt-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-.tt-logo { width: 42px; height: 42px; flex-shrink: 0; }
-.tt-name { font-family: var(--df); font-weight: 800; font-size: 1rem; letter-spacing: -.02em; color: var(--ink); line-height: 1.2; }
-.tt-name span { font-family: var(--di); font-weight: 500; font-size: .72rem; letter-spacing: 0; color: var(--muted); margin-left: 6px; }
-.tt-sub { font-size: .74rem; color: var(--muted); margin-top: 2px; }
-.tt-title { font-size: .84rem; font-weight: 600; line-height: 1.5; color: var(--ink); margin-bottom: 12px; }
-.tt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tt-head { display: flex; align-items: center; gap: 9px; margin-bottom: 6px; }
+.tt-logo { width: 26px; height: 26px; flex-shrink: 0; }
+.tt-name { font-family: var(--df); font-weight: 800; font-size: .88rem; letter-spacing: -.02em; color: var(--ink); }
+.tt-name span { font-family: var(--di); font-weight: 500; font-size: .68rem; letter-spacing: 0; color: var(--muted); margin-left: 6px; }
+.tt-text { font-size: .74rem; line-height: 1.55; color: var(--muted); margin-bottom: 10px; }
+.tt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .tt-grid a {
-  display: flex; flex-direction: column; gap: 3px; position: relative;
-  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-  padding: 11px 28px 11px 12px; transition: border-color .2s, background .2s, transform .2s;
+  position: relative; text-align: left;
+  font-family: var(--df); font-weight: 700; font-size: .76rem; letter-spacing: -.01em; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 9px 26px 9px 11px; transition: border-color .2s, background .2s;
 }
-.tt-grid a::after { content: "↗"; position: absolute; top: 10px; right: 11px; font-size: .8rem; color: var(--muted); transition: color .2s; }
-.tt-grid a:hover { border-color: var(--ink); background: #fff; transform: translateY(-1px); }
+.tt-grid a::after { content: "↗"; position: absolute; top: 50%; right: 10px; transform: translateY(-50%); font-size: .74rem; font-weight: 400; color: var(--muted); }
+.tt-grid a:hover { border-color: var(--ink); background: #fff; }
 .tt-grid a:hover::after { color: var(--ink); }
-.tt-grid strong { font-family: var(--df); font-weight: 700; font-size: .8rem; letter-spacing: -.01em; color: var(--ink); }
-.tt-grid span { font-size: .7rem; line-height: 1.4; color: var(--muted); }
-.tt-priv { font-size: .7rem; line-height: 1.6; color: var(--muted); margin-top: 12px; }
-@media (max-width: 360px) { .tt-grid { grid-template-columns: 1fr; } }
 
 /* ─── POP UP TUNGGU ─── */
 .wait-overlay {
@@ -653,19 +648,15 @@ footer {
       <aside class="tool-tip" aria-label="Bantuan menyiapkan dokumen">
         <div class="tt-head">
           <svg class="tt-logo" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="#ffd93b"/><path d="M8 9.5l4.5 4.5L8 18.5M20 9.5L15.5 14l4.5 4.5" fill="none" stroke="#141414" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div>
-            <p class="tt-name">Kompak <span>kompak.biz.id</span></p>
-            <p class="tt-sub">Alat dokumen gratis, tanpa daftar</p>
-          </div>
+          <p class="tt-name">Kompak <span>kompak.biz.id</span></p>
         </div>
-        <p class="tt-title">File terlalu besar atau formatnya tidak sesuai? Siapkan dulu di sini.</p>
+        <p class="tt-text">File terlalu besar atau formatnya belum sesuai? Siapkan dulu secara gratis. Diproses di perangkat Anda, tidak diunggah ke server.</p>
         <div class="tt-grid">
-          <a href="https://kompak.biz.id/kompres-pdf/" target="_blank" rel="noopener"><strong>Kecilkan PDF</strong><span>Agar di bawah 10 MB</span></a>
-          <a href="https://kompak.biz.id/kompres-foto/" target="_blank" rel="noopener"><strong>Kecilkan foto</strong><span>JPG atau PNG</span></a>
-          <a href="https://kompak.biz.id/gambar-ke-pdf/" target="_blank" rel="noopener"><strong>Foto ke PDF</strong><span>Untuk ijazah hasil foto</span></a>
-          <a href="https://kompak.biz.id/word-ke-pdf/" target="_blank" rel="noopener"><strong>Word ke PDF</strong><span>Untuk CV format Word</span></a>
+          <a href="https://kompak.biz.id/kompres-pdf/" target="_blank" rel="noopener" title="Perkecil ukuran PDF agar di bawah 10 MB">Kecilkan PDF</a>
+          <a href="https://kompak.biz.id/kompres-foto/" target="_blank" rel="noopener" title="Perkecil ukuran foto JPG atau PNG">Kecilkan foto</a>
+          <a href="https://kompak.biz.id/gambar-ke-pdf/" target="_blank" rel="noopener" title="Ubah foto ijazah menjadi satu PDF">Foto ke PDF</a>
+          <a href="https://kompak.biz.id/word-ke-pdf/" target="_blank" rel="noopener" title="Ubah CV format Word menjadi PDF">Word ke PDF</a>
         </div>
-        <p class="tt-priv">File diproses di perangkat Anda dan tidak diunggah ke server. Dibuka di tab baru, data form tetap aman.</p>
       </aside>
 
       <!-- CV -->
