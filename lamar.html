@@ -357,6 +357,14 @@ nav {
   font-size: .92rem; color: var(--muted); line-height: 1.76;
   max-width: 480px; margin-bottom: 36px;
 }
+.success-eta {
+  display: flex; flex-direction: column; gap: 6px; align-items: center;
+  background: var(--green-soft); border: 1px solid var(--green);
+  border-radius: 18px; padding: 16px 22px; max-width: 480px; margin-bottom: 32px;
+}
+.success-eta .eta-label { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.success-eta strong { font-family: var(--df); font-weight: 800; font-size: 1.4rem; letter-spacing: -.03em; color: var(--ink); }
+.success-eta .eta-note { font-size: .8rem; line-height: 1.6; color: var(--muted); }
 .success-btn {
   display: inline-flex; align-items: center; gap: 8px;
   background: var(--ink); color: var(--cream);
@@ -429,8 +437,13 @@ footer {
 <!-- SUCCESS OVERLAY -->
 <div class="success-overlay" id="successOverlay">
   <div class="success-icon"><i class="ti ti-check"></i></div>
-  <h2>Lamaran Kamu Berhasil Dikirim!</h2>
-  <p>Terima kasih telah melamar di ICABEEE TEAM. Tim rekrutmen akan meninjau data Anda dan menghubungi kandidat yang lolos ke tahap berikutnya.</p>
+  <h2>Lamaran Anda Berhasil Dikirim!</h2>
+  <p>Terima kasih telah melamar di ICABEEE TEAM. Data dan dokumen Anda sudah kami terima dengan baik, dan tim rekrutmen akan segera meninjaunya.</p>
+  <div class="success-eta">
+    <span class="eta-label">Estimasi proses seleksi</span>
+    <strong>7 – 10 hari kerja</strong>
+    <span class="eta-note">Kandidat yang lolos akan dihubungi lewat WhatsApp atau email yang Anda daftarkan. Pastikan nomor dan email Anda aktif.</span>
+  </div>
   <a href="lowongan.html" class="success-btn">
     <i class="ti ti-arrow-left"></i> Kembali ke Lowongan
   </a>
@@ -488,7 +501,7 @@ footer {
     </div>
     <div class="form-info-eyebrow">Bergabung Sekarang</div>
     <h1>Kirim<br><span class="acc">Lamaranmu</span></h1>
-    <p>Isi semua data dengan benar dan upload dokumen yang diminta. Proses seleksi biasanya memakan waktu 3–7 hari kerja.</p>
+    <p>Isi semua data dengan benar dan upload dokumen yang diminta. Proses seleksi biasanya memakan waktu 7–10 hari kerja.</p>
 
     <div class="steps-list">
       <div class="step-item">
@@ -516,7 +529,7 @@ footer {
         <div class="step-num">4</div>
         <div class="step-text">
           <h4>Submit & Tunggu</h4>
-          <p>Tim akan menghubungi dalam 3–7 hari kerja</p>
+          <p>Tim akan menghubungi dalam 7–10 hari kerja</p>
         </div>
       </div>
     </div>
