@@ -374,6 +374,22 @@ nav {
 }
 .success-btn:hover { background: var(--ink-2); transform: translateY(-1px); }
 
+/* ─── BANTUAN KOMPAK ─── */
+.tool-tip {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 16px 18px; margin-bottom: 22px;
+}
+.tool-tip-title { font-family: var(--df); font-weight: 700; font-size: .88rem; letter-spacing: -.01em; color: var(--ink); margin-bottom: 4px; }
+.tool-tip-text { font-size: .78rem; line-height: 1.65; color: var(--muted); margin-bottom: 12px; }
+.tool-tip-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.tool-tip-links a {
+  font-size: .76rem; font-weight: 600; color: var(--ink);
+  background: #fff; border: 1px solid var(--border); border-radius: 50px;
+  padding: 7px 14px; transition: border-color .2s, transform .2s;
+}
+.tool-tip-links a:hover { border-color: var(--ink); transform: translateY(-1px); }
+.tool-tip-links a::after { content: " ↗"; color: var(--muted); font-weight: 400; }
+
 /* ─── POP UP TUNGGU ─── */
 .wait-overlay {
   display: none; position: fixed; inset: 0; z-index: 950;
@@ -623,6 +639,17 @@ footer {
 
       <!-- BAGIAN 3: DOKUMEN -->
       <div class="form-divider"><span>Upload Dokumen</span></div>
+
+      <aside class="tool-tip" aria-label="Bantuan menyiapkan dokumen">
+        <p class="tool-tip-title">Ukuran file terlalu besar atau formatnya tidak sesuai?</p>
+        <p class="tool-tip-text">Siapkan dulu lewat Kompak, gratis dan tanpa daftar. File diproses di perangkat Anda dan tidak diunggah ke server.</p>
+        <div class="tool-tip-links">
+          <a href="https://kompak.biz.id/kompres-pdf/" target="_blank" rel="noopener">Kecilkan PDF</a>
+          <a href="https://kompak.biz.id/kompres-foto/" target="_blank" rel="noopener">Kecilkan foto</a>
+          <a href="https://kompak.biz.id/gambar-ke-pdf/" target="_blank" rel="noopener">Foto jadi PDF</a>
+          <a href="https://kompak.biz.id/word-ke-pdf/" target="_blank" rel="noopener">Word jadi PDF</a>
+        </div>
+      </aside>
 
       <!-- CV -->
       <div class="field">
