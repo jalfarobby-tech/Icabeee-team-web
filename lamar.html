@@ -366,6 +366,30 @@ nav {
 }
 .success-btn:hover { background: var(--ink-2); transform: translateY(-1px); }
 
+/* ─── POP UP TUNGGU ─── */
+.wait-overlay {
+  display: none; position: fixed; inset: 0; z-index: 950;
+  background: rgba(13,13,18,.55); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 24px;
+}
+.wait-overlay.show { display: flex; }
+.wait-box {
+  background: #fff; border-radius: 24px; padding: 36px 32px 30px;
+  width: 100%; max-width: 380px; text-align: center;
+  box-shadow: 0 30px 80px rgba(13,13,18,.35); animation: pop .35s var(--ease);
+}
+.wait-spin {
+  width: 52px; height: 52px; margin: 0 auto 22px; border-radius: 50%;
+  border: 4px solid rgba(13,13,18,.1); border-top-color: var(--ink);
+  animation: spin .9s linear infinite;
+}
+.wait-box h3 {
+  font-family: var(--df); font-weight: 800; font-size: 1.25rem;
+  letter-spacing: -.03em; color: var(--ink); margin-bottom: 10px;
+}
+.wait-step { font-size: .88rem; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+.wait-note { font-size: .8rem; color: var(--muted); line-height: 1.65; }
+
 /* ─── FOOTER ─── */
 footer {
   background: var(--ink); border-top: 1px solid rgba(255,255,255,.07);
@@ -410,6 +434,16 @@ footer {
   <a href="lowongan.html" class="success-btn">
     <i class="ti ti-arrow-left"></i> Kembali ke Lowongan
   </a>
+</div>
+
+<!-- POP UP TUNGGU -->
+<div class="wait-overlay" id="waitOverlay" role="alertdialog" aria-modal="true" aria-live="polite" aria-labelledby="waitTitle">
+  <div class="wait-box">
+    <div class="wait-spin" aria-hidden="true"></div>
+    <h3 id="waitTitle">Lamaran sedang dikirim</h3>
+    <p class="wait-step" id="waitStep">Menyiapkan file...</p>
+    <p class="wait-note">Proses ini bisa memakan waktu beberapa saat, tergantung ukuran file dan koneksi internet. Mohon tunggu dan jangan tutup atau muat ulang halaman ini.</p>
+  </div>
 </div>
 
 <!-- NAV -->
@@ -867,6 +901,7 @@ document.getElementById('lamarForm').addEventListener('submit', function(e) {
   var btn = document.getElementById('btnSubmit');
   btn.disabled = true;
   btn.classList.add('loading');
+  showWait('Menyiapkan file...');
 
   var cvFile     = document.getElementById('cv').files[0];
   var ijazahFile = document.getElementById('ijazah').files[0];
@@ -874,6 +909,7 @@ document.getElementById('lamarForm').addEventListener('submit', function(e) {
 
   // ─── Konversi semua file ke base64 lalu kirim ───
   setLoadingLabel('<i class="ti ti-loader-2"></i> Mengkonversi file...');
+  showWait('Langkah 1 dari 2: menyiapkan file...');
 
   Promise.all([
     fileToBase64(cvFile),
@@ -881,6 +917,7 @@ document.getElementById('lamarForm').addEventListener('submit', function(e) {
     fileToBase64(suratFile)
   ]).then(function(results) {
     setLoadingLabel('<i class="ti ti-loader-2"></i> Mengunggah ke Google Drive...');
+    showWait('Langkah 2 dari 2: mengunggah lamaran Anda...');
 
     var payload = {
       timestamp: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
@@ -916,6 +953,7 @@ document.getElementById('lamarForm').addEventListener('submit', function(e) {
     showSuccess();
   }).catch(function(err) {
     console.error('Upload error:', err);
+    hideWait();
     alert('Gagal mengirim lamaran. Periksa koneksi internet dan coba lagi.\n\nDetail: ' + err.message);
     btn.disabled = false;
     btn.classList.remove('loading');
@@ -923,7 +961,24 @@ document.getElementById('lamarForm').addEventListener('submit', function(e) {
   });
 });
 
+function guardUnload(e) { e.preventDefault(); e.returnValue = ''; }
+function showWait(text) {
+  document.getElementById('waitStep').textContent = text;
+  var o = document.getElementById('waitOverlay');
+  if (!o.classList.contains('show')) {
+    o.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('beforeunload', guardUnload);
+  }
+}
+function hideWait() {
+  document.getElementById('waitOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+  window.removeEventListener('beforeunload', guardUnload);
+}
+
 function showSuccess() {
+  hideWait();
   document.getElementById('successOverlay').classList.add('show');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
