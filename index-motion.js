@@ -17,6 +17,21 @@
     h.classList.add('split');
   });
 
+  /* layanan: nomor + masker per elemen */
+  $('.svc-item').forEach(function(it,i){
+    var h=it.querySelector('h3'),p=it.querySelector('p');
+    var num=d.createElement('span');num.className='num';num.setAttribute('aria-hidden','true');
+    num.innerHTML='<span class="mk"><span>'+(i<9?'0':'')+(i+1)+'</span></span>';
+    num.firstChild.firstChild.parentNode.classList.add('mk');
+    var bg=d.createElement('i');bg.className='bg';bg.setAttribute('aria-hidden','true');
+    [[h,1],[p,2]].forEach(function(x){
+      if(!x[0])return;
+      x[0].innerHTML='<span class="mk"><span style="--d:'+x[1]+'">'+x[0].innerHTML+'</span></span>';
+    });
+    num.firstChild.firstChild.style.setProperty('--d',0);
+    it.insertBefore(num,it.firstChild);it.appendChild(bg);
+  });
+
   /* index untuk stagger */
   $('.svc-item').forEach(function(e,i){e.style.setProperty('--i',i);});
   $('.ch-row').forEach(function(e,i){e.style.setProperty('--i',i);});
