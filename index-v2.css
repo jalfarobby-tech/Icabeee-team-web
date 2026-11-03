@@ -1,0 +1,173 @@
+/* ICABEEE index v2 — layout bagian bawah hero.
+   Prinsip: satu kanvas putih menerus (tanpa pita hitam/putih bergantian),
+   satu aksen (coral), dua "pulau" gelap saja (Live E-Commerce & CTA),
+   dan tiap section punya bentuk layout sendiri. Hero tidak diubah. */
+:root{--wrap:1200px;--gut:clamp(20px,5vw,60px);--r-lg:28px;--r-md:18px;--line:rgba(13,13,18,.09)}
+
+/* ---------- ritme & tipografi ---------- */
+main > section:not(#hero){background:transparent}
+.section,.about-sec{padding-top:clamp(56px,7vw,104px);padding-bottom:clamp(56px,7vw,104px)}
+.section-h2{font-weight:700;font-size:clamp(2rem,4.2vw,3.3rem);letter-spacing:-.035em;line-height:1.06;max-width:18ch;text-wrap:balance}
+.section-h2 em{font-style:normal;color:var(--muted);background:none;-webkit-text-fill-color:currentColor;-webkit-background-clip:border-box;background-clip:border-box;opacity:1}
+.collabs-head p,.ecosystem-head p,.livecom-head p,.brands-head2 p,.org-head p{font-size:1.02rem;line-height:1.7;color:var(--muted);max-width:44ch}
+
+/* ---------- marquee: tipis, tanpa blok abu ---------- */
+.marquee-wrap{background:transparent;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:18px 0}
+.marquee-item{font-weight:500;font-size:.95rem;color:var(--muted)}
+
+/* ---------- TENTANG: pernyataan + 2x2, stats jadi baris sendiri ---------- */
+.about-sec{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,6vw,88px);max-width:calc(var(--wrap) + 2*var(--gut));margin:0 auto;padding-left:var(--gut);padding-right:var(--gut);align-items:start}
+.about-left{background:none;padding:0;color:var(--ink);display:block}
+.about-left::before,.about-left::after{display:none}
+.about-left .section-h2{color:var(--ink)}
+.about-left .section-h2 em{color:var(--muted);font-weight:700}
+.about-left > p{color:var(--muted)!important;font-size:1.05rem;line-height:1.7;max-width:40ch}
+.about-left > p strong{color:var(--ink)}
+.why{background:none;padding:0;display:block}
+.why h3{display:none}
+.why ul{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.6vw,20px)}
+.why li{border:1px solid var(--line)!important;border-radius:var(--r-md);padding:26px 24px;background:var(--surface);transition:background .25s,border-color .25s}
+.why li:hover{background:#fff;border-color:rgba(13,13,18,.18)!important}
+.why li strong{font-size:1.05rem;margin-bottom:8px}
+.why li p{font-size:.9rem;line-height:1.65;max-width:none}
+.stats{grid-column:1/-1;margin-top:clamp(8px,2vw,24px);display:grid;grid-template-columns:repeat(4,1fr);border:0;border-top:1px solid var(--line);position:static}
+.stat{padding:28px 0 0!important;border:0!important}
+.stat:not(:first-child){padding-left:clamp(16px,2.4vw,32px)!important;border-left:1px solid var(--line)!important}
+.stat dd{color:var(--ink);font-size:clamp(2.2rem,4.6vw,3.6rem);font-weight:700;letter-spacing:-.045em}
+.stat dt{color:var(--muted);font-size:.88rem}
+
+/* ---------- KOLABORASI: foto bergeser (stagger) ---------- */
+.collabs-head{margin-bottom:clamp(28px,4vw,56px)}
+.collab-grid{gap:clamp(12px,1.6vw,20px);align-items:start}
+.collab-card{border:0;border-radius:var(--r-md);box-shadow:0 1px 0 var(--line)}
+.collab-card:nth-child(even){margin-top:clamp(24px,4vw,56px)}
+.collab-overlay{background:linear-gradient(to top,rgba(13,13,18,.78) 0%,rgba(13,13,18,0) 55%)}
+
+/* ---------- PENGHARGAAN: panel terang membulat, bukan pita hitam ---------- */
+.award-sec{background:transparent;padding-left:var(--gut);padding-right:var(--gut)}
+.award-wrap{background:var(--surface);border-radius:var(--r-lg);padding:clamp(28px,5vw,64px);max-width:var(--wrap)}
+.award-sec .section-h2{color:var(--ink)}
+.award-from{color:var(--muted);font-size:.85rem}
+.award-title{color:var(--ink)}
+.award-date{color:var(--muted)}
+.award-highlight,.award-main .award-highlight{color:var(--coral);font-weight:700}
+.award-figure{background:#fff;border-radius:14px;box-shadow:0 1px 0 var(--line)}
+.award-row{border-top:1px solid var(--line)!important}
+.award-row:first-child{border-top:0!important}
+
+/* ---------- LAYANAN: baris editorial bernomor ---------- */
+.ecosystem-head{display:grid;grid-template-columns:1fr 1fr;gap:24px 48px;align-items:end;margin-bottom:clamp(24px,3vw,40px)}
+.svc-list{display:block;counter-reset:svc;border-top:1px solid var(--ink)}
+.svc-item{counter-increment:svc;display:grid;grid-template-columns:72px minmax(0,1fr) minmax(0,1.1fr);gap:24px;align-items:baseline;padding:28px 0;border:0!important;border-bottom:1px solid var(--line)!important;transition:padding .35s var(--ease)}
+.svc-item::before{content:counter(svc,decimal-leading-zero);font-family:var(--df);font-size:.95rem;font-weight:600;color:var(--muted);transition:color .25s}
+.svc-item h3{font-family:var(--df);font-size:clamp(1.25rem,2.2vw,1.7rem);font-weight:700;letter-spacing:-.03em}
+.svc-item p{color:var(--muted);font-size:.98rem;line-height:1.65}
+.svc-item:hover{padding-left:12px}
+.svc-item:hover::before{color:var(--coral)}
+.channels{margin-top:clamp(40px,5vw,72px);background:var(--surface);border-radius:var(--r-lg);padding:clamp(24px,3.4vw,44px)}
+.channels > h3{font-family:var(--df);font-size:1.25rem;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.ch-row{border-color:var(--line)!important}
+.section-cta{margin-top:36px}
+
+/* ---------- LIVE E-COMMERCE: satu pulau gelap + bento ---------- */
+.livecom-sec{background:transparent;padding-left:var(--gut);padding-right:var(--gut)}
+.livecom-inner{background:var(--ink);color:#fff;border-radius:var(--r-lg);padding:clamp(28px,5vw,72px);max-width:var(--wrap)}
+.livecom-head{max-width:none;display:grid;grid-template-columns:1fr 1fr;gap:24px 48px;align-items:end;margin-bottom:clamp(28px,4vw,48px)}
+.livecom-head p{color:rgba(255,255,255,.7)}
+.lc-list{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.4vw,16px);list-style:none}
+.lc-item{border:1px solid rgba(255,255,255,.1)!important;background:rgba(255,255,255,.04);border-radius:var(--r-md);padding:24px;display:flex;flex-direction:column;gap:8px;transition:background .25s,border-color .25s}
+.lc-item:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2)!important}
+.lc-item h3{font-family:var(--df);font-size:1.1rem;font-weight:700;letter-spacing:-.02em;color:#fff}
+.lc-item p{font-size:.9rem;line-height:1.62;color:rgba(255,255,255,.68)}
+.lc-item:nth-child(1){grid-column:1/3;grid-row:1/3;background:var(--coral);border-color:transparent!important;justify-content:flex-end;min-height:260px;padding:clamp(24px,3vw,36px)}
+.lc-item:nth-child(1) h3{font-size:clamp(1.7rem,3vw,2.4rem);letter-spacing:-.035em}
+.lc-item:nth-child(1) p{color:rgba(255,255,255,.92);font-size:1rem;max-width:34ch}
+.lc-item:nth-child(6){grid-column:1/-1;flex-direction:row;align-items:baseline;gap:24px}
+.lc-item:nth-child(6) h3{flex:0 0 auto}
+.livecom-cta{margin-top:clamp(28px,4vw,44px);text-align:left}
+
+/* ---------- CARA KERJA: stepper garis ---------- */
+.process{counter-reset:st;display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2.4vw,32px);list-style:none;margin-top:clamp(28px,4vw,48px);position:relative}
+.step{counter-increment:st;position:relative;padding-top:28px;border-top:1px solid var(--line)}
+.step::before{content:"";position:absolute;top:-1px;left:0;width:48px;height:2px;background:var(--ink);transition:width .5s var(--ease)}
+.step:hover::before{width:100%;background:var(--coral)}
+.step h3{font-family:var(--df);font-size:1.2rem;font-weight:700;letter-spacing:-.02em;margin-bottom:10px}
+.step p{color:var(--muted);font-size:.94rem;line-height:1.65}
+
+/* ---------- KLIEN: logo wall tanpa sekat ---------- */
+.brands-head2{display:grid;grid-template-columns:1fr 1fr;gap:24px 48px;align-items:end;margin-bottom:clamp(24px,3vw,40px)}
+.clients{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(10px,1.4vw,16px);list-style:none;border:0!important}
+.client{border:0!important;background:var(--surface);border-radius:var(--r-md);padding:28px 12px 22px;display:flex;flex-direction:column;align-items:center;gap:14px;transition:background .25s,transform .35s var(--ease)}
+.client:hover{background:#fff;box-shadow:0 0 0 1px var(--line);transform:translateY(-3px)}
+.client-logo{filter:grayscale(1);opacity:.85;transition:filter .3s,opacity .3s}
+.client:hover .client-logo{filter:none;opacity:1}
+.client-name{font-size:.8rem;color:var(--muted);text-align:center}
+
+/* ---------- TIM ---------- */
+.org-head{text-align:left;display:flex;flex-direction:column;align-items:flex-start}
+.org-inner{max-width:var(--wrap)}
+.acc-toggle{margin:24px 0 0;background:transparent;border-color:var(--ink)}
+.acc-toggle:hover{background:var(--ink);color:#fff}
+.acc-toggle:hover .acc-toggle-ico{background:rgba(255,255,255,.18);color:#fff}
+
+/* ---------- FAQ: judul menempel kiri, daftar kanan ---------- */
+.faq-inner{max-width:var(--wrap);margin:0 auto;display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:clamp(24px,6vw,88px);align-items:start}
+.faq-inner .section-h2{position:sticky;top:112px}
+.faq{border:0!important;border-top:1px solid var(--line)!important;background:transparent!important;border-radius:0!important}
+.faq:last-child{border-bottom:1px solid var(--line)!important}
+.faq summary{padding:22px 0;font-family:var(--df);font-weight:600;font-size:1.05rem;letter-spacing:-.015em}
+.faq p{color:var(--muted);line-height:1.7;padding:0 0 22px;max-width:60ch}
+
+/* ---------- CTA akhir: pulau gelap kedua ---------- */
+.cta-sec{background:transparent!important;padding:clamp(24px,4vw,56px) var(--gut) clamp(56px,7vw,104px)}
+.cta-sec::before,.cta-sec::after{display:none!important}
+.cta-inner{max-width:var(--wrap);background:var(--ink);border-radius:var(--r-lg);padding:clamp(40px,7vw,104px) clamp(24px,5vw,64px);text-align:center;color:#fff}
+.cta-sec h2{font-weight:700;letter-spacing:-.04em;line-height:1.04;text-wrap:balance}
+.cta-sec p{color:rgba(255,255,255,.72)}
+.cta-wa{background:var(--coral);color:#fff}
+.cta-ghost-btn{border-color:rgba(255,255,255,.2)}
+
+/* ---------- footer ---------- */
+.foot{border-top:1px solid var(--line);background:transparent}
+
+/* ---------- responsif ---------- */
+@media(max-width:1000px){
+  .clients{grid-template-columns:repeat(3,1fr)}
+  .lc-list{grid-template-columns:1fr 1fr}
+  .lc-item:nth-child(1){grid-column:1/-1;grid-row:auto;min-height:200px}
+  .process{grid-template-columns:1fr 1fr;row-gap:32px}
+}
+@media(max-width:900px){
+  .about-sec,.faq-inner,.ecosystem-head,.livecom-head,.brands-head2{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr;row-gap:8px}
+  .stat:nth-child(3){padding-left:0!important;border-left:0!important}
+  .faq-inner .section-h2{position:static}
+  .svc-item{grid-template-columns:44px 1fr;row-gap:8px}
+  .svc-item p{grid-column:2}
+  .collab-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .why ul{grid-template-columns:1fr}
+  .clients{grid-template-columns:1fr 1fr}
+  .lc-list{grid-template-columns:1fr}
+  .lc-item:nth-child(6){flex-direction:column;gap:8px}
+  .process{grid-template-columns:1fr}
+  .collab-card:nth-child(even){margin-top:20px}
+}
+
+/* ---------- perbaikan lanjutan ---------- */
+.ecosystem-head,.livecom-head,.brands-head2,.collabs-head{max-width:none;width:100%}
+.ecosystem-head{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+.livecom-head{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+.brands-head2{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+.ecosystem-head .section-h2,.livecom-head .section-h2,.brands-head2 .section-h2{max-width:none}
+.svc-list .svc-item{padding-left:0;padding-right:0}
+.svc-list .svc-item:hover{padding-left:12px}
+.award-main .award-highlight{font-size:clamp(1.6rem,3vw,2.4rem);white-space:nowrap}
+@media(max-width:900px){.ecosystem-head,.livecom-head,.brands-head2{grid-template-columns:1fr}}
+.step::after,.process::before,.process::after{display:none!important;content:none}
+.step::before{content:"";display:block!important}
+.org-head,.org-head .section-h2,.org-head p{text-align:left;margin-left:0;margin-right:0}
+.why{padding:0!important;margin:0}
+.step{padding-right:0}
+@media(max-width:600px){.step{padding:24px 0 0!important;min-height:0}.step::before{position:absolute;left:0;top:-1px;margin:0}}
