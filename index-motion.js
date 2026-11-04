@@ -5,32 +5,11 @@
   function $(s,c){return Array.prototype.slice.call((c||d).querySelectorAll(s));}
   function clamp(v){return v<0?0:v>1?1:v;}
 
-  /* judul: pecah per baris (<br>) untuk mask reveal */
-  ['#t-layanan','#t-proses'].forEach(function(sel){
-    var h=d.querySelector(sel); if(!h) return;
-    var label=h.textContent.replace(/\s+/g,' ').trim();
-    var parts=h.innerHTML.split(/<br\s*\/?>/i);
-    h.setAttribute('aria-label',label);
-    h.innerHTML=parts.map(function(t,i){
-      return '<span class="ln" aria-hidden="true" style="--l:'+i+'"><span>'+t.trim()+'</span></span>';
-    }).join('');
-    h.classList.add('split');
-  });
-
-  /* layanan: nomor + masker per elemen */
-  $('.svc-item').forEach(function(it,i){
-    var h=it.querySelector('h3'),p=it.querySelector('p');
-    var num=d.createElement('span');num.className='num';num.setAttribute('aria-hidden','true');
-    num.innerHTML='<span class="mk"><span>'+(i<9?'0':'')+(i+1)+'</span></span>';
-    num.firstChild.firstChild.parentNode.classList.add('mk');
-    var bg=d.createElement('i');bg.className='bg';bg.setAttribute('aria-hidden','true');
-    [[h,1],[p,2]].forEach(function(x){
-      if(!x[0])return;
-      x[0].innerHTML='<span class="mk"><span style="--d:'+x[1]+'">'+x[0].innerHTML+'</span></span>';
-    });
-    num.firstChild.firstChild.style.setProperty('--d',0);
-    it.insertBefore(num,it.firstChild);it.appendChild(bg);
-  });
+  /* pilihan animasi layanan (preview: ?fx=a|b|c) */
+  var sec=d.getElementById('layanan');
+  var q=/[?&]fx=([abc])\b/.exec(w.location.search);
+  if(sec&&q)sec.setAttribute('data-fx',q[1]);
+  var fx=sec?sec.getAttribute('data-fx'):'a';
 
   /* index untuk stagger */
   $('.svc-item').forEach(function(e,i){e.style.setProperty('--i',i);});
@@ -58,9 +37,12 @@
         if(dist<bd){bd=dist;best=i;}
       });
     }
-    items.forEach(function(e,i){e.classList.toggle('focus',i===best);});
+    items.forEach(function(e,i){
+      e.classList.toggle('focus',i===best);
+      if(fx==='c'){var r=e.getBoundingClientRect(),s=1-Math.abs(r.top+r.height/2-line)/(vh*.34);e.style.setProperty('--s',(s<0?0:s>1?1:s).toFixed(3));}
+    });
   }
-  if(touch&&list&&items.length&&!reduce){
+  if((touch||fx==='c')&&list&&items.length&&!reduce){
     var freq=function(){if(!fraf)fraf=w.requestAnimationFrame(focusNearest);};
     w.addEventListener('scroll',freq,{passive:true});w.addEventListener('resize',freq);freq();
   }
