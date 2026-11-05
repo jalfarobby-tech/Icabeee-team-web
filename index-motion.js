@@ -5,12 +5,6 @@
   function $(s,c){return Array.prototype.slice.call((c||d).querySelectorAll(s));}
   function clamp(v){return v<0?0:v>1?1:v;}
 
-  /* pilihan animasi layanan (preview: ?fx=a|b|c) */
-  var sec=d.getElementById('layanan');
-  var q=/[?&]fx=([abc])\b/.exec(w.location.search);
-  if(sec&&q)sec.setAttribute('data-fx',q[1]);
-  var fx=sec?sec.getAttribute('data-fx'):'a';
-
   /* index untuk stagger */
   $('.svc-item').forEach(function(e,i){e.style.setProperty('--i',i);});
   $('.ch-row').forEach(function(e,i){e.style.setProperty('--i',i);});
@@ -39,10 +33,9 @@
     }
     items.forEach(function(e,i){
       e.classList.toggle('focus',i===best);
-      if(fx==='c'){var r=e.getBoundingClientRect(),s=1-Math.abs(r.top+r.height/2-line)/(vh*.34);e.style.setProperty('--s',(s<0?0:s>1?1:s).toFixed(3));}
     });
   }
-  if((touch||fx==='c')&&list&&items.length&&!reduce){
+  if(touch&&list&&items.length&&!reduce){
     var freq=function(){if(!fraf)fraf=w.requestAnimationFrame(focusNearest);};
     w.addEventListener('scroll',freq,{passive:true});w.addEventListener('resize',freq);freq();
   }
