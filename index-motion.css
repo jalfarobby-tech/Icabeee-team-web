@@ -1,0 +1,71 @@
+/* ICABEEE — motion untuk #layanan dan #cara-kerja.
+   Hanya transform/opacity (ringan di Android). Semua gerak ada di
+   prefers-reduced-motion:no-preference; selain itu tampil statis & lengkap. */
+
+/* ===== CARA KERJA: timeline terisi mengikuti scroll ===== */
+.js .process{position:relative;counter-reset:st;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2.4vw,32px)}
+.js .process::before,.js .process::after{content:"";display:block!important;position:absolute;pointer-events:none}
+.js .process::before{left:0;top:0;height:1px;width:var(--track,100%);background:var(--line)}
+.js .process::after{left:0;top:-.5px;height:2px;width:var(--track,100%);background:var(--ink);transform:scaleX(var(--p,0));transform-origin:left;will-change:transform}
+.js .step{border-top:0;padding:30px 0 0;counter-increment:st}
+.js .step::before{content:"";display:block;position:absolute;left:0;top:-6px;width:12px;height:12px;margin:0;border-radius:50%;box-sizing:border-box;background:var(--bg);border:1.5px solid rgba(13,13,18,.28);font-size:0}
+.js .step.on::before{background:var(--ink);border-color:var(--ink)}
+.js .step.cur::before{background:var(--coral);border-color:var(--coral);box-shadow:0 0 0 5px rgba(255,92,57,.16)}
+.js .step h3::before{content:counter(st,decimal-leading-zero);display:block;font-family:var(--df);font-size:clamp(2.6rem,5vw,3.6rem);font-weight:700;letter-spacing:-.05em;line-height:1;margin-bottom:14px;color:transparent;-webkit-text-stroke:1px rgba(13,13,18,.3)}
+.js .step.on h3::before{color:var(--ink);-webkit-text-stroke-color:var(--ink)}
+.js .step.cur h3::before{color:var(--coral);-webkit-text-stroke-color:var(--coral)}
+
+@media(max-width:1000px){
+  .js .process{grid-template-columns:1fr;padding-left:40px;row-gap:0}
+  .js .process::before{left:7px;top:var(--y0,12px);width:1px;height:var(--track,0)}
+  .js .process::after{left:6.5px;top:var(--y0,12px);width:2px;height:var(--track,0);transform:scaleY(var(--p,0));transform-origin:top}
+  .js .step{padding:0 0 44px}
+  .js .step:last-child{padding-bottom:0}
+  .js .step::before{left:-40px;top:4px;width:15px;height:15px}
+  .js .step h3::before{font-size:2.4rem;margin-bottom:10px}
+}
+
+/* ===== gerak ===== */
+.js .svc-item .num{font-family:var(--df);font-size:.95rem;font-weight:600;color:var(--muted)}
+.js .svc-item::before{content:none!important}
+.js .svc-item .bg{position:absolute;inset:0 -14px;border-radius:16px;background:var(--surface);opacity:0;z-index:-1;transition:opacity .45s ease}
+.js .svc-list .svc-item{position:relative;isolation:isolate;border-bottom:0!important;-webkit-tap-highlight-color:transparent}
+.js .svc-list .svc-item:hover{padding-left:0}
+@media (hover:hover){.js .svc-item:hover .bg{opacity:1}}
+.js .svc-item.focus .bg,.js .svc-item:active .bg{opacity:1}
+
+@media (prefers-reduced-motion:no-preference){
+  .js .ecosystem-head.rv,.js .svc-list.rv,.js .channels.rv,.js .process.rv,.js .process-inner > h2.rv{opacity:1;transform:none;transition:none}
+
+  /* judul: mask per baris */
+  .js .split .ln{display:block;overflow:hidden;padding-bottom:.12em;margin-bottom:-.12em}
+  .js .split .ln > span{display:block;transform:translateY(110%);transition:transform 1.1s var(--ease);transition-delay:calc(var(--l,0)*120ms)}
+  .js .split.in .ln > span{transform:none}
+  .js .ecosystem-head > p{opacity:0;transform:translateY(12px);transition:opacity .9s var(--ease) .35s,transform .9s var(--ease) .35s}
+  .js .ecosystem-head.in > p{opacity:1;transform:none}
+
+  /* garis (semua varian) */
+  .js .svc-list{border-top-color:transparent;position:relative}
+  .js .svc-list::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform 1.3s cubic-bezier(.76,0,.24,1)}
+  .js .svc-list.in::before{transform:scaleX(1)}
+  .js .svc-item::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line);transform:scaleX(0);transform-origin:left;transition:transform 1.1s cubic-bezier(.76,0,.24,1) calc(var(--i,0)*150ms + 250ms)}
+  .js .svc-list.in .svc-item::after{transform:scaleX(1)}
+
+  /* layanan: nomor, judul, deskripsi naik dari balik masker */
+  .js .svc-item .mk{display:block;overflow:hidden;padding-bottom:.14em;margin-bottom:-.14em}
+  .js .svc-item .mk > span{display:block;transform:translateY(112%);transition:transform 1.1s var(--ease);transition-delay:calc(var(--i,0)*140ms + 380ms + var(--d,0)*90ms)}
+  .js .svc-list.in .svc-item .mk > span{transform:none}
+
+  /* channel */
+  .js .channels > h3{opacity:0;transform:translateY(10px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+  .js .channels.in > h3{opacity:1;transform:none}
+  .js .ch-row{opacity:0;transform:translateY(10px);transition:opacity 1s var(--ease) calc(var(--i,0)*110ms + 250ms),transform 1.1s var(--ease) calc(var(--i,0)*110ms + 250ms)}
+  .js .ch-list.in .ch-row{opacity:1;transform:none}
+
+  /* cara kerja */
+  .js .step h3,.js .step p{opacity:.3;transform:translateY(12px);transition:opacity .7s var(--ease),transform .9s var(--ease)}
+  .js .step p{transition-delay:.08s}
+  .js .step.on h3,.js .step.on p{opacity:1;transform:none}
+  .js .step h3::before{transition:color .6s ease,-webkit-text-stroke-color .6s ease}
+  .js .step::before{transition:background-color .4s,border-color .4s,box-shadow .5s}
+}

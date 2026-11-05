@@ -90,7 +90,6 @@ main > section:not(#hero){background:transparent}
 .process{counter-reset:st;display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2.4vw,32px);list-style:none;margin-top:clamp(28px,4vw,48px);position:relative}
 .step{counter-increment:st;position:relative;padding-top:28px;border-top:1px solid var(--line)}
 .step::before{content:"";position:absolute;top:-1px;left:0;width:48px;height:2px;background:var(--ink);transition:width .5s var(--ease)}
-.step:hover::before{width:100%;background:var(--coral)}
 .step h3{font-family:var(--df);font-size:1.2rem;font-weight:700;letter-spacing:-.02em;margin-bottom:10px}
 .step p{color:var(--muted);font-size:.94rem;line-height:1.65}
 
@@ -170,4 +169,3 @@ main > section:not(#hero){background:transparent}
 .org-head,.org-head .section-h2,.org-head p{text-align:left;margin-left:0;margin-right:0}
 .why{padding:0!important;margin:0}
 .step{padding-right:0}
-@media(max-width:600px){.step{padding:24px 0 0!important;min-height:0}.step::before{position:absolute;left:0;top:-1px;margin:0}}
