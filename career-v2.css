@@ -1,0 +1,131 @@
+/* ICABEEE — lowongan.html & lamar.html v2.
+   Hanya tampilan: tidak ada perubahan pada form, ID, name, atau JavaScript. */
+:root{--wrap:1100px;--line:rgba(13,13,18,.1);--r-lg:28px}
+body{background:#fff}
+
+/* ---------- hero lowongan ---------- */
+.page-hero{padding:clamp(112px,14vw,152px) clamp(20px,5vw,60px) clamp(48px,6vw,80px)}
+.page-hero-inner{max-width:var(--wrap)}
+.page-hero h1{font-weight:700;font-size:clamp(2.4rem,6vw,4.6rem);letter-spacing:-.045em;line-height:1.04;max-width:14ch}
+.page-hero p{font-size:clamp(1rem,1.5vw,1.1rem);max-width:46ch}
+.page-hero-badge-row{gap:0;margin-top:40px}
+.hero-pill{border:0;background:none;border-radius:0;padding:0 22px 0 0;margin-right:22px;border-right:1px solid rgba(255,255,255,.2);font-weight:500;font-size:.9rem;color:rgba(255,255,255,.78)}
+.hero-pill:last-child{border-right:0;margin-right:0;padding-right:0}
+.hero-pill i{display:none}
+
+/* ---------- ritme section ---------- */
+.section{padding-top:clamp(56px,7vw,104px);padding-bottom:clamp(56px,7vw,104px)}
+.sec-h2{font-family:var(--df);font-weight:700;font-size:clamp(2rem,4.2vw,3.2rem);letter-spacing:-.035em;line-height:1.06;color:var(--ink);max-width:16ch;text-wrap:balance}
+.sec-p{font-size:1.02rem;line-height:1.7;color:var(--muted);max-width:44ch}
+
+/* ---------- daftar posisi: baris editorial ---------- */
+.jobs-inner,.req-inner,.perks-sec{max-width:var(--wrap)}
+.jobs-intro{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px 48px;align-items:end;margin-bottom:clamp(28px,4vw,52px)}
+.jobs-intro h2{font-weight:700;font-size:clamp(2rem,4.2vw,3.2rem);letter-spacing:-.035em;line-height:1.06;margin:0;max-width:14ch}
+.jobs-intro p{font-size:1.02rem;max-width:44ch;margin:0}
+.jobs-list{counter-reset:job;gap:0;border-top:1px solid var(--ink)}
+.job-card{counter-increment:job;position:relative;isolation:isolate;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:clamp(24px,3vw,36px) 0;grid-template-columns:64px minmax(0,1fr) auto;gap:24px;align-items:start}
+.job-card::before{content:counter(job,decimal-leading-zero);font-family:var(--df);font-size:.95rem;font-weight:600;color:var(--muted);padding-top:.6em}
+.job-card::after{content:"";position:absolute;inset:0 -20px;border-radius:18px;background:var(--surface);opacity:0;z-index:-1;transition:opacity .4s ease}
+.job-card:hover{border-color:var(--line)}
+@media (hover:hover){.job-card:hover::after{opacity:1}}
+.job-card:active::after{opacity:1}
+.job-title{font-size:clamp(1.5rem,2.8vw,2.1rem);font-weight:700;letter-spacing:-.035em;margin-bottom:8px}
+.job-meta{gap:0;font-size:.88rem}
+.job-tag,.job-tag.full-time,.job-tag.onsite{background:none;padding:0;border-radius:0;font-weight:500;color:var(--muted);font-size:.88rem}
+.job-tag i{display:none}
+.job-tag + .job-tag::before{content:"·";margin:0 10px}
+.job-desc{font-size:.97rem;line-height:1.7;max-width:58ch;margin-top:14px}
+.btn-apply{padding:14px 26px;font-size:.9rem}
+.btn-apply i{transition:transform .35s var(--ease)}
+.btn-apply:hover i{transform:translateX(4px)}
+
+/* ---------- kualifikasi: tiga kolom bergaris, tanpa kartu & tanpa latar abu ---------- */
+.req-sec{background:transparent}
+.req-inner > .rv{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px 48px;align-items:end}
+.req-inner > .rv .sec-h2{margin:0}
+.req-inner > .rv .sec-p{margin:0}
+.req-grid{gap:clamp(24px,3.4vw,48px);margin-top:clamp(28px,4vw,52px)}
+.req-card{background:none;border:0;border-top:1px solid var(--ink);border-radius:0;padding:22px 0 0}
+.req-card:hover{border-color:var(--ink)}
+.req-card-head{margin-bottom:6px}
+.req-card h3{font-size:1.3rem;font-weight:700;letter-spacing:-.03em}
+.req-list{gap:0}
+.req-list li{padding:13px 0;border-bottom:1px solid var(--line);font-size:.92rem;line-height:1.55;color:#3d4452}
+.req-list li::before{display:none}
+
+/* ---------- keuntungan: grid bergaris ---------- */
+.perks-sec > .rv{display:block}
+.perks-grid{gap:0 clamp(32px,5vw,72px);margin-top:clamp(28px,4vw,48px)!important}
+.perk{background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:28px 0 32px}
+.perk:hover{border-color:var(--ink)}
+.perk h4{font-size:1.2rem;font-weight:700;letter-spacing:-.03em;margin-bottom:8px}
+.perk p{font-size:.95rem;line-height:1.7;max-width:40ch}
+
+/* ---------- CTA: satu pulau gelap ---------- */
+.cta-bottom{background:transparent;padding:0 clamp(20px,5vw,60px) clamp(56px,8vw,96px)}
+.cta-bottom-inner{max-width:var(--wrap);background:var(--ink);border-radius:var(--r-lg);padding:clamp(44px,8vw,104px) clamp(24px,5vw,64px)}
+.cta-bottom h2{font-weight:700;letter-spacing:-.04em;text-wrap:balance}
+.cta-bottom p{margin-left:auto;margin-right:auto;max-width:44ch}
+
+/* ---------- lamar: kolom info ---------- */
+.page-wrap{max-width:1200px;grid-template-columns:minmax(0,1fr) minmax(0,520px);gap:clamp(32px,6vw,96px);padding-top:clamp(96px,10vw,120px)}
+.form-info h1{font-weight:700;font-size:clamp(2.4rem,5vw,4rem);letter-spacing:-.045em;line-height:1.04}
+.form-info p{font-size:1.02rem;max-width:40ch}
+.steps-list{border-top:1px solid var(--ink);margin-top:8px}
+.step-item{padding:18px 0;border-bottom:1px solid var(--line);align-items:baseline;gap:20px}
+.step-num{background:none;border-radius:0;width:32px;height:auto;justify-content:flex-start;font-size:.95rem;font-weight:600;color:var(--muted)}
+.step-num::before{content:"0"}
+.step-text h4{font-size:1.05rem;letter-spacing:-.02em}
+.step-text p{font-size:.9rem;margin:2px 0 0}
+.info-note{background:none;border:0;border-radius:0;padding:22px 0 0;margin-top:0}
+.info-note i{display:none}
+.info-note p{font-size:.88rem;color:var(--muted);margin:0;max-width:44ch}
+
+/* ---------- lamar: form ---------- */
+.form-card{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:none;padding:clamp(24px,4vw,44px)}
+.form-card-title{font-size:1.5rem;font-weight:700;letter-spacing:-.035em}
+.form-card-sub{font-size:.88rem;margin-bottom:8px}
+.form-divider{margin:36px 0 18px;padding-top:22px;border-top:1px solid var(--line)}
+.form-divider:first-child{border-top:0;padding-top:0;margin-top:28px}
+.form-divider span{font-size:1.02rem;font-weight:700;letter-spacing:-.02em}
+.field input,.field select,.field textarea{border:1px solid rgba(13,13,18,.18);border-radius:12px;background:#fff;padding:13px 16px}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(13,13,18,.08)}
+.field input.error,.field select.error,.field textarea.error{border-color:var(--red)}
+.posisi-label{border:1px solid rgba(13,13,18,.18);border-radius:12px;background:#fff;padding:16px 10px}
+.posisi-label:hover{background:var(--surface);border-color:rgba(13,13,18,.4)}
+.posisi-opt input:checked + .posisi-label{background:var(--ink);border-color:var(--ink);box-shadow:none}
+.posisi-opt input:checked + .posisi-label .posisi-name{color:#fff}
+.posisi-opt input:focus-visible + .posisi-label{outline:2px solid var(--ink);outline-offset:3px}
+.file-zone{border:1px dashed rgba(13,13,18,.3);border-radius:14px;background:var(--surface)}
+.file-zone:hover,.file-zone.drag{border-color:var(--ink);background:#fff}
+.file-zone-ico{background:#fff;border:1px solid var(--line);border-radius:12px}
+.tool-tip{background:var(--surface);border:0;border-radius:14px}
+.tt-grid a{background:#fff}
+.btn-submit{padding:16px;font-size:.98rem}
+
+/* ---------- lamar: layar sukses (tanpa hijau pop) ---------- */
+.success-icon{background:var(--ink);border:0;color:#fff;width:72px;height:72px;font-size:1.7rem}
+.success-eta{background:none;border:0;border-top:1px solid var(--ink);border-bottom:1px solid var(--line);border-radius:0;padding:22px 0;width:100%}
+.success-eta .eta-label{text-transform:none;letter-spacing:0;font-size:.88rem;font-weight:500}
+.success-eta strong{font-size:1.7rem}
+
+/* ---------- responsif ---------- */
+@media(max-width:900px){
+  .jobs-intro,.req-inner > .rv{grid-template-columns:1fr}
+  .job-card{grid-template-columns:44px minmax(0,1fr);gap:8px 14px}
+  .job-action{grid-column:2}
+  .btn-apply{width:auto;justify-content:flex-start;margin-top:6px}
+  .req-grid,.perks-grid{grid-template-columns:1fr}
+  .page-wrap{grid-template-columns:1fr}
+  .form-info{position:static}
+}
+@media(max-width:640px){
+  .job-card{padding:24px 0}
+  .job-card::after{inset:0 -12px}
+  .page-hero-badge-row{display:flex;flex-wrap:wrap;gap:6px 0}
+}
+
+.page-hero h1{max-width:none}
+.sec-h2{max-width:20ch}
+.perks-sec .sec-h2{max-width:none}
