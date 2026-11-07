@@ -650,7 +650,7 @@
     .expense-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
   }
 
-  /* ═══ Perbandingan pendapatan (owner only) ═══ */
+  /* ═══ Performa pendapatan (owner only) ═══ */
   .rev-compare{ --pos:#0E7A4B; margin-bottom:20px; }
   html[data-theme="dark"] .rev-compare{ --pos:#34D399; }
   .rev-compare[hidden], .rev-view[hidden]{ display:none !important; }
@@ -755,7 +755,7 @@
         </button>
         <button class="nav-item" data-tab="pendapatan" id="navPendapatan" style="display:none">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
-          <span>Perbandingan</span>
+          <span>Performa</span>
         </button>
         <button class="nav-item" data-tab="akun-live">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M17 2l-5 5-5-5"/><circle cx="12" cy="14" r="3"/></svg>
@@ -963,13 +963,13 @@
         </div>
 
         <!-- ═══ AKUN LIVE ═══ -->
-        <!-- Perbandingan Pendapatan — KHUSUS OWNER (tombolnya disembunyikan & datanya gak dihitung buat HRD) -->
+        <!-- Performa Pendapatan — KHUSUS OWNER (tombolnya disembunyikan & datanya gak dihitung buat HRD) -->
         <div class="tab-panel" id="panel-pendapatan">
-          <!-- Perbandingan pendapatan — KHUSUS OWNER (hidden default, dibuka JS hanya kalau role === 'owner') -->
+          <!-- Performa pendapatan — KHUSUS OWNER (hidden default, dibuka JS hanya kalau role === 'owner') -->
           <div class="chart-card rev-compare" id="revCompareCard" hidden>
             <div class="rev-head">
-              <div class="rev-title"><h4 class="rev-title-m">Perbandingan Pendapatan</h4><span class="rev-badge">Khusus owner · tidak terlihat oleh HRD</span></div>
-              <div class="rev-seg" role="tablist" aria-label="Periode perbandingan">
+              <div class="rev-title"><h4 class="rev-title-m">Performa Pendapatan</h4><span class="rev-badge">Khusus owner · tidak terlihat oleh HRD</span></div>
+              <div class="rev-seg" role="tablist" aria-label="Periode performa">
                 <button type="button" role="tab" data-rev-view="bulan" aria-selected="true">Bulan ini</button>
                 <button type="button" role="tab" data-rev-view="tiga" aria-selected="false">3 bulan</button>
               </div>
@@ -1368,7 +1368,7 @@
       riwayat: ['Riwayat Sesi', 'Semua sesi live yang pernah dijalankan'],
       absensi: ['Absensi Karyawan', 'Rekap kehadiran otomatis dari sesi live'],
       keuangan: ['Rekap Keuangan', 'Pendapatan dan hasil penjualan tim — dihitung otomatis dari sesi live'],
-      pendapatan: ['Perbandingan Pendapatan', 'Bulan ini vs bulan lalu dan 3 bulan terakhir — khusus owner'],
+      pendapatan: ['Performa Pendapatan', 'Bulan ini vs bulan lalu dan 3 bulan terakhir — khusus owner'],
       'akun-live': ['Akun Live', 'Kelola akun live tim dan lihat riwayat siapa saja yang live di tiap akun'],
       'riwayat-edit': ['Riwayat Edit', 'Log semua koreksi data penjualan — siapa mengedit, kapan, dan apa yang diubah']
     };
@@ -2542,7 +2542,7 @@
       return { expenses, total };
     }
 
-    // ═══ Perbandingan Pendapatan (Bulan Ini vs Bulan Lalu, dan 3 Bulan) — KHUSUS OWNER ═══
+    // ═══ Performa Pendapatan (Bulan Ini vs Bulan Lalu, dan 3 Bulan) — KHUSUS OWNER ═══
     // NOL tambahan baca Firestore: cuma ngitung ulang dari sessionsBase() (data yang sudah
     // dimuat buat tab Keuangan: realtime 400 sesi terbaru + riwayat lengkap yang di-cache
     // 24 jam), pakai aturan hitung yang sama dengan computeKeuangan() (status 'selesai').
@@ -2567,7 +2567,7 @@
       const navEl = document.getElementById('navPendapatan');
       if (currentUserRole !== 'owner') { card.hidden = true; if (navEl) navEl.style.display = 'none'; return; }
       card.hidden = false;
-      // cuma dihitung & digambar kalau tab "Perbandingan" lagi dibuka (hemat; pas dibuka render() otomatis jalan)
+      // cuma dihitung & digambar kalau tab "Performa" lagi dibuka (hemat; pas dibuka render() otomatis jalan)
       const panelEl = document.getElementById('panel-pendapatan');
       if (panelEl && !panelEl.classList.contains('active')) { revCompareSig = ''; return; }
 
