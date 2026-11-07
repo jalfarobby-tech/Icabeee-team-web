@@ -658,6 +658,9 @@
   .rev-compare .rev-title{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
   .rev-compare .rev-head h4{ margin:0; padding:0; border:0; }
   .rev-compare .rev-badge{ font-size:.7rem; color:var(--muted); }
+  .rev-compare .rev-title{ display:flex; flex-direction:column; gap:2px; }
+  .rev-title-m{ display:none; }
+  @media (max-width:820px){ .rev-title-m{ display:block; } }
   .rev-seg{ display:inline-flex; gap:2px; padding:3px; background:var(--bg); border:1px solid var(--border); border-radius:999px; }
   .rev-seg button{ border:0; background:transparent; color:var(--muted); font:600 .76rem var(--di); padding:6px 14px; border-radius:999px; cursor:pointer; transition:background .2s,color .2s; -webkit-tap-highlight-color:transparent; }
   .rev-seg button[aria-selected="true"]{ background:var(--ink); color:var(--card); }
@@ -749,6 +752,10 @@
         <button class="nav-item" data-tab="keuangan">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 6v.01M18 18v-.01"/></svg>
           <span>Keuangan</span>
+        </button>
+        <button class="nav-item" data-tab="pendapatan" id="navPendapatan" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+          <span>Perbandingan</span>
         </button>
         <button class="nav-item" data-tab="akun-live">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M17 2l-5 5-5-5"/><circle cx="12" cy="14" r="3"/></svg>
@@ -912,48 +919,6 @@
               <button class="btn" id="addExpenseBtn">+ Catat Pengeluaran / Gaji</button>
             </div>
           </div>
-          <!-- Perbandingan pendapatan — KHUSUS OWNER (hidden default, dibuka JS hanya kalau role === 'owner') -->
-          <div class="chart-card rev-compare" id="revCompareCard" hidden>
-            <div class="rev-head">
-              <div class="rev-title"><h4>Perbandingan Pendapatan</h4><span class="rev-badge">Khusus owner</span></div>
-              <div class="rev-seg" role="tablist" aria-label="Periode perbandingan">
-                <button type="button" role="tab" data-rev-view="bulan" aria-selected="true">Bulan ini</button>
-                <button type="button" role="tab" data-rev-view="tiga" aria-selected="false">3 bulan</button>
-              </div>
-            </div>
-            <p class="rev-verdict" id="revVerdict"></p>
-
-            <div class="rev-view" id="revViewBulan">
-              <div class="rev-kpis">
-                <div class="rev-kpi rev-kpi-main">
-                  <span id="revNowLabel">Bulan ini</span>
-                  <b class="rev-kpi-num" id="revNowNum">Rp 0</b>
-                  <span class="rev-delta" id="revDelta">—</span>
-                </div>
-                <div class="rev-kpi"><span id="revPrevSameLabel">Bulan lalu</span><b id="revPrevSame">Rp 0</b><small>di periode yang sama</small></div>
-                <div class="rev-kpi"><span id="revPrevFullLabel">Total bulan lalu</span><b id="revPrevFull">Rp 0</b><small>satu bulan penuh</small></div>
-                <div class="rev-kpi"><span>Proyeksi akhir bulan</span><b id="revProj">—</b><small id="revProjSub">perkiraan</small></div>
-              </div>
-              <div class="chart-wrap rev-chart" id="revChartWrap"><canvas id="revCompareChart"></canvas></div>
-            </div>
-
-            <div class="rev-view" id="revViewTiga" hidden>
-              <div class="rev-kpis">
-                <div class="rev-kpi"><span>Rata-rata per bulan</span><b id="revAvg">—</b><small>3 bulan penuh terakhir</small></div>
-                <div class="rev-kpi"><span>Bulan terbaik</span><b id="revBestVal">—</b><small id="revBestName"></small></div>
-                <div class="rev-kpi"><span>Tren bulan lalu</span><b id="revTrend">—</b><small id="revTrendSub"></small></div>
-              </div>
-              <div class="chart-wrap rev-chart" id="revTigaWrap"><canvas id="revTigaChart"></canvas></div>
-              <div class="rev-table-wrap">
-                <table class="rev-table">
-                  <thead><tr><th>Bulan</th><th>Pendapatan</th><th>Sesi</th><th title="Dibanding bulan sebelumnya">Selisih</th></tr></thead>
-                  <tbody id="revTigaBody"></tbody>
-                </table>
-              </div>
-            </div>
-            <p class="rev-note" id="revNote"></p>
-          </div>
-
           <div class="filter-bar">
             <div><label>Dari Tanggal</label><input type="date" id="keuFilterStart"></div>
             <div><label>Sampai Tanggal</label><input type="date" id="keuFilterEnd"></div>
@@ -998,6 +963,51 @@
         </div>
 
         <!-- ═══ AKUN LIVE ═══ -->
+        <!-- Perbandingan Pendapatan — KHUSUS OWNER (tombolnya disembunyikan & datanya gak dihitung buat HRD) -->
+        <div class="tab-panel" id="panel-pendapatan">
+          <!-- Perbandingan pendapatan — KHUSUS OWNER (hidden default, dibuka JS hanya kalau role === 'owner') -->
+          <div class="chart-card rev-compare" id="revCompareCard" hidden>
+            <div class="rev-head">
+              <div class="rev-title"><h4 class="rev-title-m">Perbandingan Pendapatan</h4><span class="rev-badge">Khusus owner · tidak terlihat oleh HRD</span></div>
+              <div class="rev-seg" role="tablist" aria-label="Periode perbandingan">
+                <button type="button" role="tab" data-rev-view="bulan" aria-selected="true">Bulan ini</button>
+                <button type="button" role="tab" data-rev-view="tiga" aria-selected="false">3 bulan</button>
+              </div>
+            </div>
+            <p class="rev-verdict" id="revVerdict"></p>
+
+            <div class="rev-view" id="revViewBulan">
+              <div class="rev-kpis">
+                <div class="rev-kpi rev-kpi-main">
+                  <span id="revNowLabel">Bulan ini</span>
+                  <b class="rev-kpi-num" id="revNowNum">Rp 0</b>
+                  <span class="rev-delta" id="revDelta">—</span>
+                </div>
+                <div class="rev-kpi"><span id="revPrevSameLabel">Bulan lalu</span><b id="revPrevSame">Rp 0</b><small>di periode yang sama</small></div>
+                <div class="rev-kpi"><span id="revPrevFullLabel">Total bulan lalu</span><b id="revPrevFull">Rp 0</b><small>satu bulan penuh</small></div>
+                <div class="rev-kpi"><span>Proyeksi akhir bulan</span><b id="revProj">—</b><small id="revProjSub">perkiraan</small></div>
+              </div>
+              <div class="chart-wrap rev-chart" id="revChartWrap"><canvas id="revCompareChart"></canvas></div>
+            </div>
+
+            <div class="rev-view" id="revViewTiga" hidden>
+              <div class="rev-kpis">
+                <div class="rev-kpi"><span>Rata-rata per bulan</span><b id="revAvg">—</b><small>3 bulan penuh terakhir</small></div>
+                <div class="rev-kpi"><span>Bulan terbaik</span><b id="revBestVal">—</b><small id="revBestName"></small></div>
+                <div class="rev-kpi"><span>Tren bulan lalu</span><b id="revTrend">—</b><small id="revTrendSub"></small></div>
+              </div>
+              <div class="chart-wrap rev-chart" id="revTigaWrap"><canvas id="revTigaChart"></canvas></div>
+              <div class="rev-table-wrap">
+                <table class="rev-table">
+                  <thead><tr><th>Bulan</th><th>Pendapatan</th><th>Sesi</th><th title="Dibanding bulan sebelumnya">Selisih</th></tr></thead>
+                  <tbody id="revTigaBody"></tbody>
+                </table>
+              </div>
+            </div>
+            <p class="rev-note" id="revNote"></p>
+          </div>
+        </div>
+
         <div class="tab-panel" id="panel-akun-live">
           <div class="section-title">
             Kelola Akun Live
@@ -1358,6 +1368,7 @@
       riwayat: ['Riwayat Sesi', 'Semua sesi live yang pernah dijalankan'],
       absensi: ['Absensi Karyawan', 'Rekap kehadiran otomatis dari sesi live'],
       keuangan: ['Rekap Keuangan', 'Pendapatan dan hasil penjualan tim — dihitung otomatis dari sesi live'],
+      pendapatan: ['Perbandingan Pendapatan', 'Bulan ini vs bulan lalu dan 3 bulan terakhir — khusus owner'],
       'akun-live': ['Akun Live', 'Kelola akun live tim dan lihat riwayat siapa saja yang live di tiap akun'],
       'riwayat-edit': ['Riwayat Edit', 'Log semua koreksi data penjualan — siapa mengedit, kapan, dan apa yang diubah']
     };
@@ -1394,10 +1405,14 @@
         if (keuanganNav) keuanganNav.style.display = 'none';
         const keuBottom = document.querySelector('#bottomNav [data-go="keuangan"]');
         if (keuBottom) keuBottom.style.display = 'none';
+        const pendNav = document.getElementById('navPendapatan');
+        if (pendNav) pendNav.style.display = 'none';
         const backupBtn = document.getElementById('backupAllBtn');
         if (backupBtn) backupBtn.style.display = 'none'; // backup JSON ikut nyeret data expenses
       } else {
         listenExpenses();
+        const pendNav = document.getElementById('navPendapatan');
+        if (pendNav) pendNav.style.display = '';
       }
       listenUsers();
       listenSessions();
@@ -2549,8 +2564,12 @@
     function renderRevCompare(force) {
       const card = document.getElementById('revCompareCard');
       if (!card) return;
-      if (currentUserRole !== 'owner') { card.hidden = true; return; }
+      const navEl = document.getElementById('navPendapatan');
+      if (currentUserRole !== 'owner') { card.hidden = true; if (navEl) navEl.style.display = 'none'; return; }
       card.hidden = false;
+      // cuma dihitung & digambar kalau tab "Perbandingan" lagi dibuka (hemat; pas dibuka render() otomatis jalan)
+      const panelEl = document.getElementById('panel-pendapatan');
+      if (panelEl && !panelEl.classList.contains('active')) { revCompareSig = ''; return; }
 
       // ── hitung: 5 bulan (1 pembanding + 3 bulan penuh + bulan berjalan), sekali lewat data ──
       const now = new Date();
