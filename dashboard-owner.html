@@ -649,6 +649,55 @@
     }
     .expense-table-wrap tr:has(.empty-state) td{ grid-column:unset; padding-top:0; border-top:none; }
   }
+
+  /* ═══ Performa pendapatan (owner only) ═══ */
+  .rev-compare{ --pos:#0E7A4B; margin-bottom:20px; }
+  html[data-theme="dark"] .rev-compare{ --pos:#34D399; }
+  .rev-compare[hidden], .rev-view[hidden]{ display:none !important; }
+  .rev-compare .rev-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+  .rev-compare .rev-title{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .rev-compare .rev-head h4{ margin:0; padding:0; border:0; }
+  .rev-compare .rev-badge{ font-size:.7rem; color:var(--muted); }
+  .rev-compare .rev-title{ display:flex; flex-direction:column; gap:2px; }
+  .rev-title-m{ display:none; }
+  @media (max-width:820px){ .rev-title-m{ display:block; } }
+  .rev-seg{ display:inline-flex; gap:2px; padding:3px; background:var(--bg); border:1px solid var(--border); border-radius:999px; }
+  .rev-seg button{ border:0; background:transparent; color:var(--muted); font:600 .76rem var(--di); padding:6px 14px; border-radius:999px; cursor:pointer; transition:background .2s,color .2s; -webkit-tap-highlight-color:transparent; }
+  .rev-seg button[aria-selected="true"]{ background:var(--ink); color:var(--card); }
+  .rev-verdict{ font-size:.9rem; line-height:1.6; margin:0 0 14px; }
+  .rev-kpis{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:16px; }
+  .rev-kpi{ display:flex; flex-direction:column; gap:3px; min-width:0; padding:12px 14px; background:var(--bg); border:1px solid var(--border); border-radius:12px; }
+  .rev-kpi > span{ font-size:.72rem; color:var(--muted); }
+  .rev-kpi b{ font-family:var(--mono); font-weight:600; font-size:1.02rem; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .rev-kpi small{ font-size:.68rem; color:var(--muted); }
+  .rev-kpi-main{ grid-column:1/-1; background:transparent; border:0; padding:2px 0 6px; gap:6px; align-items:flex-start; }
+  .rev-kpi-main .rev-kpi-num{ font-size:clamp(1.7rem,6vw,2.4rem); letter-spacing:-.02em; }
+  .rev-delta{ display:inline-flex; align-items:center; font-size:.78rem; font-weight:600; padding:4px 10px; border-radius:999px; background:rgba(100,100,110,.12); color:var(--muted); }
+  .rev-delta.pos, .rev-up{ color:var(--pos); }
+  .rev-delta.neg, .rev-down{ color:var(--neg); }
+  .rev-delta.pos{ background:rgba(14,122,75,.1); }
+  .rev-delta.neg{ background:rgba(180,35,24,.08); }
+  html[data-theme="dark"] .rev-delta.pos{ background:rgba(52,211,153,.14); }
+  html[data-theme="dark"] .rev-delta.neg{ background:rgba(248,113,113,.14); }
+  .rev-chart{ height:230px; }
+  .rev-table-wrap{ margin-top:14px; overflow-x:auto; }
+  .rev-table{ width:100%; border-collapse:collapse; font-size:.8rem; }
+  .rev-table th{ text-align:right; font-weight:600; font-size:.7rem; color:var(--muted); padding:8px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  .rev-table td{ text-align:right; padding:10px 8px; border-bottom:1px solid var(--border); white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .rev-table th:first-child, .rev-table td:first-child{ text-align:left; padding-left:0; }
+  .rev-table th:last-child, .rev-table td:last-child{ padding-right:0; }
+  .rev-table tr:last-child td{ border-bottom:0; }
+  .rev-table td small{ display:block; color:var(--muted); font-size:.68rem; margin:1px 0 0; }
+  .rev-table td.rev-muted{ color:var(--muted); }
+  .rev-note{ font-size:.72rem; color:var(--muted); margin-top:12px; line-height:1.6; }
+  .rev-note .rev-warn{ color:var(--neg); }
+  @media (max-width:700px){
+    .rev-kpis{ grid-template-columns:1fr 1fr; }
+    .rev-kpis > .rev-kpi:not(.rev-kpi-main):last-child{ grid-column:1/-1; }
+    .rev-chart{ height:210px; }
+    .rev-table{ font-size:.76rem; }
+    .rev-table th, .rev-table td{ padding-left:5px; padding-right:5px; }
+  }
 </style>
 </head>
 <body>
@@ -703,6 +752,10 @@
         <button class="nav-item" data-tab="keuangan">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 6v.01M18 18v-.01"/></svg>
           <span>Keuangan</span>
+        </button>
+        <button class="nav-item" data-tab="pendapatan" id="navPendapatan" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+          <span>Performa</span>
         </button>
         <button class="nav-item" data-tab="akun-live">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M17 2l-5 5-5-5"/><circle cx="12" cy="14" r="3"/></svg>
@@ -910,6 +963,51 @@
         </div>
 
         <!-- ═══ AKUN LIVE ═══ -->
+        <!-- Performa Pendapatan — KHUSUS OWNER (tombolnya disembunyikan & datanya gak dihitung buat HRD) -->
+        <div class="tab-panel" id="panel-pendapatan">
+          <!-- Performa pendapatan — KHUSUS OWNER (hidden default, dibuka JS hanya kalau role === 'owner') -->
+          <div class="chart-card rev-compare" id="revCompareCard" hidden>
+            <div class="rev-head">
+              <div class="rev-title"><h4 class="rev-title-m">Performa Pendapatan</h4><span class="rev-badge">Khusus owner · tidak terlihat oleh HRD</span></div>
+              <div class="rev-seg" role="tablist" aria-label="Periode performa">
+                <button type="button" role="tab" data-rev-view="bulan" aria-selected="true">Bulan ini</button>
+                <button type="button" role="tab" data-rev-view="tiga" aria-selected="false">3 bulan</button>
+              </div>
+            </div>
+            <p class="rev-verdict" id="revVerdict"></p>
+
+            <div class="rev-view" id="revViewBulan">
+              <div class="rev-kpis">
+                <div class="rev-kpi rev-kpi-main">
+                  <span id="revNowLabel">Bulan ini</span>
+                  <b class="rev-kpi-num" id="revNowNum">Rp 0</b>
+                  <span class="rev-delta" id="revDelta">—</span>
+                </div>
+                <div class="rev-kpi"><span id="revPrevSameLabel">Bulan lalu</span><b id="revPrevSame">Rp 0</b><small>di periode yang sama</small></div>
+                <div class="rev-kpi"><span id="revPrevFullLabel">Total bulan lalu</span><b id="revPrevFull">Rp 0</b><small>satu bulan penuh</small></div>
+                <div class="rev-kpi"><span>Proyeksi akhir bulan</span><b id="revProj">—</b><small id="revProjSub">perkiraan</small></div>
+              </div>
+              <div class="chart-wrap rev-chart" id="revChartWrap"><canvas id="revCompareChart"></canvas></div>
+            </div>
+
+            <div class="rev-view" id="revViewTiga" hidden>
+              <div class="rev-kpis">
+                <div class="rev-kpi"><span>Rata-rata per bulan</span><b id="revAvg">—</b><small>3 bulan penuh terakhir</small></div>
+                <div class="rev-kpi"><span>Bulan terbaik</span><b id="revBestVal">—</b><small id="revBestName"></small></div>
+                <div class="rev-kpi"><span>Tren bulan lalu</span><b id="revTrend">—</b><small id="revTrendSub"></small></div>
+              </div>
+              <div class="chart-wrap rev-chart" id="revTigaWrap"><canvas id="revTigaChart"></canvas></div>
+              <div class="rev-table-wrap">
+                <table class="rev-table">
+                  <thead><tr><th>Bulan</th><th>Pendapatan</th><th>Sesi</th><th title="Dibanding bulan sebelumnya">Selisih</th></tr></thead>
+                  <tbody id="revTigaBody"></tbody>
+                </table>
+              </div>
+            </div>
+            <p class="rev-note" id="revNote"></p>
+          </div>
+        </div>
+
         <div class="tab-panel" id="panel-akun-live">
           <div class="section-title">
             Kelola Akun Live
@@ -1189,6 +1287,7 @@
     themeToggle.addEventListener('click', () => {
       applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
       renderChart(); renderCompareChart(); renderAccountCompareChart(); renderKeuangan();
+      try { renderRevCompare(true); } catch (e) { console.error(e); }
     });
 
     let allUsers = {};
@@ -1269,6 +1368,7 @@
       riwayat: ['Riwayat Sesi', 'Semua sesi live yang pernah dijalankan'],
       absensi: ['Absensi Karyawan', 'Rekap kehadiran otomatis dari sesi live'],
       keuangan: ['Rekap Keuangan', 'Pendapatan dan hasil penjualan tim — dihitung otomatis dari sesi live'],
+      pendapatan: ['Performa Pendapatan', 'Bulan ini vs bulan lalu dan 3 bulan terakhir — khusus owner'],
       'akun-live': ['Akun Live', 'Kelola akun live tim dan lihat riwayat siapa saja yang live di tiap akun'],
       'riwayat-edit': ['Riwayat Edit', 'Log semua koreksi data penjualan — siapa mengedit, kapan, dan apa yang diubah']
     };
@@ -1305,10 +1405,14 @@
         if (keuanganNav) keuanganNav.style.display = 'none';
         const keuBottom = document.querySelector('#bottomNav [data-go="keuangan"]');
         if (keuBottom) keuBottom.style.display = 'none';
+        const pendNav = document.getElementById('navPendapatan');
+        if (pendNav) pendNav.style.display = 'none';
         const backupBtn = document.getElementById('backupAllBtn');
         if (backupBtn) backupBtn.style.display = 'none'; // backup JSON ikut nyeret data expenses
       } else {
         listenExpenses();
+        const pendNav = document.getElementById('navPendapatan');
+        if (pendNav) pendNav.style.display = '';
       }
       listenUsers();
       listenSessions();
@@ -1729,6 +1833,7 @@
       safeRender('renderSessionsTable', renderSessionsTable);
       safeRender('renderAbsensi', renderAbsensi);
       safeRender('renderKeuangan', renderKeuangan);
+      safeRender('renderRevCompare', renderRevCompare);
       ensureFullSessionsArchive(); // async, jalan di belakang layar — render ulang otomatis kalau ada archive baru
       safeRender('renderRiwayatEditTable', renderRiwayatEditTable);
       safeRender('renderAccountTable', renderAccountTable);
@@ -2435,6 +2540,225 @@
       if (keuFilterEnd) expenses = expenses.filter(e => e.date && e.date.toDate() <= keuFilterEnd);
       const total = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
       return { expenses, total };
+    }
+
+    // ═══ Performa Pendapatan (Bulan Ini vs Bulan Lalu, dan 3 Bulan) — KHUSUS OWNER ═══
+    // NOL tambahan baca Firestore: cuma ngitung ulang dari sessionsBase() (data yang sudah
+    // dimuat buat tab Keuangan: realtime 400 sesi terbaru + riwayat lengkap yang di-cache
+    // 24 jam), pakai aturan hitung yang sama dengan computeKeuangan() (status 'selesai').
+    // Satu kali lewat data (O(n)) dan gambar ulang dilewati kalau angkanya gak berubah.
+    // Buat role HRD fungsi ini langsung keluar & kartunya tetap hidden — gak pernah dihitung.
+    let revCompareChart = null, revTigaChart = null, revCompareSig = '';
+    let revView = 'bulan';
+    try { if (localStorage.getItem('icabeee-rev-view') === 'tiga') revView = 'tiga'; } catch (e) {}
+    function revRp(n) { return 'Rp ' + Math.round(Number(n) || 0).toLocaleString('id-ID'); }
+    function revPct(n) { return Math.abs(n).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + '%'; }
+    function revArrowPct(n) { return (n >= 0 ? '▲ ' : '▼ ') + revPct(n); }
+    function setRevView(v) {
+      revView = v === 'tiga' ? 'tiga' : 'bulan';
+      try { localStorage.setItem('icabeee-rev-view', revView); } catch (e) {}
+      renderRevCompare(true);
+    }
+    document.querySelectorAll('[data-rev-view]').forEach(b => b.addEventListener('click', () => setRevView(b.dataset.revView)));
+
+    function renderRevCompare(force) {
+      const card = document.getElementById('revCompareCard');
+      if (!card) return;
+      const navEl = document.getElementById('navPendapatan');
+      if (currentUserRole !== 'owner') { card.hidden = true; if (navEl) navEl.style.display = 'none'; return; }
+      card.hidden = false;
+      // cuma dihitung & digambar kalau tab "Performa" lagi dibuka (hemat; pas dibuka render() otomatis jalan)
+      const panelEl = document.getElementById('panel-pendapatan');
+      if (panelEl && !panelEl.classList.contains('active')) { revCompareSig = ''; return; }
+
+      // ── hitung: 5 bulan (1 pembanding + 3 bulan penuh + bulan berjalan), sekali lewat data ──
+      const now = new Date();
+      const y = now.getFullYear(), m = now.getMonth(), today = now.getDate();
+      const months = [];
+      for (let i = 4; i >= 0; i--) {
+        const d = new Date(y, m - i, 1);
+        months.push({ date: d, key: d.getFullYear() * 12 + d.getMonth(), total: 0, sesi: 0, isCur: i === 0 });
+      }
+      const idx = new Map(months.map((mo, i) => [mo.key, i]));
+      const cur = months[4], prev = months[3];
+      const daysThis = new Date(y, m + 1, 0).getDate();
+      const daysPrev = new Date(prev.date.getFullYear(), prev.date.getMonth() + 1, 0).getDate();
+      const thisDaily = new Array(daysThis).fill(0), prevDaily = new Array(daysPrev).fill(0);
+      sessionsBase().forEach(s => {
+        if (s.status !== 'selesai' || !s.startTime) return;
+        const d = s.startTime.toDate();
+        const i = idx.get(d.getFullYear() * 12 + d.getMonth());
+        if (i === undefined) return;
+        const rev = Number(s.revenue) || 0;
+        months[i].total += rev; months[i].sesi++;
+        if (i === 4) thisDaily[d.getDate() - 1] += rev;
+        else if (i === 3) prevDaily[d.getDate() - 1] += rev;
+      });
+      const cum = (arr, upTo) => { let t = 0; return arr.map((v, i) => i < upTo ? (t += v) : null); };
+      const cumThis = cum(thisDaily, today), cumPrev = cum(prevDaily, daysPrev);
+      const thisTotal = cur.total, sesiThis = cur.sesi;
+      const sameDay = Math.min(today, daysPrev);
+      const prevSame = cumPrev[sameDay - 1] || 0, prevFull = prev.total;
+      // proyeksi: rata-rata harian × jumlah hari; baru muncul setelah >= 7 hari data (biar gak menyesatkan)
+      const proj = (today >= 7 && thisTotal > 0) ? (today >= daysThis ? thisTotal : thisTotal / today * daysThis) : null;
+      // riwayat lama belum selesai dimuat (cuma 400 sesi terbaru) → angka bulan lalu/3 bulan bisa belum lengkap
+      const partial = !!oldestSyncedSessionDate() && !fullSessionsArchive;
+
+      const sig = [revView, today, months.map(mo => mo.total + ':' + mo.sesi).join(','), prevSame, partial ? 'p' : 'f', chartIsDark() ? 'd' : 'l'].join('|');
+      if (!force && sig === revCompareSig && (revCompareChart || revTigaChart)) return; // gak ada yang berubah
+      revCompareSig = sig;
+
+      const long = (d) => d.toLocaleDateString('id-ID', { month: 'long' });
+      const short = (d) => d.toLocaleDateString('id-ID', { month: 'short' }) + (d.getFullYear() !== y ? ' ' + String(d.getFullYear()).slice(2) : '');
+      const rangeTxt = (n) => n <= 1 ? 'tgl 1' : 'tgl 1–' + n;
+      const font = { size: 10, family: "'IBM Plex Sans', sans-serif" };
+      const acc = chartIsDark() ? '0,194,122' : '61,106,151';
+
+      // ── tab ──
+      document.querySelectorAll('[data-rev-view]').forEach(b => b.setAttribute('aria-selected', b.dataset.revView === revView ? 'true' : 'false'));
+      document.getElementById('revViewBulan').hidden = revView !== 'bulan';
+      document.getElementById('revViewTiga').hidden = revView !== 'tiga';
+      const verdict = document.getElementById('revVerdict');
+
+      if (revCompareChart) { revCompareChart.destroy(); revCompareChart = null; }
+      if (revTigaChart) { revTigaChart.destroy(); revTigaChart = null; }
+
+      if (revView === 'bulan') {
+        // ── tampilan: bulan ini vs bulan lalu (periode yang sama) ──
+        document.getElementById('revNowLabel').textContent = 'Pendapatan ' + long(now) + ' (' + rangeTxt(today) + ')';
+        document.getElementById('revNowNum').textContent = revRp(thisTotal);
+        document.getElementById('revPrevSameLabel').textContent = long(prev.date) + ' (' + rangeTxt(sameDay) + ')';
+        document.getElementById('revPrevSame').textContent = revRp(prevSame);
+        document.getElementById('revPrevFullLabel').textContent = 'Total ' + long(prev.date);
+        document.getElementById('revPrevFull').textContent = revRp(prevFull);
+        const deltaEl = document.getElementById('revDelta');
+        deltaEl.className = 'rev-delta';
+        if (prevSame > 0) {
+          const diff = thisTotal - prevSame, pct = diff / prevSame * 100;
+          deltaEl.classList.add(diff >= 0 ? 'pos' : 'neg');
+          deltaEl.textContent = revArrowPct(pct) + ' · ' + (diff >= 0 ? '+' : '−') + revRp(Math.abs(diff));
+          verdict.textContent = 'Sampai ' + rangeTxt(today).replace('tgl 1–', 'tgl ') + ', pendapatan ' + long(now) + ' ' + (diff >= 0 ? 'lebih tinggi ' : 'lebih rendah ') + revPct(pct) +
+            ' (' + (diff >= 0 ? '+' : '−') + formatRupiahShort(Math.abs(diff)) + ') dibanding periode yang sama di ' + long(prev.date) + '.';
+        } else if (thisTotal > 0) {
+          deltaEl.textContent = 'Belum ada pembanding';
+          verdict.textContent = 'Belum ada data ' + long(prev.date) + ' di periode yang sama untuk dibandingkan.';
+        } else {
+          deltaEl.textContent = 'Belum ada data';
+          verdict.textContent = 'Belum ada pendapatan tercatat bulan ini.';
+        }
+        const projEl = document.getElementById('revProj'), projSub = document.getElementById('revProjSub');
+        if (proj !== null) {
+          projEl.textContent = revRp(proj);
+          if (prevFull > 0) { const pp = (proj - prevFull) / prevFull * 100; projSub.textContent = revArrowPct(pp) + ' dibanding total ' + long(prev.date); projSub.className = pp >= 0 ? 'rev-up' : 'rev-down'; }
+          else { projSub.textContent = 'perkiraan'; projSub.className = ''; }
+        } else { projEl.textContent = '—'; projSub.textContent = 'muncul setelah 7 hari data'; projSub.className = ''; }
+
+        const wrap = document.getElementById('revChartWrap');
+        if (thisTotal === 0 && prevFull === 0) { wrap.style.display = 'none'; }
+        else {
+          wrap.style.display = '';
+          const ctx = document.getElementById('revCompareChart').getContext('2d');
+          revCompareChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: Array.from({ length: Math.max(daysThis, daysPrev) }, (_, i) => String(i + 1)),
+              datasets: [
+                { label: long(prev.date), data: cumPrev, borderColor: chartIsDark() ? '#6B7280' : '#A1A8B3', borderDash: [5, 4], borderWidth: 2, pointRadius: 0, pointHoverRadius: 3, tension: .2, fill: false },
+                { label: long(now), data: cumThis, borderColor: chartAccent(), backgroundColor: chartAreaFill(ctx), fill: true, borderWidth: 2.5, tension: .2, spanGaps: false,
+                  pointRadius: cumThis.map((v, i) => i === today - 1 ? 4 : 0), pointBackgroundColor: chartAccent(), pointHoverRadius: 4 }
+              ]
+            },
+            options: {
+              responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+              plugins: {
+                legend: { display: true, position: 'bottom', labels: { color: chartTextColor(), usePointStyle: true, pointStyle: 'line', boxWidth: 22, boxHeight: 2, font } },
+                tooltip: { ...chartTooltipStyle(), displayColors: true, callbacks: {
+                  title: items => 'Tanggal ' + items[0].label,
+                  label: c => c.parsed.y == null ? null : ' ' + c.dataset.label + ': ' + revRp(c.parsed.y)
+                } }
+              },
+              scales: {
+                y: { beginAtZero: true, border: { display: false }, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 5, callback: v => formatRupiahShort(v), font } },
+                x: { grid: { display: false }, ticks: { color: chartTextColor(), maxTicksLimit: 8, font } }
+              }
+            }
+          });
+        }
+      } else {
+        // ── tampilan: 3 bulan penuh terakhir + bulan berjalan ──
+        const full = months.slice(1, 4);               // 3 bulan penuh
+        const shown = months.slice(1);                 // + bulan berjalan
+        const withData = full.filter(mo => mo.total > 0);
+        const avg = withData.length ? withData.reduce((a, mo) => a + mo.total, 0) / withData.length : null;
+        const best = withData.length ? withData.reduce((a, mo) => mo.total > a.total ? mo : a) : null;
+        const trendPct = (months[2].total > 0) ? (months[3].total - months[2].total) / months[2].total * 100 : null;
+
+        document.getElementById('revAvg').textContent = avg === null ? '—' : revRp(avg);
+        document.getElementById('revBestVal').textContent = best ? revRp(best.total) : '—';
+        document.getElementById('revBestName').textContent = best ? long(best.date) : '';
+        const trendEl = document.getElementById('revTrend');
+        if (trendPct === null) { trendEl.textContent = '—'; trendEl.className = ''; document.getElementById('revTrendSub').textContent = 'belum ada pembanding'; }
+        else {
+          trendEl.textContent = revArrowPct(trendPct); trendEl.className = trendPct >= 0 ? 'rev-up' : 'rev-down';
+          document.getElementById('revTrendSub').textContent = long(prev.date) + ' vs ' + long(months[2].date);
+        }
+        if (avg === null) verdict.textContent = 'Belum cukup data dalam 3 bulan terakhir untuk dibandingkan.';
+        else {
+          let t = 'Rata-rata 3 bulan terakhir ' + formatRupiahShort(avg) + ' per bulan. ' + long(best.date) + ' jadi bulan terbaik (' + formatRupiahShort(best.total) + ').';
+          if (trendPct !== null) t += ' ' + long(prev.date) + ' ' + (trendPct >= 0 ? 'naik ' : 'turun ') + revPct(trendPct) + ' dibanding ' + long(months[2].date) + '.';
+          verdict.textContent = t;
+        }
+
+        // tabel (terbaru di atas) — bulan berjalan sengaja gak dibandingin langsung karena belum penuh
+        const rows = [];
+        for (let i = 4; i >= 1; i--) {
+          const mo = months[i], before = months[i - 1];
+          let dTxt;
+          if (mo.isCur) dTxt = '<span class="rev-muted">berjalan</span>';
+          else if (before.total > 0) { const pc = (mo.total - before.total) / before.total * 100; dTxt = '<span class="' + (pc >= 0 ? 'rev-up' : 'rev-down') + '">' + revArrowPct(pc) + '</span>'; }
+          else dTxt = '<span class="rev-muted">—</span>';
+          rows.push('<tr><td>' + esc(long(mo.date)) + (mo.isCur ? '<small>s/d tgl ' + today + '</small>' : '') + '</td><td>' + revRp(mo.total) + '</td><td>' + mo.sesi + '</td><td>' + dTxt + '</td></tr>');
+        }
+        document.getElementById('revTigaBody').innerHTML = rows.join('');
+
+        const wrap = document.getElementById('revTigaWrap');
+        if (shown.every(mo => mo.total === 0)) { wrap.style.display = 'none'; }
+        else {
+          wrap.style.display = '';
+          const hasProj = proj !== null && proj > thisTotal;
+          const ctx = document.getElementById('revTigaChart').getContext('2d');
+          revTigaChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: shown.map(mo => short(mo.date) + (mo.isCur ? '*' : '')),
+              datasets: [
+                { label: 'Aktual', data: shown.map(mo => mo.total), backgroundColor: shown.map(mo => mo.isCur ? 'rgba(' + acc + ',1)' : 'rgba(' + acc + ',.5)'), borderRadius: 6, maxBarThickness: 56, stack: 's' },
+                { label: 'Perkiraan sisa bulan', data: shown.map(mo => (mo.isCur && hasProj) ? proj - thisTotal : 0), backgroundColor: 'rgba(' + acc + ',.16)', borderColor: 'rgba(' + acc + ',.6)', borderWidth: 1, borderRadius: 6, maxBarThickness: 56, stack: 's' }
+              ]
+            },
+            options: {
+              responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+              plugins: {
+                legend: { display: hasProj, position: 'bottom', labels: { color: chartTextColor(), usePointStyle: true, boxWidth: 8, font } },
+                tooltip: { ...chartTooltipStyle(), displayColors: false, callbacks: {
+                  title: items => long(shown[items[0].dataIndex].date) + (shown[items[0].dataIndex].isCur ? ' (berjalan)' : ''),
+                  label: c => c.parsed.y > 0 ? ' ' + c.dataset.label + ': ' + revRp(c.parsed.y) : null
+                } }
+              },
+              scales: {
+                y: { stacked: true, beginAtZero: true, border: { display: false }, grid: { color: chartGridColor() }, ticks: { color: chartTextColor(), maxTicksLimit: 5, callback: v => formatRupiahShort(v), font } },
+                x: { stacked: true, grid: { display: false }, ticks: { color: chartTextColor(), font } }
+              }
+            }
+          });
+        }
+      }
+
+      document.getElementById('revNote').innerHTML =
+        (partial ? '<span class="rev-warn">Riwayat lama masih dimuat — angka bulan sebelumnya bisa belum lengkap, akan diperbarui otomatis.</span><br>' : '') +
+        'Dihitung dari sesi berstatus selesai, sama seperti tab Keuangan.' +
+        (revView === 'bulan' ? ' Bulan lalu dibandingkan pada rentang tanggal yang sama; proyeksi = rata-rata harian × jumlah hari (hanya perkiraan).'
+                             : ' Bulan berjalan (*) belum penuh, jadi tidak dibandingkan langsung; bagian pucat adalah perkiraan sisa bulan.');
     }
 
     function renderKeuangan() {
