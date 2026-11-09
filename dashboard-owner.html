@@ -24,6 +24,7 @@
     }
   });
 </script>
+<script>try{var _r=document.documentElement,_s=localStorage.getItem('icabeee-style');if(_s==='glass'){_r.setAttribute('data-style','glass');var _t=localStorage.getItem('icabeee-theme');if(_t)_r.setAttribute('data-theme',_t);}}catch(e){}</script>
 <style>
   :root{
     --ink:#111114; --muted:#6B7280; --border:#E5E7EB; --coral:#3D6A97;
@@ -696,6 +697,132 @@
     .rev-table{ font-size:.76rem; }
     .rev-table th, .rev-table td{ padding-left:5px; padding-right:5px; }
   }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     TEMA KACA (opsional) — aktif hanya kalau <html data-style="glass">.
+     Default MATI: tampilan standar tidak berubah. Cuma CSS + variabel,
+     tidak menyentuh logika. Blur (backdrop-filter) sengaja dipakai hanya
+     di permukaan yang menimpa konten (header, drawer, nav bawah, modal)
+     biar ringan di HP Android; kartu cukup transparan + highlight tepi.
+     ═══════════════════════════════════════════════════════════════════ */
+  html[data-style="glass"]{
+    --ink:#0B1F33; --muted:#3F586D; --border:rgba(255,255,255,.7); --bg:#E9F4FB; --card:rgba(255,255,255,.58); --coral:#076585;
+    --glass-shadow:0 8px 28px rgba(12,70,105,.14); --glass-hi:inset 0 1px 0 rgba(255,255,255,.75);
+    --glass-solid:rgba(244,250,254,.92); --glass-bar:rgba(255,255,255,.5); --glass-soft:rgba(255,255,255,.42);
+    --glass-accent:linear-gradient(135deg,#1479AE,#0F5CA3);
+    background:#CFE6F5;
+  }
+  html[data-style="glass"][data-theme="dark"]{
+    --ink:#EAF6FF; --muted:#A9C2D3; --border:rgba(255,255,255,.14); --bg:#071722; --card:rgba(255,255,255,.07); --coral:#38D0F0;
+    --glass-shadow:0 8px 28px rgba(0,0,0,.35); --glass-hi:inset 0 1px 0 rgba(255,255,255,.12);
+    --glass-solid:rgba(9,32,47,.94); --glass-bar:rgba(8,28,42,.62); --glass-soft:rgba(255,255,255,.06);
+    background:#06141F;
+  }
+  html[data-style="glass"] body{ background:transparent; }
+  html[data-style="glass"] body::before{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(900px 600px at 12% -5%, rgba(255,255,255,.85), transparent 60%),
+      radial-gradient(800px 700px at 100% 25%, rgba(120,200,230,.7), transparent 58%),
+      linear-gradient(160deg,#DCEEFB 0%,#A9D8EC 48%,#7EC3DD 100%);
+  }
+  html[data-style="glass"][data-theme="dark"] body::before{
+    background:
+      radial-gradient(900px 600px at 10% -10%, rgba(34,150,190,.42), transparent 60%),
+      radial-gradient(800px 700px at 100% 30%, rgba(16,110,140,.5), transparent 56%),
+      linear-gradient(160deg,#061521 0%,#08283A 55%,#0A3D52 100%);
+  }
+
+  /* kartu: transparan + tepi atas menyala + bayangan lembut */
+  html[data-style="glass"] :is(.stat-card,.live-now-card,.chart-card,.emp-table-wrap,.filter-bar){
+    background:var(--card); border:1px solid var(--border); border-radius:20px;
+    box-shadow:var(--glass-shadow), var(--glass-hi);
+    transition:transform .4s var(--ease), box-shadow .4s var(--ease), background .2s;
+  }
+  html[data-style="glass"] .stat-card{ padding:20px; }
+  html[data-style="glass"] .stat-num{ letter-spacing:-.02em; }
+  html[data-style="glass"] :is(.chart-card,.live-now-card) h4{ border-bottom-color:var(--border); }
+
+  /* sidebar & header */
+  html[data-style="glass"] .sidebar{ background:var(--glass-soft); border-right:1px solid var(--border); }
+  html[data-style="glass"] .sidebar-logo, html[data-style="glass"] .sidebar-foot{ border-color:var(--border); }
+  html[data-style="glass"] .main-header{
+    background:var(--glass-bar); border-bottom:1px solid var(--border);
+    -webkit-backdrop-filter:blur(14px) saturate(150%); backdrop-filter:blur(14px) saturate(150%);
+  }
+  html[data-style="glass"] .nav-item{ border-radius:12px; }
+  html[data-style="glass"] .nav-item:hover{ background:var(--glass-soft); }
+  html[data-style="glass"] .nav-item.active{ background:var(--glass-accent); color:#fff; box-shadow:0 6px 16px rgba(15,92,163,.35); }
+  html[data-style="glass"] .icon-btn{ background:var(--card); border-color:var(--border); border-radius:12px; }
+  html[data-style="glass"] .sidebar-role{ background:rgba(27,127,208,.14); }
+
+  /* tombol */
+  html[data-style="glass"] .btn:not(.ghost){ background:var(--glass-accent); border-color:transparent; color:#fff; border-radius:10px; }
+  html[data-style="glass"] .btn.ghost{ background:var(--card); border-color:var(--border); color:var(--ink); border-radius:10px; }
+  html[data-style="glass"] :is(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]),select,textarea){
+    background:rgba(255,255,255,.55); border-color:rgba(255,255,255,.85); color:var(--ink);
+  }
+  html[data-style="glass"][data-theme="dark"] :is(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]),select,textarea){
+    background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.16);
+  }
+  html[data-style="glass"] select option{ background:#fff; color:#0B1F33; }
+  html[data-style="glass"][data-theme="dark"] select option{ background:#0B2233; color:#EAF6FF; }
+  html[data-style="glass"] th{ background:var(--glass-soft); }
+
+  /* kartu Performa */
+  html[data-style="glass"] .rev-kpi{ background:var(--glass-soft); border-color:var(--border); border-radius:14px; }
+  html[data-style="glass"] .rev-seg{ background:var(--glass-soft); border-color:var(--border); }
+  html[data-style="glass"] .rev-seg button[aria-selected="true"]{ background:var(--glass-accent); color:#fff; }
+
+  /* permukaan yang menimpa konten: baru di sini blur dipakai */
+  html[data-style="glass"] :is(.modal,.notif-panel){
+    background:var(--glass-solid); border:1px solid var(--border); border-radius:22px;
+    -webkit-backdrop-filter:blur(20px) saturate(150%); backdrop-filter:blur(20px) saturate(150%);
+  }
+  html[data-style="glass"] .modal-overlay{ background:rgba(6,32,52,.38); }
+
+  /* hover angkat hanya di perangkat dengan mouse & kalau animasi tidak dikurangi */
+  @media (hover:hover) and (prefers-reduced-motion:no-preference){
+    html[data-style="glass"] :is(.stat-card,.chart-card,.live-now-card):hover{ transform:translateY(-3px); box-shadow:0 16px 38px rgba(12,70,105,.2), var(--glass-hi); }
+    html[data-style="glass"][data-theme="dark"] :is(.stat-card,.chart-card,.live-now-card):hover{ box-shadow:0 16px 38px rgba(0,0,0,.45), var(--glass-hi); }
+  }
+  @media (prefers-reduced-motion:reduce){ html[data-style="glass"] :is(.stat-card,.chart-card,.live-now-card){ transition:none; } }
+
+  @media (max-width:820px){
+    html[data-style="glass"] .sidebar{ background:var(--glass-solid); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
+    html[data-style="glass"] .bottom-nav{
+      background:var(--glass-bar); border-top:1px solid var(--border);
+      -webkit-backdrop-filter:blur(14px) saturate(150%); backdrop-filter:blur(14px) saturate(150%);
+    }
+    html[data-style="glass"] .bottom-nav button.active{ color:var(--coral); }
+    html[data-style="glass"] :is(.stat-card,.chart-card,.live-now-card,.filter-bar){ border-radius:18px; }
+  }
+  @media (max-width:640px){
+    html[data-style="glass"] .emp-table-wrap{ background:none; border:none; box-shadow:none; border-radius:0; }
+  }
+
+  /* cadangan: browser tanpa backdrop-filter / pengguna minta transparansi dikurangi → permukaan padat */
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    html[data-style="glass"] .main-header, html[data-style="glass"] .bottom-nav{ background:var(--glass-solid); }
+  }
+  @media (prefers-reduced-transparency:reduce){
+    html[data-style="glass"]{ --card:rgba(255,255,255,.9); --glass-bar:rgba(255,255,255,.96); --glass-soft:rgba(255,255,255,.7); }
+    html[data-style="glass"][data-theme="dark"]{ --card:rgba(16,44,62,.95); --glass-bar:rgba(9,32,47,.97); --glass-soft:rgba(255,255,255,.1); }
+    html[data-style="glass"] *{ -webkit-backdrop-filter:none !important; backdrop-filter:none !important; }
+  }
+
+  /* ═══ Sapaan & pemberitahuan tampilan baru ═══ */
+  .greet{ margin-bottom:18px; }
+  .greet h2{ font-family:var(--df); font-weight:800; font-size:clamp(1.35rem,3.6vw,1.8rem); letter-spacing:-.02em; line-height:1.2; }
+  .greet p{ font-size:.86rem; color:var(--muted); margin-top:4px; min-height:1.2em; }
+  .tema-note{ display:flex; align-items:center; justify-content:space-between; gap:14px 20px; flex-wrap:wrap; padding:16px 18px; margin-bottom:18px; background:var(--card); border:1px solid var(--border); border-radius:14px; }
+  .tema-note[hidden]{ display:none !important; }
+  .tema-note-body{ flex:1 1 320px; min-width:0; }
+  .tema-note-body strong{ font-family:var(--df); font-size:.92rem; }
+  .tema-note-body p{ font-size:.82rem; line-height:1.6; color:var(--muted); margin-top:4px; max-width:62ch; }
+  .tema-note-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  html[data-style="glass"] .tema-note{ border-radius:20px; box-shadow:var(--glass-shadow), var(--glass-hi); }
+  @media (max-width:640px){ .tema-note-actions{ width:100%; } .tema-note-actions .btn{ flex:1 1 auto; } }
 </style>
 </head>
 <body>
@@ -775,6 +902,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
           <span id="themeLabel">Mode Gelap</span>
         </button>
+        <button class="icon-btn" id="glassToggle" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M7 14c2-3 4-3 6-1s3 2 4 0"/></svg>
+          <span id="glassLabel">Tema Kaca</span>
+        </button>
         <button class="icon-btn" id="logoutBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           <span>Keluar</span>
@@ -797,6 +928,21 @@
 
         <!-- ═══ RINGKASAN ═══ -->
         <div class="tab-panel active" id="panel-ringkasan">
+          <!-- pemberitahuan tampilan baru: khusus owner, sekali saja (disembunyikan; dibuka JS) -->
+          <div class="tema-note" id="temaNote" hidden role="region" aria-label="Pemberitahuan tampilan baru">
+            <div class="tema-note-body">
+              <strong>Tampilan baru dashboard</strong>
+              <p>Dashboard sekarang memakai tampilan kaca yang lebih segar dan nyaman dibaca. Kalau kurang cocok, kamu bisa kembali ke tampilan lama kapan saja lewat tombol “Tema Standar” di menu samping (di HP: menu “Lainnya”).</p>
+            </div>
+            <div class="tema-note-actions">
+              <button class="btn" id="temaKeep" type="button">Oke, pakai tampilan ini</button>
+              <button class="btn ghost" id="temaRevert" type="button">Kembali ke tampilan lama</button>
+            </div>
+          </div>
+          <div class="greet">
+            <h2 id="greetTitle">Selamat datang</h2>
+            <p id="greetSub"></p>
+          </div>
           <div class="stat-grid">
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="stat-num" data-count="0" id="statTotalEmp">0</div><div class="stat-label">Total Karyawan</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></div><div class="stat-num" data-count="0" id="statLiveNow">0</div><div class="stat-label">Sedang Live</div></div>
@@ -1288,6 +1434,57 @@
       try { renderRevCompare(true); } catch (e) { console.error(e); }
     });
 
+    // ── tema kaca (opsional; default mati, pilihan disimpan per perangkat) ──
+    function isGlass() { return root.getAttribute('data-style') === 'glass'; }
+    const glassLabel = document.getElementById('glassLabel');
+    // persist=false dipakai saat halaman dibuka: tidak menulis apa pun, supaya
+    // "belum pernah memilih" (null) tetap bisa dibedakan dari "memilih tampilan lama" ('').
+    function applyGlass(on, persist) {
+      if (on) root.setAttribute('data-style', 'glass'); else root.removeAttribute('data-style');
+      if (glassLabel) glassLabel.textContent = on ? 'Tema Standar' : 'Tema Kaca';
+      if (persist !== false) { try { localStorage.setItem('icabeee-style', on ? 'glass' : ''); } catch (e) {} }
+    }
+    function refreshAfterStyle() {
+      renderChart(); renderCompareChart(); renderAccountCompareChart(); renderKeuangan();
+      try { renderRevCompare(true); } catch (e) { console.error(e); }
+    }
+    let glassSaved = false;
+    try { glassSaved = localStorage.getItem('icabeee-style') === 'glass'; } catch (e) {}
+    applyGlass(glassSaved, false);
+    document.getElementById('glassToggle').addEventListener('click', () => {
+      applyGlass(!isGlass());
+      refreshAfterStyle();
+    });
+
+    // ── sapaan ──
+    function renderGreeting() {
+      const t = document.getElementById('greetTitle'), sub = document.getElementById('greetSub');
+      if (!t || !sub || !currentOwnerName) return;
+      t.textContent = 'Halo, ' + String(currentOwnerName).trim().split(/\s+/)[0];
+      const live = allSessions.filter(x => x.status === 'active').length;
+      sub.textContent = live > 0 ? live + ' karyawan sedang live sekarang.' : 'Belum ada karyawan yang sedang live.';
+    }
+
+    // ── pemberitahuan tampilan baru: khusus owner, SEKALI per perangkat ──
+    // Hanya jalan kalau owner belum pernah memilih tampilan (storage kosong) dan belum pernah
+    // melihat pemberitahuan ini. Begitu tampil, langsung ditandai "sudah" (dan tampilan baru
+    // disimpan), jadi gak akan muncul lagi di kunjungan berikutnya. Semua di localStorage:
+    // NOL baca/tulis Firestore.
+    function initStyleIntro() {
+      const note = document.getElementById('temaNote');
+      if (!note) return;
+      let saved = null, seen = null;
+      try { saved = localStorage.getItem('icabeee-style'); seen = localStorage.getItem('icabeee-style-intro'); } catch (e) { return; }
+      if (seen) return;
+      try { localStorage.setItem('icabeee-style-intro', '1'); } catch (e) {}
+      if (saved !== null) return;           // sudah pernah memilih sendiri (kaca/standar) -> jangan diganggu
+      applyGlass(true);                     // pakai tampilan baru & simpan
+      refreshAfterStyle();
+      note.hidden = false;
+      document.getElementById('temaKeep').onclick = () => { note.hidden = true; };
+      document.getElementById('temaRevert').onclick = () => { applyGlass(false); note.hidden = true; refreshAfterStyle(); };
+    }
+
     let allUsers = {};
     let allSessions = [];
     let allExpenses = [];
@@ -1411,6 +1608,7 @@
         listenExpenses();
         const pendNav = document.getElementById('navPendapatan');
         if (pendNav) pendNav.style.display = '';
+        initStyleIntro();
       }
       listenUsers();
       listenSessions();
@@ -1830,6 +2028,7 @@
       safeRender('renderFormerEmployeeTable', renderFormerEmployeeTable);
       safeRender('renderSessionsTable', renderSessionsTable);
       safeRender('renderAbsensi', renderAbsensi);
+      safeRender('renderGreeting', renderGreeting);
       safeRender('renderKeuangan', renderKeuangan);
       safeRender('renderRevCompare', renderRevCompare);
       ensureFullSessionsArchive(); // async, jalan di belakang layar — render ulang otomatis kalau ada archive baru
@@ -1962,11 +2161,18 @@
     });
 
     function chartTextColor() { return getComputedStyle(root).getPropertyValue('--muted').trim() || '#6B7280'; }
-    function chartGridColor() { return root.getAttribute('data-theme') === 'dark' ? '#1F1F1F' : '#F4F4F5'; }
+    function chartGridColor() { if (isGlass()) return chartIsDark() ? 'rgba(255,255,255,.08)' : 'rgba(11,31,51,.09)'; return root.getAttribute('data-theme') === 'dark' ? '#1F1F1F' : '#F4F4F5'; }
     function chartIsDark() { return root.getAttribute('data-theme') === 'dark'; }
-    function chartAccent() { return chartIsDark() ? '#00C27A' : '#3D6A97'; }
+    function chartAccent() { if (isGlass()) return chartIsDark() ? '#38D0F0' : '#0A7EA4'; return chartIsDark() ? '#00C27A' : '#3D6A97'; }
     function chartBarColor() { return chartAccent(); }
     function chartAreaFill(ctx) {
+      if (isGlass()) {
+        const gh = (ctx && ctx.canvas && ctx.canvas.clientHeight) || 260;
+        const gg = ctx.createLinearGradient(0, 0, 0, gh);
+        const gc = chartIsDark() ? '56,208,240' : '10,126,164';
+        gg.addColorStop(0, 'rgba(' + gc + ',.32)'); gg.addColorStop(1, 'rgba(' + gc + ',0)');
+        return gg;
+      }
       const h = (ctx && ctx.canvas && ctx.canvas.clientHeight) || 260;
       const g = ctx.createLinearGradient(0, 0, 0, h);
       const rgb = chartIsDark() ? '0,194,122' : '61,106,151';
