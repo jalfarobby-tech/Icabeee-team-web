@@ -812,6 +812,19 @@
     html[data-style="glass"][data-theme="dark"]{ --card:rgba(16,44,62,.95); --glass-bar:rgba(9,32,47,.97); --glass-soft:rgba(255,255,255,.1); }
     html[data-style="glass"] *{ -webkit-backdrop-filter:none !important; backdrop-filter:none !important; }
   }
+
+  /* ═══ Sapaan & pemberitahuan tampilan baru ═══ */
+  .greet{ margin-bottom:18px; }
+  .greet h2{ font-family:var(--df); font-weight:800; font-size:clamp(1.35rem,3.6vw,1.8rem); letter-spacing:-.02em; line-height:1.2; }
+  .greet p{ font-size:.86rem; color:var(--muted); margin-top:4px; min-height:1.2em; }
+  .tema-note{ display:flex; align-items:center; justify-content:space-between; gap:14px 20px; flex-wrap:wrap; padding:16px 18px; margin-bottom:18px; background:var(--card); border:1px solid var(--border); border-radius:14px; }
+  .tema-note[hidden]{ display:none !important; }
+  .tema-note-body{ flex:1 1 320px; min-width:0; }
+  .tema-note-body strong{ font-family:var(--df); font-size:.92rem; }
+  .tema-note-body p{ font-size:.82rem; line-height:1.6; color:var(--muted); margin-top:4px; max-width:62ch; }
+  .tema-note-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  html[data-style="glass"] .tema-note{ border-radius:20px; box-shadow:var(--glass-shadow), var(--glass-hi); }
+  @media (max-width:640px){ .tema-note-actions{ width:100%; } .tema-note-actions .btn{ flex:1 1 auto; } }
 </style>
 </head>
 <body>
@@ -917,6 +930,21 @@
 
         <!-- ═══ RINGKASAN ═══ -->
         <div class="tab-panel active" id="panel-ringkasan">
+          <!-- pemberitahuan tampilan baru: khusus owner, sekali saja (disembunyikan; dibuka JS) -->
+          <div class="tema-note" id="temaNote" hidden role="region" aria-label="Pemberitahuan tampilan baru">
+            <div class="tema-note-body">
+              <strong>Tampilan baru dashboard</strong>
+              <p>Dashboard sekarang memakai tampilan kaca yang lebih segar dan nyaman dibaca. Kalau kurang cocok, kamu bisa kembali ke tampilan lama kapan saja lewat tombol “Tema Standar” di menu samping (di HP: menu “Lainnya”).</p>
+            </div>
+            <div class="tema-note-actions">
+              <button class="btn" id="temaKeep" type="button">Oke, pakai tampilan ini</button>
+              <button class="btn ghost" id="temaRevert" type="button">Kembali ke tampilan lama</button>
+            </div>
+          </div>
+          <div class="greet">
+            <h2 id="greetTitle">Selamat datang</h2>
+            <p id="greetSub"></p>
+          </div>
           <div class="stat-grid">
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="stat-num" data-count="0" id="statTotalEmp">0</div><div class="stat-label">Total Karyawan</div></div>
             <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></div><div class="stat-num" data-count="0" id="statLiveNow">0</div><div class="stat-label">Sedang Live</div></div>
@@ -1411,19 +1439,53 @@
     // ── tema kaca (opsional; default mati, pilihan disimpan per perangkat) ──
     function isGlass() { return root.getAttribute('data-style') === 'glass'; }
     const glassLabel = document.getElementById('glassLabel');
-    function applyGlass(on) {
+    // persist=false dipakai saat halaman dibuka: tidak menulis apa pun, supaya
+    // "belum pernah memilih" (null) tetap bisa dibedakan dari "memilih tampilan lama" ('').
+    function applyGlass(on, persist) {
       if (on) root.setAttribute('data-style', 'glass'); else root.removeAttribute('data-style');
       if (glassLabel) glassLabel.textContent = on ? 'Tema Standar' : 'Tema Kaca';
-      try { localStorage.setItem('icabeee-style', on ? 'glass' : ''); } catch (e) {}
+      if (persist !== false) { try { localStorage.setItem('icabeee-style', on ? 'glass' : ''); } catch (e) {} }
+    }
+    function refreshAfterStyle() {
+      renderChart(); renderCompareChart(); renderAccountCompareChart(); renderKeuangan();
+      try { renderRevCompare(true); } catch (e) { console.error(e); }
     }
     let glassSaved = false;
     try { glassSaved = localStorage.getItem('icabeee-style') === 'glass'; } catch (e) {}
-    applyGlass(glassSaved);
+    applyGlass(glassSaved, false);
     document.getElementById('glassToggle').addEventListener('click', () => {
       applyGlass(!isGlass());
-      renderChart(); renderCompareChart(); renderAccountCompareChart(); renderKeuangan();
-      try { renderRevCompare(true); } catch (e) { console.error(e); }
+      refreshAfterStyle();
     });
+
+    // ── sapaan ──
+    function renderGreeting() {
+      const t = document.getElementById('greetTitle'), sub = document.getElementById('greetSub');
+      if (!t || !sub || !currentOwnerName) return;
+      t.textContent = 'Halo, ' + String(currentOwnerName).trim().split(/\s+/)[0];
+      const live = allSessions.filter(x => x.status === 'active').length;
+      sub.textContent = live > 0 ? live + ' karyawan sedang live sekarang.' : 'Belum ada karyawan yang sedang live.';
+    }
+
+    // ── pemberitahuan tampilan baru: khusus owner, SEKALI per perangkat ──
+    // Hanya jalan kalau owner belum pernah memilih tampilan (storage kosong) dan belum pernah
+    // melihat pemberitahuan ini. Begitu tampil, langsung ditandai "sudah" (dan tampilan baru
+    // disimpan), jadi gak akan muncul lagi di kunjungan berikutnya. Semua di localStorage:
+    // NOL baca/tulis Firestore.
+    function initStyleIntro() {
+      const note = document.getElementById('temaNote');
+      if (!note) return;
+      let saved = null, seen = null;
+      try { saved = localStorage.getItem('icabeee-style'); seen = localStorage.getItem('icabeee-style-intro'); } catch (e) { return; }
+      if (seen) return;
+      try { localStorage.setItem('icabeee-style-intro', '1'); } catch (e) {}
+      if (saved !== null) return;           // sudah pernah memilih sendiri (kaca/standar) -> jangan diganggu
+      applyGlass(true);                     // pakai tampilan baru & simpan
+      refreshAfterStyle();
+      note.hidden = false;
+      document.getElementById('temaKeep').onclick = () => { note.hidden = true; };
+      document.getElementById('temaRevert').onclick = () => { applyGlass(false); note.hidden = true; refreshAfterStyle(); };
+    }
 
     let allUsers = {};
     let allSessions = [];
@@ -1548,6 +1610,7 @@
         listenExpenses();
         const pendNav = document.getElementById('navPendapatan');
         if (pendNav) pendNav.style.display = '';
+        initStyleIntro();
       }
       listenUsers();
       listenSessions();
@@ -1967,6 +2030,7 @@
       safeRender('renderFormerEmployeeTable', renderFormerEmployeeTable);
       safeRender('renderSessionsTable', renderSessionsTable);
       safeRender('renderAbsensi', renderAbsensi);
+      safeRender('renderGreeting', renderGreeting);
       safeRender('renderKeuangan', renderKeuangan);
       safeRender('renderRevCompare', renderRevCompare);
       ensureFullSessionsArchive(); // async, jalan di belakang layar — render ulang otomatis kalau ada archive baru
