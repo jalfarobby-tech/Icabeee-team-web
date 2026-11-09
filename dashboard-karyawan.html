@@ -58,8 +58,8 @@
     display:inline-flex; align-items:center; gap:6px; font-size:.68rem; color:var(--muted); flex-shrink:0;
     margin-left:4px; padding:5px 10px; border-radius:999px; background:var(--soft);
   }
-  .sync-dot{ width:6px; height:6px; border-radius:50%; background:var(--pos); animation:pulse 2s ease infinite; }
-  .sync-dot.offline{ background:var(--neg); animation:none; }
+  .sync-dot{ width:6px; height:6px; border-radius:50%; background:var(--pos); }
+  .sync-dot.offline{ background:var(--neg); }
   .sync-tag.offline{ background:rgba(220,38,38,.12); color:var(--neg); }
   .topbar-actions{ display:flex; gap:8px; flex-shrink:0; }
   .icon-btn{
@@ -98,8 +98,7 @@
   .status-row{ display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:4px; }
   .status-dot{ width:8px; height:8px; border-radius:50%; }
   .status-dot.off{ background:var(--muted); opacity:.55; }
-  .status-dot.on{ background:var(--pos); box-shadow:0 0 0 4px rgba(34,197,94,.18); animation:pulse 1.6s ease infinite; }
-  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.45;} }
+  .status-dot.on{ background:var(--pos); }
   .status-label{ font-size:.8rem; color:var(--muted); font-weight:600; }
   .status-card.is-live .status-label{ color:var(--ink); }
   .timer{ font-family:var(--mono); font-weight:700; font-size:2.7rem; line-height:1; margin:16px 0 22px; font-variant-numeric:tabular-nums; letter-spacing:-.02em; }

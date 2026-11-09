@@ -53,10 +53,6 @@
   /* ═══ wordmark ═══ */
   .brand{ display:flex; align-items:center; justify-content:center; gap:8px; }
   .wordmark{ font-weight:800; font-size:1.3rem; letter-spacing:.03em; }
-  .live-dot{ width:7px; height:7px; border-radius:50%; background:var(--pos); animation:pulse 2s ease infinite; transition:background .25s; }
-  body.state-error .live-dot{ background:var(--neg); animation:none; }
-  body.state-success .live-dot{ animation:none; }
-  @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.4; } }
   .team-label{ text-align:center; font-size:.66rem; font-weight:600; letter-spacing:.24em; color:var(--muted); text-transform:uppercase; margin:6px 0 30px; }
 
   .card{ background:var(--card); border:1px solid var(--border); border-radius:18px; padding:26px 22px 22px; transition:background .2s,border-color .2s; }
@@ -160,7 +156,7 @@
   </button>
 
   <div class="wrap">
-    <div class="brand"><span class="wordmark">ICABEEE</span><span class="live-dot"></span></div>
+    <div class="brand"><span class="wordmark">ICABEEE</span></div>
     <div class="team-label">Team</div>
 
     <div class="card">

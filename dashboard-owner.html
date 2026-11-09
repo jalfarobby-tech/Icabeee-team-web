@@ -94,7 +94,6 @@
 
   .live-now-card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:22px; }
   .live-now-card h4{ font-family:var(--df); font-weight:700; font-size:.92rem; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
-  .live-now-card h4 .pulse{ width:8px; height:8px; border-radius:50%; background:#22C55E; animation:pulseDot 1.6s ease infinite; }
   .live-row{ display:flex; align-items:center; gap:12px; padding:10px 8px; border-bottom:1px solid var(--border); border-radius:10px; transition:background .15s ease; }
   .live-row:hover{ background:rgba(128,128,128,.05); }
   .live-row:last-child{ border-bottom:none; }
@@ -292,7 +291,6 @@
     .sidebar-foot .notif-badge{ margin-left:0; position:absolute; top:8px; right:16px; }
   }
 
-  @keyframes pulseDot{ 0%,100%{ opacity:1; } 50%{ opacity:.4; } }
 
   .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--bg); padding:12px 20px; border-radius:10px; font-size:.83rem; opacity:0; transition:all .3s; z-index:60; pointer-events:none; max-width:90vw; }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
@@ -807,7 +805,7 @@
           </div>
 
           <div class="live-now-card">
-            <h4><span class="pulse"></span> Sedang Live Sekarang</h4>
+            <h4>Sedang Live Sekarang</h4>
             <div id="liveNowList"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg><div>Tidak ada yang sedang live</div></div></div>
           </div>
 
@@ -968,7 +966,7 @@
           <!-- Performa pendapatan — KHUSUS OWNER (hidden default, dibuka JS hanya kalau role === 'owner') -->
           <div class="chart-card rev-compare" id="revCompareCard" hidden>
             <div class="rev-head">
-              <div class="rev-title"><h4 class="rev-title-m">Performa Pendapatan</h4><span class="rev-badge">Khusus owner · tidak terlihat oleh HRD</span></div>
+              <div class="rev-title"><h4 class="rev-title-m">Performa Pendapatan</h4><span class="rev-badge">Khusus owner</span></div>
               <div class="rev-seg" role="tablist" aria-label="Periode performa">
                 <button type="button" role="tab" data-rev-view="bulan" aria-selected="true">Bulan ini</button>
                 <button type="button" role="tab" data-rev-view="tiga" aria-selected="false">3 bulan</button>
