@@ -270,6 +270,47 @@
     .topbar, .status-card, .btn, .modal-overlay, .alert-banner{ display:none !important; }
     body{ background:#fff; padding:0; }
   }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     Rapikan tampilan: tanpa bintik status, tanpa label huruf kapital,
+     tombol utama hitam. Hanya CSS; ID dan skrip tidak diubah.
+     ═══════════════════════════════════════════════════════════════════ */
+  /* overflow-x:hidden di html/body mematikan position:sticky (topbar ikut hilang saat scroll) */
+  html, body{ overflow-x:clip; }
+
+  /* status koneksi: tampil hanya saat offline (tanpa titik) */
+  .sync-tag:not(.offline){ display:none; }
+  .sync-dot{ display:none; }
+  .sync-tag.offline{ padding:5px 12px; font-weight:600; }
+
+  /* status live: tanpa titik & tanpa chip dekoratif; keadaan live ditandai garis tipis di atas kartu */
+  .platform-tag{ display:none; }
+  .status-dot{ display:none; }
+  .status-row{ margin:0 0 2px; }
+  .status-label{ font-size:.86rem; }
+  .status-card{ padding-top:24px; }
+  .status-card.is-live{ box-shadow:inset 0 3px 0 var(--coral); }
+
+  /* label: huruf biasa, bukan kapital kecil berspasi */
+  .account-select-wrap label{ text-transform:none; letter-spacing:0; font-size:.78rem; font-weight:600; color:var(--ink); }
+  .date-heading{ text-transform:none; letter-spacing:0; font-size:.8rem; }
+  .hf-label{ text-transform:none; letter-spacing:0; font-size:.7rem; }
+  .period-card .p-label{ text-transform:none; letter-spacing:0; font-size:.78rem; font-weight:600; }
+
+  /* tombol utama: hitam (bukan hijau bawaan) */
+  .big-btn.start{ background:var(--ink); color:var(--bg); }
+  .modal-btns .confirm{ background:var(--ink); color:var(--bg); }
+
+  /* ringkasan performa: satu kartu dua kolom (Hari ini | Minggu ini) */
+  .period-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:0; background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .period-grid .period-card, .period-grid .period-card:first-child{ border:0; border-radius:0; background:transparent; padding:18px; grid-column:auto; }
+  .period-grid .period-card + .period-card{ border-left:1px solid var(--border); }
+  .period-grid .period-card .p-num,
+  .period-grid .period-card:first-child .p-num,
+  .period-grid .period-card:not(:first-child) .p-num{ font-size:clamp(.95rem,4.2vw,1.45rem); white-space:nowrap; }
+  @media (max-width:640px){
+    .period-grid .period-card:first-child{ grid-column:auto; background:transparent; border:0; padding:18px; }
+  }
 </style>
 </head>
 <body>
@@ -328,7 +369,6 @@
           <div class="period-grid">
             <div class="card period-card"><div class="p-label">Hari Ini</div><div class="p-num" id="periodTodayRevenue">Rp 0</div><div class="p-sub" id="periodTodaySessions">0 sesi</div></div>
             <div class="card period-card"><div class="p-label">Minggu Ini</div><div class="p-num" id="periodWeekRevenue">Rp 0</div><div class="p-sub" id="periodWeekSessions">0 sesi</div></div>
-            <div class="card period-card"><div class="p-label">Total</div><div class="p-num" id="periodAllRevenue">Rp 0</div><div class="p-sub" id="periodAllSessions">0 sesi</div></div>
           </div>
         </div>
 
@@ -823,10 +863,6 @@
       const weekRevenue = weekSessions.reduce((sum, s) => sum + (Number(s.revenue) || 0), 0);
       countUp(document.getElementById('periodWeekRevenue'), weekRevenue);
       document.getElementById('periodWeekSessions').textContent = weekSessions.length + ' sesi';
-
-      const allRevenue = sessions.reduce((sum, s) => sum + (Number(s.revenue) || 0), 0);
-      countUp(document.getElementById('periodAllRevenue'), allRevenue);
-      document.getElementById('periodAllSessions').textContent = sessions.length + ' sesi';
 
     }
 
