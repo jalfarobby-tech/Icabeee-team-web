@@ -867,6 +867,11 @@
     html[data-style="glass"] .bottom-nav button.active{ background:rgba(255,255,255,.55); color:var(--coral); }
     html[data-style="glass"][data-theme="dark"] .bottom-nav button.active{ background:rgba(255,255,255,.12); }
   }
+
+  /* HRD tidak punya izin menghapus (rules: delete hanya owner): sembunyikan tombolnya supaya
+     tidak muncul error "permission denied". Pakai !important karena skrip mengatur display
+     tombol hapus sesi lewat inline style. Pengeditan tetap bisa dilakukan HRD. */
+  html[data-role="hrd"] :is(#deleteSessionBtn, #cleanupProofsBtn, .delete-perm-btn){ display:none !important; }
 </style>
 </head>
 <body>
@@ -1642,6 +1647,7 @@
         if (keuanganNav) keuanganNav.style.display = 'none';
         const keuBottom = document.querySelector('#bottomNav [data-go="keuangan"]');
         if (keuBottom) keuBottom.style.display = 'none';
+        document.documentElement.setAttribute('data-role', 'hrd'); // dipakai CSS untuk menyembunyikan tombol hapus (hanya owner yang boleh menghapus)
         const pendNav = document.getElementById('navPendapatan');
         if (pendNav) pendNav.style.display = 'none';
         const backupBtn = document.getElementById('backupAllBtn');
